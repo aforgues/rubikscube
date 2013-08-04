@@ -2,6 +2,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -219,59 +220,75 @@ public class RubiksCube {
 		return cubes;
 	}
 	
+	// Utiliser uniquement par le main pour le test Ascii
+	public void shuffle(int nbMove) {
+		List<Defined3DMove> moves = generateShuffleMoves(nbMove);
+		
+		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
+		for (int i = 1; i <= moves.size(); i++) {
+			if (VERBAL)
+				System.out.println("Shuffle move number " + i);
+			
+			Defined3DMove definedMove = moves.get(i - 1);
+			
+			// On récupère un des 9 mouvements possibles aléatoirement
+			switch (definedMove.getMove()) {
+				case PITCH:
+					pitch(definedMove.getFaceIndex());
+					break;
+				case DOUBLE_PITCH: // a virer ??
+					pitch(definedMove.getFaceIndex());
+					pitch(definedMove.getFaceIndex());
+					break;
+				case UNPITCH:
+					unpitch(definedMove.getFaceIndex());
+					break;
+				case YAW:
+					yaw(definedMove.getFaceIndex());
+					break;
+				case DOUBLE_YAW:// a virer ??
+					yaw(definedMove.getFaceIndex());
+					yaw(definedMove.getFaceIndex());
+					break;
+				case UNYAW:
+					unyaw(definedMove.getFaceIndex());
+					break;
+				case ROLL:
+					roll(definedMove.getFaceIndex());
+					break;
+				case DOUBLE_ROLL:// a virer ??
+					roll(definedMove.getFaceIndex());
+					roll(definedMove.getFaceIndex());
+					break;
+				case UNROLL:
+					unroll(definedMove.getFaceIndex());
+					break;	
+			}
+		}
+	}
+	
 	/**
 	 * Méthode permettant de mélanger le Rubik's Cube
 	 */
-	public void shuffle(int moves) {
+	public List<Defined3DMove> generateShuffleMoves(int nbMove) {
 		if (VERBAL)
-			System.out.println("Starting shuffling Rubik's Cube in " + moves + " moves ...");
+			System.out.println("Starting shuffling Rubik's Cube in " + nbMove + " moves ...");
+		
+		List<Defined3DMove> moves = new ArrayList<Defined3DMove>(nbMove);
 		
 		Random moveRandomGenerator = new Random();
 		Random faceRandomGenerator = new Random();
 		
 		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
-		for (int i = 1; i <= moves; i++) {
+		for (int i = 1; i <= nbMove; i++) {
 			if (VERBAL)
 				System.out.println("Shuffle move number " + i);
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
-			int move = moveRandomGenerator.nextInt(8);
-			switch (move) {
-				case 0:
-					pitch(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;
-				case 1:
-					int pitchFace = faceRandomGenerator.nextInt(getSize()) + 1;
-					pitch(pitchFace);
-					pitch(pitchFace);
-					break;
-				case 2:
-					unpitch(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;
-				case 3:
-					yaw(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;
-				case 4:
-					int yawFace = faceRandomGenerator.nextInt(getSize()) + 1;
-					yaw(yawFace);
-					yaw(yawFace);
-					break;
-				case 5:
-					unyaw(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;
-				case 6:
-					roll(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;
-				case 7:
-					int rollFace = faceRandomGenerator.nextInt(getSize()) + 1;
-					roll(rollFace);
-					roll(rollFace);
-					break;
-				case 8:
-					unroll(faceRandomGenerator.nextInt(getSize()) + 1);
-					break;	
-			}
+			int move = moveRandomGenerator.nextInt(Move.values().length - 1);
+			moves.add(new Defined3DMove(Defined3DMove.getMove(move), faceRandomGenerator.nextInt(getSize()) + 1));
 		}
+		return moves;
 	}
 	
 	public void setPressedFaceIdentified(Face identifiedFace) {

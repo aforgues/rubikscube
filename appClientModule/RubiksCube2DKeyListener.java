@@ -131,7 +131,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				case PITCH:
 					rc.pitch(definedMove.getFaceIndex());
 					break;
-				case DOUBLE_PITCH: // a virer ??
+				case DOUBLE_PITCH:
 					rc.pitch(definedMove.getFaceIndex());
 					repaintSmoothly(applet);
 					rc.pitch(definedMove.getFaceIndex());
@@ -142,7 +142,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				case YAW:
 					rc.yaw(definedMove.getFaceIndex());
 					break;
-				case DOUBLE_YAW:// a virer ??
+				case DOUBLE_YAW:
 					rc.yaw(definedMove.getFaceIndex());
 					repaintSmoothly(applet);
 					rc.yaw(definedMove.getFaceIndex());
@@ -153,7 +153,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				case ROLL:
 					rc.roll(definedMove.getFaceIndex());
 					break;
-				case DOUBLE_ROLL:// a virer ??
+				case DOUBLE_ROLL:
 					rc.roll(definedMove.getFaceIndex());
 					repaintSmoothly(applet);
 					rc.roll(definedMove.getFaceIndex());
@@ -168,15 +168,15 @@ final class RubiksCube2DKeyListener implements KeyListener {
 	}
 
 	private void repaintSmoothly(RubiksCube2D applet) {
-		try {
-			// FIXME : marche p™ !!
-			Thread.sleep(200);
-			applet.getContentPane().setSize(applet.getWidth(), applet.getHeight());
-			applet.invalidate();
-			applet.validate();
+//		try {
+//			// FIXME : marche p™ !!
+//			Thread.sleep(200);
+//			applet.getContentPane().setSize(applet.getWidth(), applet.getHeight());
+//			applet.invalidate();
+//			applet.validate();
 			applet.repaint();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 	}
 }

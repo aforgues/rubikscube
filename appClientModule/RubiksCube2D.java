@@ -17,19 +17,12 @@ public class RubiksCube2D extends JApplet {
 	static final boolean DEBUG = true;
 	
 	private RubiksCube rubiksCube;
-	private int rubiksCubeSize = 3;
 	
 	public void initRubiksCube(int size) {
-		this.rubiksCube = null;
-		this.repaint();
-		this.rubiksCubeSize = size;
-		this.rubiksCube = new RubiksCube(rubiksCubeSize);
+		this.rubiksCube = new RubiksCube(size);
 	}
 
 	public RubiksCube getRubiksCube() {
-		if (this.rubiksCube == null) {
-			this.initRubiksCube(3);
-		}
 		return this.rubiksCube;
 	}
 	

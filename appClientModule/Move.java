@@ -1,13 +1,48 @@
 
 public enum Move {
+	/**
+	 *  DOWN_TO_UP
+	 */
 	PITCH(0),
+	
+	/**
+	 * @see {@link PITCH}
+	 */
 	DOUBLE_PITCH(1),
-	UNPITCH(2),
+	
+	/**
+	 *  UP_TO_DOWN
+	 */
+	UNPITCH(2),         
+	
+	/**
+	 *  RIGHT_TO_LEFT
+	 */
 	YAW(3),
+	
+	/**
+	 * @see {@link YAW}
+	 */
 	DOUBLE_YAW(4),
+	
+	/**
+	 *  LEFT_TO_RIGHT     
+	 */
 	UNYAW(5),
+	
+	/**
+	 *  CIRCULAR_HOUR
+	 */
 	ROLL(6),
+	
+	/**
+	 * @see {@link ROLL}
+	 */
 	DOUBLE_ROLL(7),
+	
+	/**
+	 *  CIRCULAR_ANTI_HOUR
+	 */
 	UNROLL(8);
 	
 	private int index;

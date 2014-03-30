@@ -5,7 +5,7 @@
  * 
  * @author Arnaud Forgues
  */
-public enum Color {
+public enum Facelet {
     NONE(java.awt.Color.BLACK),
     BLUE(java.awt.Color.BLUE),
     RED(java.awt.Color.RED),
@@ -17,7 +17,7 @@ public enum Color {
     private java.awt.Color awtColor;
     public java.awt.Color getAwtColor() {return this.awtColor;}
     
-    Color(java.awt.Color awtColor) {
+    Facelet(java.awt.Color awtColor) {
     	this.awtColor = awtColor;
     }
     

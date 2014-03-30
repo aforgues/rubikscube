@@ -1,26 +1,26 @@
 
-public class Cube implements Comparable<Cube> {
+public class Cubie implements Comparable<Cubie>, Cloneable {
 	
 	private final int rubiksCubeSize;
 	private ThreeDimCoordinate coord;
 	
-	private Color frontFace;
-   	private Color leftFace;
-    private Color rightFace;
-    private Color bottomFace;
-    private Color topFace;
-    private Color backFace;
+	private Facelet frontFace;
+   	private Facelet leftFace;
+    private Facelet rightFace;
+    private Facelet bottomFace;
+    private Facelet topFace;
+    private Facelet backFace;
     
     public ThreeDimCoordinate getCoordinates() {return coord;}
     
-    public Color getFrontFace()  {return frontFace;}
-	public Color getLeftFace()   {return leftFace;}
-	public Color getRightFace()  {return rightFace;}
-	public Color getBottomFace() {return bottomFace;}
-	public Color getTopFace()    {return topFace;}
-	public Color getBackFace()   {return backFace;}
+    public Facelet getFrontFace()  {return frontFace;}
+	public Facelet getLeftFace()   {return leftFace;}
+	public Facelet getRightFace()  {return rightFace;}
+	public Facelet getBottomFace() {return bottomFace;}
+	public Facelet getTopFace()    {return topFace;}
+	public Facelet getBackFace()   {return backFace;}
     
-	public Color getFace(Face face) {
+	public Facelet getFace(Face face) {
 		switch(face) {
 			case FRONT:
 				return getFrontFace();
@@ -35,17 +35,17 @@ public class Cube implements Comparable<Cube> {
 			case BACK:
 				return getBackFace();
 		}
-		return Color.NONE;
+		return Facelet.NONE;
 	}
 	
-    public Cube(int   rubiksCubeSize,
+    public Cubie(int   rubiksCubeSize,
     			ThreeDimCoordinate coord,
-    		    Color frontFace, 
-    		    Color leftFace, 
-    		    Color rightFace,
-    		    Color bottomFace,
-    		    Color topFace,
-    		    Color backFace) {
+    		    Facelet frontFace, 
+    		    Facelet leftFace, 
+    		    Facelet rightFace,
+    		    Facelet bottomFace,
+    		    Facelet topFace,
+    		    Facelet backFace) {
     	this.rubiksCubeSize = rubiksCubeSize;
     	this.coord      = coord;
         this.frontFace  = frontFace;
@@ -65,7 +65,7 @@ public class Cube implements Comparable<Cube> {
 		this.coord.setZ(this.rubiksCubeSize - oldYCoord + 1);
 		
 		// Circular changes of colors
-		Color oldFrontFace = this.frontFace;
+		Facelet oldFrontFace = this.frontFace;
 
 		// Bottom face becomes front face
 		this.frontFace = this.bottomFace;
@@ -94,7 +94,7 @@ public class Cube implements Comparable<Cube> {
 		this.coord.setX(this.rubiksCubeSize - oldZCoord + 1);
 		
 		// Circular changes of colors
-		Color oldFrontFace = this.frontFace;
+		Facelet oldFrontFace = this.frontFace;
 
 		// Right face becomes front face
 		this.frontFace = this.rightFace;
@@ -122,7 +122,7 @@ public class Cube implements Comparable<Cube> {
 		this.coord.setY(this.rubiksCubeSize - oldXCoord + 1);
 		
 		// Circular changes of colors
-		Color oldTopFace = this.topFace;
+		Facelet oldTopFace = this.topFace;
 
 		// Left face becomes top face
 		this.topFace = this.leftFace;
@@ -142,7 +142,7 @@ public class Cube implements Comparable<Cube> {
 	}
 	
 	@Override
-	public int compareTo(Cube cube) {
+	public int compareTo(Cubie cube) {
 		return this.getCoordinates().compareTo(cube.getCoordinates());
 	}
 	
@@ -151,5 +151,68 @@ public class Cube implements Comparable<Cube> {
 		return "Cube [coord=" + coord + ", frontFace=" + frontFace + ", leftFace=" + leftFace
 				+ ", rightFace=" + rightFace + ", bottomFace=" + bottomFace
 				+ ", topFace=" + topFace + ", backFace=" + backFace + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((backFace == null) ? 0 : backFace.hashCode());
+		result = prime * result
+				+ ((bottomFace == null) ? 0 : bottomFace.hashCode());
+		result = prime * result + ((coord == null) ? 0 : coord.hashCode());
+		result = prime * result
+				+ ((frontFace == null) ? 0 : frontFace.hashCode());
+		result = prime * result
+				+ ((leftFace == null) ? 0 : leftFace.hashCode());
+		result = prime * result
+				+ ((rightFace == null) ? 0 : rightFace.hashCode());
+		result = prime * result + rubiksCubeSize;
+		result = prime * result + ((topFace == null) ? 0 : topFace.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Cubie other = (Cubie) obj;
+		if (backFace != other.backFace)
+			return false;
+		if (bottomFace != other.bottomFace)
+			return false;
+		if (coord == null) {
+			if (other.coord != null)
+				return false;
+		} else if (!coord.equals(other.coord))
+			return false;
+		if (frontFace != other.frontFace)
+			return false;
+		if (leftFace != other.leftFace)
+			return false;
+		if (rightFace != other.rightFace)
+			return false;
+		if (rubiksCubeSize != other.rubiksCubeSize)
+			return false;
+		if (topFace != other.topFace)
+			return false;
+		return true;
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new Cubie(this.rubiksCubeSize, 
+						 (ThreeDimCoordinate) this.coord.clone(), 
+						 this.frontFace, 
+						 this.leftFace, 
+						 this.rightFace, 
+						 this.bottomFace, 
+						 this.topFace, 
+						 this.backFace);
 	}
 }

@@ -1,6 +1,5 @@
 
 public enum Move2D {
-	NONE, 
 	UNYAW,    // LEFT_TO_RIGHT
 	YAW,      // RIGHT_TO_LEFT
 	UNPITCH,  // UP_TO_DOWN

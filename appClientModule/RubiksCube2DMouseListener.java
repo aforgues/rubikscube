@@ -3,6 +3,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 final class RubiksCube2DMouseListener implements MouseListener {
+	// TODO: à supprimer et remplacer par les variables de RubiksCube
 	private Point mouseRightPressedPoint;
 
 	private Move2D getMoveInProgress(RubiksCube rc, Point mouseReleasedPoint) {
@@ -11,7 +12,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			System.out.println("### Mouse released on : " + mouseReleasedPoint);
 		
 		// En cas de click gauche, on est sur un mouvement spécifique d'une face
-		if (rc.hasPointOnPressedFaceIdentified()) {
+		if (! rc.isFaceMove()) {
 			return Move2D.DEFINED;
 		}
 		
@@ -160,7 +161,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 
 	private boolean isPointOnLateralFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
-		boolean ok = this.isALateralFace(face);
+		boolean ok = face != null && face.isALateralFace();
 		if (ok && RubiksCube2D.DEBUG)
 			System.out.println("### Point " + point + " identified on Lateral faces (Left or Right or Top or Bottom)");					
 		return ok;
@@ -168,7 +169,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 
 	private boolean isPointOnVerticalFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
-		boolean ok = this.isAVerticalFace(face);
+		boolean ok = face != null && face.isAVerticalFace();
 		if (ok && RubiksCube2D.DEBUG)
 			System.out.println("### Point " + point + " identified on Vertical faces (Back or Top or Front or Bottom)");					
 		return ok;
@@ -176,7 +177,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 
 	private boolean isPointOnHorizontalFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
-		boolean ok = this.isAnHorizontalFace(face);
+		boolean ok = face != null && face.isAnHorizontalFace();
 		if (ok && RubiksCube2D.DEBUG)
 			System.out.println("### Point " + point + " identified on Horizontal faces (Left or Front or Right)");
 		return ok;
@@ -209,8 +210,10 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		RubiksCube rc = ((RubiksCube2D) arg0.getSource()).getRubiksCube();
 		if (isPointOnRubiksCube(rc, arg0.getPoint())) {
 			if (MouseEvent.BUTTON3 == arg0.getButton()) {
+				rc.setIsFaceMove(true);
 				this.mouseRightPressedPoint = arg0.getPoint();
 				rc.setPressedFaceIdentified(identifyFace(rc, this.mouseRightPressedPoint));
+				rc.setPointOnPressedFaceIdentified(identifyPointCoordOnFace(rc, rc.getPressedFaceIdentified(), arg0.getPoint()));
 				((RubiksCube2D) arg0.getSource()).repaint();
 			}
 			else if (MouseEvent.BUTTON1 == arg0.getButton()) {
@@ -277,7 +280,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			identifiedFace = Face.TOP;
 		}
 			
-		if (RubiksCube2D.DEBUG)
+		if (RubiksCube2D.DEBUG && identifiedFace != null)
 			System.out.println("# Face identified : " + identifiedFace);
 		
 		return identifiedFace;
@@ -287,90 +290,77 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	public void mouseReleased(MouseEvent arg0) {
 		RubiksCube rc = ((RubiksCube2D) arg0.getSource()).getRubiksCube();
 		
-		// TODO: améliorer ce test et homogénéiser la gestion des variables affectées en cas de click gauche ou droite
-		// De plus, on pré-suppose qu'on ne sera dans le cas ou mouseRightPressedPoint est not null seulement dans les case <> DEFINED
-		if (this.mouseRightPressedPoint != null || rc.hasPointOnPressedFaceIdentified()) {
+		if (rc.hasPointOnPressedFaceIdentified()) {
 			Point mouseReleasedPoint = arg0.getPoint();
 			
-			// On tourne une face définie suite à un click gauche
+			// On tourne une face définie suite à un click gauche ou droite
 			rc.setReleasedFaceIdentified(identifyFace(rc, mouseReleasedPoint));
 			rc.setPointOnReleasedFaceIdentified(identifyPointCoordOnFace(rc, rc.getReleasedFaceIdentified(), mouseReleasedPoint));
 			
 			// On ne prend en compte le click relaché que si il se trouve sur le Rubik's Cube
 			if (isPointOnRubiksCube(rc, mouseReleasedPoint)) {
-				switch (getMoveInProgress(rc, mouseReleasedPoint)) {
-					case UNYAW:
-						// On tourne le cube autour de l'axe Y globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.unyaw(i);
-						}
-						break;
-						
-					case YAW:
-						// On tourne le cube autour de l'axe Y globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.yaw(i);
-						}
-						break;
-						
-					case UNPITCH:
-						// On tourne le cube autour de l'axe X globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.unpitch(i);
-						}
-						break;
-						
-					case PITCH:
-						// On tourne le cube autour de l'axe Y globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.pitch(i);
-						}
-						break;
-						
-					case ROLL:
-						// On tourne le cube autour de l'axe Z globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.roll(i);
-						}
-						break;
-						
-					case UNROLL:
-						// On tourne le cube autour de l'axe Z globalement
-						for (int i = 1; i <= rc.getSize(); i++) {
-							rc.unroll(i);
-						}
-						break;
-						
-					case DEFINED:
-						moveRubiksCube(rc);
-						break;
+				Move2D move = getMoveInProgress(rc, mouseReleasedPoint);
+				if (move != null) {
+					switch (move) {
+						case UNYAW:
+							// On tourne le cube autour de l'axe Y globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.unyaw(i);
+							}
+							break;
+							
+						case YAW:
+							// On tourne le cube autour de l'axe Y globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.yaw(i);
+							}
+							break;
+							
+						case UNPITCH:
+							// On tourne le cube autour de l'axe X globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.unpitch(i);
+							}
+							break;
+							
+						case PITCH:
+							// On tourne le cube autour de l'axe Y globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.pitch(i);
+							}
+							break;
+							
+						case ROLL:
+							// On tourne le cube autour de l'axe Z globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.roll(i);
+							}
+							break;
+							
+						case UNROLL:
+							// On tourne le cube autour de l'axe Z globalement
+							for (int i = 1; i <= rc.getSize(); i++) {
+								rc.unroll(i);
+							}
+							break;
+							
+						case DEFINED:
+							moveRubiksCube(rc);
+							break;
+					}
+					
+					RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
+					applet.repaint();
 				}
-				
-				RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
-				applet.repaint();
 			}
 		}
 		
 		// On réinitialise le click droit de la souris
 		this.mouseRightPressedPoint = null;
 		
-		// On réinitialise les face et point identifiée
-		if (rc.hasPressedFaceIdentified()) {
-			rc.setPressedFaceIdentified(null);
-			
-			if (rc.hasPointOnPressedFaceIdentified())
-				rc.setPointOnPressedFaceIdentified(null);
-			
+		if (rc.clearStuffIdentified()) {
 			RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
 			applet.repaint();
-		}
-		
-		if (rc.hasReleasedFaceIdentified()) {
-			rc.setReleasedFaceIdentified(null);
-			
-			if (rc.hasPointOnReleasedFaceIdentified()) {
-				rc.setPointOnReleasedFaceIdentified(null);
-			}
 		}
 	}
 
@@ -387,6 +377,10 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		DefinedMove definedMove = getDefinedMoveInProgress(rc);
 		
 		if (definedMove.getMove() != null) {
+			
+			if (RubiksCube2D.DEBUG) {
+				System.out.println("Move key : " + definedMove);
+			}
 			
 			switch (definedMove.getMove()) {
 				case UNYAW:
@@ -425,6 +419,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		public Move2D getMove() {return this.move;}
 		public void setIndex(int index) {this.index = index;}
 		public int getIndex() {return this.index;}
+		
+		public String toString() {return move.name() + "@" + index;}
 	}
 
 	private DefinedMove getDefinedMoveInProgress(RubiksCube rc) {
@@ -438,8 +434,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		
 		// On doit d'abord voir si les points sont cohérents :
 		// Sur une des faces horizontales
-		if (isAnHorizontalFace(startFace)) {
-			if (isAnHorizontalFace(endFace) && startPoint.getY() == endPoint.getY()) {
+		if (startFace.isAnHorizontalFace()) {
+			if (endFace.isAnHorizontalFace() && startPoint.getY() == endPoint.getY()) {
 				int endPointOffset = 0;
 				if (endFace == Face.FRONT)
 					endPointOffset += size * 1;
@@ -467,8 +463,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			}
 		}
 		// Sur une des faces verticales
-		if (isAVerticalFace(startFace)) {
-			if (isAVerticalFace(endFace) && startPoint.getX() == endPoint.getX()) {
+		if (startFace.isAVerticalFace()) {
+			if (endFace.isAVerticalFace() && startPoint.getX() == endPoint.getX()) {
 				int endPointOffset = 0;
 				if (endFace == Face.TOP)
 					endPointOffset += size * 1;
@@ -500,11 +496,14 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			}
 		}
 		// Sur une des faces latérales
-		if (isALateralFace(startFace)) {
-			if (isALateralFace(endFace)) {
+		if (startFace.isALateralFace()) {
+			if (endFace.isALateralFace()) {
 				// Gestion du mouvement circulaire d'une face avec face de départ = face d'arrivée
 				if (startFace == endFace) {
-					if (isAnHorizontalLateralFace(startFace) && startPoint.getX() == endPoint.getX()) {
+					if (RubiksCube2D.DEBUG)
+						System.out.println("### Circular face move : from a face to the same one");
+				
+					if (startFace.isAnHorizontalLateralFace() && startPoint.getX() == endPoint.getX()) {
 						if (startFace == Face.LEFT) {
 							definedMove.setIndex(Double.valueOf(startPoint.getX()).intValue() + 1);
 
@@ -522,7 +521,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 								definedMove.setMove(Move2D.UNROLL);
 						}
 					}
-					else if (isAVerticalLateralFace(startFace) && startPoint.getY() == endPoint.getY()) {
+					else if (startFace.isAVerticalLateralFace() && startPoint.getY() == endPoint.getY()) {
 						if (startFace == Face.TOP) {
 							definedMove.setIndex(Double.valueOf(startPoint.getY()).intValue() + 1);
 							
@@ -544,36 +543,44 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				// Gestion du mouvement circulaire d'une face avec face de départ <> face d'arrivée
 				else {
 					if (RubiksCube2D.DEBUG)
-						System.out.println("### Circular face move a face to a different one : not yet implemented !");
+						System.out.println("### Circular face move from a specific face to a different one");
+					
+					if (matchStartAndEndFaces(rc, Face.TOP, Face.RIGHT) && startPoint.getY() == (size - endPoint.getX() - 1)) {
+						definedMove.setIndex(Double.valueOf(startPoint.getY()).intValue() + 1);
+						definedMove.setMove(Move2D.ROLL);
+					}
+					else if (matchStartAndEndFaces(rc, Face.RIGHT, Face.BOTTOM) && startPoint.getX() == endPoint.getY()) {
+						definedMove.setIndex(Double.valueOf(size - startPoint.getX()).intValue());
+						definedMove.setMove(Move2D.ROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.BOTTOM, Face.LEFT) && startPoint.getY() == (size - endPoint.getX() - 1)) {
+						definedMove.setIndex(Double.valueOf(size - startPoint.getY()).intValue());
+						definedMove.setMove(Move2D.ROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.LEFT, Face.TOP) && startPoint.getX() == endPoint.getY()) {
+						definedMove.setIndex(Double.valueOf(startPoint.getX()).intValue() + 1);
+						definedMove.setMove(Move2D.ROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.TOP, Face.LEFT) && startPoint.getY() == endPoint.getX()) {
+						definedMove.setIndex(Double.valueOf(startPoint.getY()).intValue() + 1);
+						definedMove.setMove(Move2D.UNROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.LEFT, Face.BOTTOM) && startPoint.getX() == (size - endPoint.getY() - 1)) {
+						definedMove.setIndex(Double.valueOf(startPoint.getX()).intValue() + 1);
+						definedMove.setMove(Move2D.UNROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.BOTTOM, Face.RIGHT) && startPoint.getY() == endPoint.getX()) {
+						definedMove.setIndex(Double.valueOf(size - startPoint.getY()).intValue());
+						definedMove.setMove(Move2D.UNROLL);	
+					}
+					else if (matchStartAndEndFaces(rc, Face.RIGHT, Face.TOP) && startPoint.getX() == (size - endPoint.getY() - 1)) {
+						definedMove.setIndex(Double.valueOf(size - startPoint.getX()).intValue());
+						definedMove.setMove(Move2D.UNROLL);	
+					}
 				}
 			}
 		}
 		
 		return definedMove;
-	}
-
-	// FIXME: déplacer cela dans RubiksCube2DFormat ou dans Face ?
-	private boolean isAnHorizontalFace(Face face) {
-		return Face.LEFT == face || Face.FRONT == face || Face.RIGHT == face;
-	}
-
-	// FIXME: déplacer cela dans RubiksCube2DFormat ou dans Face ?
-	private boolean isAVerticalFace(Face face) {
-		return Face.BACK == face || Face.TOP == face || Face.FRONT == face || Face.BOTTOM == face;
-	}
-
-	// FIXME: déplacer cela dans RubiksCube2DFormat ou dans Face ?
-	private boolean isALateralFace(Face face) {
-		return isAnHorizontalLateralFace(face) || isAVerticalLateralFace(face);
-	}
-
-	// FIXME: déplacer cela dans RubiksCube2DFormat ou dans Face ?
-	private boolean isAnHorizontalLateralFace(Face face) {
-		return Face.LEFT == face || Face.RIGHT == face;
-	}
-
-	// FIXME: déplacer cela dans RubiksCube2DFormat ou dans Face ?
-	private boolean isAVerticalLateralFace(Face face) {
-		return Face.TOP == face || Face.BOTTOM == face;
 	}
 }

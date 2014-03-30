@@ -21,7 +21,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showBackFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(1, Axis.Z);
+		List<Cubie> cubes = this.rubiksCube.getCubes(1, Axis.Z);
 		
 		StringBuilder sb = new StringBuilder("\nBack Face :\n");
 		Collections.sort(cubes);
@@ -36,7 +36,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */
 	@Override
 	protected void showTopFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.Y);
+		List<Cubie> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.Y);
 		
 		StringBuilder sb = new StringBuilder("\nTop Face :\n");
 		Collections.sort(cubes);
@@ -51,7 +51,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showLeftFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(1, Axis.X);
+		List<Cubie> cubes = this.rubiksCube.getCubes(1, Axis.X);
 		
 		StringBuilder sb = new StringBuilder("\nLeft Face :\n");
 		Collections.sort(cubes);
@@ -66,7 +66,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */
 	@Override
 	protected void showFrontFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.Z);
+		List<Cubie> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.Z);
 		
 		StringBuilder sb = new StringBuilder("\nFront Face :\n");
 		Collections.sort(cubes);
@@ -81,7 +81,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showRightFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.X);
+		List<Cubie> cubes = this.rubiksCube.getCubes(this.rubiksCube.getSize(), Axis.X);
 		
 		StringBuilder sb = new StringBuilder("\nRight Face :\n");
 		Collections.sort(cubes);
@@ -97,7 +97,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showBottomFace() {
-		List<Cube> cubes = this.rubiksCube.getCubes(1, Axis.Y);
+		List<Cubie> cubes = this.rubiksCube.getCubes(1, Axis.Y);
 		
 		StringBuilder sb = new StringBuilder("\nBottom Face :\n");
 		Collections.sort(cubes);
@@ -114,7 +114,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 	 * @param face
 	 * @return La representation ASCII de la ligne
 	 */
-	private String showSimpleLine(List<Cube> cubes, int lineNumber, Face face) {
+	private String showSimpleLine(List<Cubie> cubes, int lineNumber, Face face) {
 		StringBuilder sb = new StringBuilder();
 		int rubiksCubeSize = this.rubiksCube.getSize();
 		for (int columnIndex = 0; columnIndex < rubiksCubeSize; columnIndex++) {

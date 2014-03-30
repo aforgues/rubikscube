@@ -27,10 +27,10 @@ public class RubiksCube2D extends JApplet {
 	}
 	
 	public void init() {
-		setBackground(Color.NONE.getAwtColor());
+		setBackground(Facelet.NONE.getAwtColor());
 		
 		// FIXME : ca ne semble pas avoir d'effet
-		setForeground(Color.NONE.getAwtColor());
+		setForeground(Facelet.NONE.getAwtColor());
 	}
 	
 	@Override

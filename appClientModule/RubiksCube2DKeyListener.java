@@ -40,6 +40,10 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				applet.getRubiksCube().unpitch(1);
 				applet.repaint();
 				break;
+			case 't':
+				RubiksCubeAI ai = new RubiksCubeAI(applet.getRubiksCube());
+				ai.computeArtificialIntelligence();
+				break;
 			case 'q':
 				applet.getRubiksCube().yaw(1);
 				applet.repaint();
@@ -117,7 +121,9 @@ final class RubiksCube2DKeyListener implements KeyListener {
 	 */
 	private void smoothShuffle(RubiksCube2D applet, int nbMove) {
 		RubiksCube rc = applet.getRubiksCube();
-		List<Defined3DMove> moves = rc.generateShuffleMoves(nbMove);
+		rc.shuffle(nbMove);
+		
+		/*List<Defined3DMove> moves = rc.generateShuffleMoves(nbMove);
 		
 		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
 		for (int i = 1; i <= moves.size(); i++) {
@@ -161,9 +167,9 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				case UNROLL:
 					rc.unroll(definedMove.getFaceIndex());
 					break;	
-			}
+			}*/
 			repaintSmoothly(applet);
-		}
+		/*}*/
 		
 	}
 

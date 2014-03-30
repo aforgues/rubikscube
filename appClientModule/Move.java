@@ -54,4 +54,22 @@ public enum Move {
 	public int getIndex() {
 		return index;
 	}
+
+	public static Move inverse(Move move) {
+		switch(move) {
+			case ROLL:
+				return UNROLL;
+			case YAW:
+				return UNYAW;
+			case PITCH:
+				return UNPITCH;
+			case UNROLL:
+				return ROLL;
+			case UNYAW:
+				return YAW;
+			case UNPITCH:
+				return PITCH;
+		}
+		return null;
+	}
 }

@@ -22,24 +22,31 @@ import java.util.Random;
  * @author Arnaud Forgues
  */
 
-public class RubiksCube {
+public class RubiksCube implements Cloneable {
 	
 	private static final boolean VERBAL = false;
 	
 	private final static int MIN_SIZE = 2;
 	
 	private int size;
-    private List<Cube> config;
+    private List<Cubie> config;
 
     private Face identifiedPressedFace;
 	private Point pointOnPressedFaceIdentified;
 	private Face identifiedReleasedFace;
 	private Point pointOnReleasedFaceIdentified;
+
+	private boolean isFaceMove;
 	
 	public int getSize() {
 		return size;
 	}
-
+	
+	// Only for clone method
+	private RubiksCube(int size, List<Cubie> config) {
+		this.size = size;
+		this.config = new ArrayList<Cubie>(config);
+	}
 	
 	public RubiksCube(int size) {
 		if (size < MIN_SIZE) {
@@ -48,6 +55,15 @@ public class RubiksCube {
 		}
 		this.size = size;
 		initConfig();
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		List<Cubie> configClone = new ArrayList<Cubie>();
+		for (Cubie cubie : this.config) {
+			configClone.add((Cubie) cubie.clone());
+		}
+		return new RubiksCube(this.size, configClone);
 	}
 	    
 	/**
@@ -66,30 +82,30 @@ public class RubiksCube {
 		 * Face arrière : orange 
 		 */
 		
-		config = new ArrayList<Cube>();
+		config = new ArrayList<Cubie>();
 		
 		for (int z = 1; z <= getSize(); z++) {
 			// Construction des N niveaux centraux de la face : axe y
 			for (int y = 1; y <= getSize(); y++) {
-				Color frontColor  = z == getSize() ? Color.RED    : Color.NONE;				
-				Color bottomColor = y == 1         ? Color.WHITE  : Color.NONE;	
-				Color topColor    = y == getSize() ? Color.YELLOW : Color.NONE;
-				Color backColor   = z == 1         ? Color.ORANGE : Color.NONE;
+				Facelet frontColor  = z == getSize() ? Facelet.RED    : Facelet.NONE;				
+				Facelet bottomColor = y == 1         ? Facelet.WHITE  : Facelet.NONE;	
+				Facelet topColor    = y == getSize() ? Facelet.YELLOW : Facelet.NONE;
+				Facelet backColor   = z == 1         ? Facelet.ORANGE : Facelet.NONE;
 				
 				int x = 1;
 				
 				ThreeDimCoordinate coord = new ThreeDimCoordinate(x, y, z);
-				Cube cube = new Cube(getSize(), coord, frontColor, Color.BLUE, Color.NONE, bottomColor, topColor, backColor);
+				Cubie cube = new Cubie(getSize(), coord, frontColor, Facelet.BLUE, Facelet.NONE, bottomColor, topColor, backColor);
 				config.add(cube);
 				
 				for (x = 2; x < getSize(); x++) {
 					ThreeDimCoordinate centerCoord = new ThreeDimCoordinate(x, y, z);
-					Cube centerCube = new Cube(getSize(), centerCoord, frontColor, Color.NONE, Color.NONE, bottomColor, topColor, backColor);
+					Cubie centerCube = new Cubie(getSize(), centerCoord, frontColor, Facelet.NONE, Facelet.NONE, bottomColor, topColor, backColor);
 					config.add(centerCube);
 				}
 				
 				ThreeDimCoordinate lastCoord = new ThreeDimCoordinate(x, y, z);
-				Cube lastCube = new Cube(getSize(), lastCoord, frontColor, Color.NONE, Color.GREEN, bottomColor, topColor, backColor);
+				Cubie lastCube = new Cubie(getSize(), lastCoord, frontColor, Facelet.NONE, Facelet.GREEN, bottomColor, topColor, backColor);
 				config.add(lastCube);
 			}
 		}		
@@ -107,9 +123,9 @@ public class RubiksCube {
 		if (VERBAL)
 			System.out.println("Pitching (rotation on X axis) Rubik's Cube on face " + index);
 		
-		List<Cube> cubes = getCubes(index, Axis.X);
+		List<Cubie> cubes = getCubes(index, Axis.X);
 		
-		for (Cube cube : cubes) {
+		for (Cubie cube : cubes) {
 			cube.pitch();
 		}
 		
@@ -135,9 +151,9 @@ public class RubiksCube {
 		if (VERBAL)
 			System.out.println("Yawing (rotation on Y axis) Rubik's Cube on face " + index);
 		
-		List<Cube> cubes = getCubes(index, Axis.Y);
+		List<Cubie> cubes = getCubes(index, Axis.Y);
 		
-		for (Cube cube : cubes) {
+		for (Cubie cube : cubes) {
 			cube.yaw();
 		}
 		
@@ -163,9 +179,9 @@ public class RubiksCube {
 		if (VERBAL)
 			System.out.println("Rolling (rotation on Z axis) Rubik's Cube on face " + index);
 		
-		List<Cube> cubes = getCubes(index, Axis.Z);
+		List<Cubie> cubes = getCubes(index, Axis.Z);
 		
-		for (Cube cube : cubes) {
+		for (Cubie cube : cubes) {
 			cube.roll();
 		}
 		
@@ -184,7 +200,7 @@ public class RubiksCube {
 		roll(index);
 	}
 	
-	public List<Cube> getCubes(int index, Axis axis) {
+	public List<Cubie> getCubes(int index, Axis axis) {
 		if (VERBAL)
 			System.out.println("Retrieving cubes of axis " + axis.name() + " on face " + index);
 		
@@ -193,8 +209,8 @@ public class RubiksCube {
 			return Collections.emptyList();
 		}
 		
-		List<Cube> cubes = new ArrayList<Cube>();
-		for (Cube cube : config) {
+		List<Cubie> cubes = new ArrayList<Cubie>();
+		for (Cubie cube : config) {
 			ThreeDimCoordinate coord = cube.getCoordinates();
 			
 			int i;
@@ -231,37 +247,50 @@ public class RubiksCube {
 			Defined3DMove definedMove = moves.get(i - 1);
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
-			switch (definedMove.getMove()) {
-				case PITCH:
-					pitch(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_PITCH: // a virer ??
-					pitch(definedMove.getFaceIndex());
-					pitch(definedMove.getFaceIndex());
-					break;
-				case UNPITCH:
-					unpitch(definedMove.getFaceIndex());
-					break;
-				case YAW:
-					yaw(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_YAW:// a virer ??
-					yaw(definedMove.getFaceIndex());
-					yaw(definedMove.getFaceIndex());
-					break;
-				case UNYAW:
-					unyaw(definedMove.getFaceIndex());
-					break;
-				case ROLL:
-					roll(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_ROLL:// a virer ??
-					roll(definedMove.getFaceIndex());
-					roll(definedMove.getFaceIndex());
-					break;
-				case UNROLL:
-					unroll(definedMove.getFaceIndex());
-					break;	
+			move(definedMove);
+		}
+	}
+
+
+	public void move(Defined3DMove definedMove) {
+		switch (definedMove.getMove()) {
+			case PITCH:
+				pitch(definedMove.getFaceIndex());
+				break;
+			case DOUBLE_PITCH: // a virer ??
+				pitch(definedMove.getFaceIndex());
+				pitch(definedMove.getFaceIndex());
+				break;
+			case UNPITCH:
+				unpitch(definedMove.getFaceIndex());
+				break;
+			case YAW:
+				yaw(definedMove.getFaceIndex());
+				break;
+			case DOUBLE_YAW:// a virer ??
+				yaw(definedMove.getFaceIndex());
+				yaw(definedMove.getFaceIndex());
+				break;
+			case UNYAW:
+				unyaw(definedMove.getFaceIndex());
+				break;
+			case ROLL:
+				roll(definedMove.getFaceIndex());
+				break;
+			case DOUBLE_ROLL:// a virer ??
+				roll(definedMove.getFaceIndex());
+				roll(definedMove.getFaceIndex());
+				break;
+			case UNROLL:
+				unroll(definedMove.getFaceIndex());
+				break;	
+		}
+	}
+	
+	public void move(List<Defined3DMove> moves) {
+		if (moves != null) {
+			for (Defined3DMove move : moves) {
+				this.move(move);
 			}
 		}
 	}
@@ -289,6 +318,10 @@ public class RubiksCube {
 		}
 		return moves;
 	}
+	
+	/*
+	 * Methods to handle face or point identification while mouse clicking
+	 */
 	
 	public void setPressedFaceIdentified(Face identifiedFace) {
 		this.identifiedPressedFace = identifiedFace;	
@@ -339,18 +372,177 @@ public class RubiksCube {
 		return getPointOnReleasedFaceIdentified() != null;
 	}
 	
+	public void setIsFaceMove(boolean b) {
+		this.isFaceMove = b;
+	}
+	
+	public boolean isFaceMove() {
+		return this.isFaceMove;
+	}
+	
+	public boolean clearStuffIdentified() {
+		// On réinitialise les face et point identifiée
+		if (this.hasPressedFaceIdentified()) {
+			this.setPressedFaceIdentified(null);
+			
+			if (this.hasPointOnPressedFaceIdentified())
+				this.setPointOnPressedFaceIdentified(null);
+			
+			this.setIsFaceMove(false);
+			
+			return true;
+		}
+		
+		if (this.hasReleasedFaceIdentified()) {
+			this.setReleasedFaceIdentified(null);
+			
+			if (this.hasPointOnReleasedFaceIdentified()) {
+				this.setPointOnReleasedFaceIdentified(null);
+			}
+			
+			return true;
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Indique si le RubiksCube est résolu : toutes les faces sont correctement terminées
+	 * @return
+	 */
+	public boolean isSolved() {
+		// On regarde face après face, si tous les cubes ont bien la même couleur
+		return     this.checkFaceSolved(Face.FRONT)
+				&& this.checkFaceSolved(Face.LEFT)
+				&& this.checkFaceSolved(Face.TOP)
+				&& this.checkFaceSolved(Face.RIGHT)
+				&& this.checkFaceSolved(Face.BOTTOM)
+				&& this.checkFaceSolved(Face.BACK);
+	}
+	
+	private boolean checkFaceSolved(Face face) {
+		Facelet faceColor = null;
+		for (Cubie cube : getFaceCubies(face)) {
+			if (faceColor == null || faceColor.equals(cube.getFace(face)))
+				faceColor = cube.getFace(face);
+			else
+				return false;
+		}
+		if (RubiksCube2D.DEBUG)
+			System.out.println("Checking RubiksCube solved : " + face + " Face matched !");
+		
+		return true;
+	}
+
+	private List<Cubie> getFaceCubies(Face face) {
+		List<Cubie> cubes = null;
+		switch(face) {
+			case FRONT:
+				cubes = this.getFrontFaceCubes();
+				break;
+			case LEFT:
+				cubes = this.getLeftFaceCubes();
+				break;
+			case TOP:
+				cubes = this.getTopFaceCubes();
+				break;
+			case RIGHT:
+				cubes = this.getRightFaceCubes();
+				break;
+			case BOTTOM:
+				cubes = this.getBottomFaceCubes();
+				break;
+			case BACK:
+				cubes = this.getBackFaceCubes();
+				break;
+		}
+		
+		return cubes;
+	}
+
+	public List<Cubie> getBackFaceCubes() {
+		return this.getCubes(1, Axis.Z);
+	}
+
+	public List<Cubie> getTopFaceCubes() {
+		return this.getCubes(this.getSize(), Axis.Y);
+	}
+
+	public List<Cubie> getLeftFaceCubes() {
+		return this.getCubes(1, Axis.X);
+	}
+
+	public List<Cubie> getFrontFaceCubes() {
+		return this.getCubes(this.getSize(), Axis.Z);
+	}
+
+	public List<Cubie> getRightFaceCubes() {
+		return this.getCubes(this.getSize(), Axis.X);
+	}
+
+	public List<Cubie> getBottomFaceCubes() {
+		return this.getCubes(1, Axis.Y);
+	}
+
+	public Cubie getCubie(int x, int y, int z) {
+		if (x < 1 || x > getSize()
+		 || y < 1 || y > getSize()
+		 || z < 1 || z > getSize()) {
+			System.out.println("### ERROR : Cannot get Cubie on coord x=" + x + ", y=" + y + ", z=" + z + " => allowed coords are in [1-" + getSize() + "] range");
+			return null;
+		}
+		
+		for (Cubie cubie : this.config) {
+			ThreeDimCoordinate coord = cubie.getCoordinates();
+			
+			if (coord.getX() == x && coord.getY() == y && coord.getZ() == z)
+				return cubie;
+		}
+		return null;
+	}
+	
 	// Dump
 	//-----
 	
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder("RubiksCube [size=" + this.size + ", config=\n");
-		for (Cube cube : config) {
+		for (Cubie cube : config) {
 			s.append(cube).append("\n");
 		}
 		s.append("]");
 		
 		return s.toString();
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((config == null) ? 0 : config.hashCode());
+		result = prime * result + size;
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RubiksCube other = (RubiksCube) obj;
+		if (config == null) {
+			if (other.config != null)
+				return false;
+		} else if (!config.equals(other.config))
+			return false;
+		if (size != other.size)
+			return false;
+		return true;
 	}
 
 }

@@ -59,7 +59,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showBackFace() {
-		List<Cube> cubes = rubiksCube.getCubes(1, Axis.Z);
+		List<Cubie> cubes = rubiksCube.getBackFaceCubes();
 		
 		if (DEBUG) {
 			System.out.println("\nBack Face 2D :\n");
@@ -85,7 +85,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */
 	@Override
 	protected void showTopFace() {
-		List<Cube> cubes = rubiksCube.getCubes(rubiksCube.getSize(), Axis.Y);
+		List<Cubie> cubes = rubiksCube.getTopFaceCubes();
 		
 		if (DEBUG) {
 			System.out.println("\nTop Face 2D :\n");
@@ -110,7 +110,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showLeftFace() {
-		List<Cube> cubes = rubiksCube.getCubes(1, Axis.X);
+		List<Cubie> cubes = rubiksCube.getLeftFaceCubes();
 		
 		if (DEBUG){
 			System.out.println("\nLeft Face 2D :\n");
@@ -135,7 +135,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */
 	@Override
 	protected void showFrontFace() {
-		List<Cube> cubes = rubiksCube.getCubes(rubiksCube.getSize(), Axis.Z);
+		List<Cubie> cubes = rubiksCube.getFrontFaceCubes();
 		
 		if (DEBUG) {
 			System.out.println("\nFront Face 2D :\n");
@@ -160,7 +160,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showRightFace() {
-		List<Cube> cubes = rubiksCube.getCubes(rubiksCube.getSize(), Axis.X);
+		List<Cubie> cubes = rubiksCube.getRightFaceCubes();
 		
 		if (DEBUG) {
 			System.out.println("\nRight Face 2D :\n");
@@ -186,7 +186,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 */  
 	@Override
 	protected void showBottomFace() {
-		List<Cube> cubes = rubiksCube.getCubes(1, Axis.Y);
+		List<Cubie> cubes = rubiksCube.getBottomFaceCubes();
 		
 		if (DEBUG) {
 			System.out.println("\nBottom Face 2D :\n");
@@ -213,14 +213,11 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 * @param face
 	 * @return L'affichage en 2D de la ligne
 	 */
-	private void showSimpleLine2D(List<Cube> cubes, int lineNumber, Face face) {
-		int rubiksCubeSize = this.rubiksCube.getSize();
-		
+	private void showSimpleLine2D(List<Cubie> cubes, int lineNumber, Face face) {
 		boolean showFaceIdentified = face.equals(this.rubiksCube.getPressedFaceIdentified())
-				                  && ! this.rubiksCube.hasPointOnPressedFaceIdentified();
+				                  && this.rubiksCube.isFaceMove();
 		
-		
-		for (int columnIndex = 0; columnIndex < rubiksCubeSize; columnIndex++) {
+		for (int columnIndex = 0; columnIndex < this.rubiksCube.getSize(); columnIndex++) {
 			double x = x_offset + columnIndex * CUBE_SIZE;
 			double y = y_offset + (lineNumber - 1) * CUBE_SIZE;
 			

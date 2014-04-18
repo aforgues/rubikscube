@@ -50,16 +50,28 @@ public class RubiksCubeAI {
 		 *  Implementing the seven step guide from http://www.chessandpoker.com/rubiks-cube-solution.html
 		 */
 		
+		// Pre requisite
 		primeCube(rc, path);
+		
+		// Step One
 		placeTopRowCorner(rc, path);
+		
+		// Step Two
 		placeTheEdgesOfTopLayer(rc, path);
 		
-		System.out.println("AI : final path (before optimization) is => " + path);
+		// Step Three
+		alignTheCenter(rc, path);
+		//placeTheMiddleLayerEdges(rc, path);
+		
+		// TODO : step four to seven
+		
+		if (RubiksCube2D.DEBUG)
+			System.out.println("AI : final path (before optimization) is => " + path);
 		
 		// Finally we optimize moves in order to replace 3 PITCH with an UNPITCH for example
 		optimizeMoves(path);
 		
-		System.out.println("AI : final path (after optimization) is => " + path);
+		System.out.println("AI : final path is => " + path);
 	}
 
 	/*
@@ -517,6 +529,61 @@ public class RubiksCubeAI {
 				             new Defined3DMove(Move.UNPITCH, 2),
 				             new Defined3DMove(Move.UNYAW, 1),
 				             new Defined3DMove(Move.PITCH, 2));
+	}
+	
+	/*
+	 * Step Three main algorithm
+	 */
+	
+	private void alignTheCenter(RubiksCube rc, List<Defined3DMove> path) {
+		if (matchesStepThreeAlignTheCenter(rc)) {
+			System.out.println("AI::stepThree::AlignTheCenter => done !");
+			return;
+		}
+		
+		List<Defined3DMove> stepThreePath = new ArrayList<Defined3DMove>();
+		
+		// First we turn the top front row to the left for recursive purpose
+		addLocalMove(rc, stepThreePath, Move.YAW, 2);
+		
+		if (RubiksCube2D.DEBUG)
+			System.out.println("AI::stepThree::AlignTheCenter => Moving middle front row to the left => " + stepThreePath);
+		
+		path.addAll(stepThreePath);
+		
+		// Go on with this algo until step two is finished
+		alignTheCenter(rc, path);
+	}
+	
+	/*
+	 * Step three utility methods
+	 */
+	private static boolean matchesStepThreeAlignTheCenter(RubiksCube rc) {
+		if (! matchesStepTwo(rc))
+			return false;
+				
+		// Check each lateral face
+		Cubie frontFaceEdgeCubie   = rc.getCubie(2, 3, 3);
+		Cubie frontFaceCenterCubie = rc.getCubie(2, 2, 3);
+		if (! frontFaceEdgeCubie.getFrontFace().equals(frontFaceCenterCubie.getFrontFace()))
+			return false;
+		
+		Cubie rightFaceEdgeCubie   = rc.getCubie(3, 3, 2);
+		Cubie rightFaceCenterCubie = rc.getCubie(3, 2, 2);
+		if (! rightFaceEdgeCubie.getRightFace().equals(rightFaceCenterCubie.getRightFace()))
+			return false;
+		
+		Cubie backFaceEdgeCubie    = rc.getCubie(2, 3, 1);
+		Cubie backFaceCenterCubie  = rc.getCubie(2, 2, 1);
+		if (! backFaceEdgeCubie.getBackFace().equals(backFaceCenterCubie.getBackFace()))
+			return false;
+		
+		Cubie leftFaceEdgeCubie    = rc.getCubie(1, 3, 2);
+		Cubie leftFaceCenterCubie  = rc.getCubie(1, 2, 2);
+		if (! leftFaceEdgeCubie.getLeftFace().equals(leftFaceCenterCubie.getLeftFace()))
+			return false;
+		
+		return true;
 	}
 	
 	/*

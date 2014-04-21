@@ -60,8 +60,8 @@ public class RubiksCubeAI {
 		placeTheEdgesOfTopLayer(rc, path);
 		
 		// Step Three
-		alignTheCenter(rc, path);
-		//placeTheMiddleLayerEdges(rc, path);
+		alignTheCenters(rc, path);
+		placeTheMiddleLayerEdges(rc, path, 0);
 		
 		// TODO : step four to seven
 		
@@ -358,6 +358,10 @@ public class RubiksCubeAI {
 				if (RubiksCube2D.DEBUG)
 					System.out.println("AI::stepTwo => target edge cubie is on top row of front face but on the wrong side => about to apply step 2 algo 5 => " + stepTwoMoves);				
 			}
+			else {
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepTwo => target edge cubie is already on top row of front face and also on the good side");
+			}
 			
 		}
 		else {
@@ -369,14 +373,43 @@ public class RubiksCubeAI {
 				frontFaceMiddleRightCubie = rc.getCubie(3, 2, 3);
 			}
 			
-			// We had no match => remove last three unuseful moves (YAW2) and check on bottom row of front face
+			// We had no match => remove last three unusefull moves (YAW2) and check on bottom row of front face
 			if (nbMiddleRowMove == 4) {
 				rc.move(new Defined3DMove(Move.YAW, 2));
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				
-				// Now we check on bottom frow of front face
+				// Before checking on bottom row, we deal with specific cases : if our target edge cubie is on the top row on the right, back or left face
+				// We check for right edge cubie of top layer
+				if (matchesCubieOnTwoFacelets(rc.getCubie(3, 3, 2), topColor, frontColor)) {
+					addLocalMove(rc, stepTwoPath, Move.ROLL, 2);
+					addLocalMove(rc, stepTwoPath, Move.YAW, 1);
+					addLocalMove(rc, stepTwoPath, Move.UNROLL, 2);
+					
+					if (RubiksCube2D.DEBUG)
+						System.out.println("AI::stepTwo => target edge cubie is on top row of right face => moving the middle column of right face clockwise to match the bottom row => ROLL@2, YAW@1, UNROLL@2");				
+				}
+				// Then we check for back edge cubie of top layer
+				else if (matchesCubieOnTwoFacelets(rc.getCubie(2, 3, 1), topColor, frontColor)) {
+					addLocalMove(rc, stepTwoPath, Move.PITCH, 2);
+					addLocalMove(rc, stepTwoPath, Move.YAW, 1);
+					addLocalMove(rc, stepTwoPath, Move.UNPITCH, 2);
+					
+					if (RubiksCube2D.DEBUG)
+						System.out.println("AI::stepTwo => target edge cubie is on top row of back face => moving the middle column of back face clockwise to match the bottom row => PITCH@2, YAW@1, UNPITCH@2");
+				}
+				// Finally we check for left edge cubie of top layer
+				else if (matchesCubieOnTwoFacelets(rc.getCubie(1, 3, 2), topColor, frontColor)) {
+					addLocalMove(rc, stepTwoPath, Move.UNROLL, 2);
+					addLocalMove(rc, stepTwoPath, Move.YAW, 1);
+					addLocalMove(rc, stepTwoPath, Move.ROLL, 2);
+					
+					if (RubiksCube2D.DEBUG)
+						System.out.println("AI::stepTwo => target edge cubie is on top row of left face => moving the middle column of left face counter-clockwise to match the bottom row => UNROLL@2, YAW@1, ROLL@2");
+				}
+				
+				// Now we can check on bottom row of front face
 				Cubie frontFaceBottomCenterCubie = rc.getCubie(2, 1, 3);
 				int nbBottomRowMove = 0;
 				while (! matchesCubieOnTwoFacelets(frontFaceBottomCenterCubie, topColor, frontColor) && ++nbBottomRowMove <= 3) {
@@ -384,17 +417,24 @@ public class RubiksCubeAI {
 					frontFaceBottomCenterCubie = rc.getCubie(2, 1, 3);
 				}
 				
-				// We had no match => remove last three unuseful moves (YAW1)
+				// We had no match => remove last three unusefull moves (YAW1)
 				if (nbBottomRowMove == 4) {
 					rc.move(new Defined3DMove(Move.YAW, 1));
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					stepTwoPath.remove(stepTwoPath.size() - 1);
+					
+					if (RubiksCube2D.DEBUG)
+						System.out.println("AI::stepTwo => No match for target edge cubie on bottom row !! That should not be the case ;-)");
 				}
 				// We had a match !!
 				else {
-					if (RubiksCube2D.DEBUG && nbBottomRowMove > 0)
-						System.out.println("AI::stepTwo => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
+					if (RubiksCube2D.DEBUG) {
+						String suffix = "";
+						if (nbBottomRowMove > 0)
+							suffix = " by moving front bottom row to the left => " + (nbBottomRowMove) + " * YAW@1";
+						System.out.println("AI::stepTwo => We matched the target center edge cubie of bottom row" + suffix);
+					}
 					
 					// Let's find where is the topColor on this bottomCenter edge cubie of the front face
 					
@@ -417,8 +457,12 @@ public class RubiksCubeAI {
 			}
 			// We had a match !!
 			else {
-				if (RubiksCube2D.DEBUG && nbMiddleRowMove > 0)
-					System.out.println("AI::stepTwo => Moving front middle row to the left until we match the target rigth edge cubie => " + (nbMiddleRowMove) + " * YAW@2");
+				if (RubiksCube2D.DEBUG) {
+					String suffix = "";
+					if (nbMiddleRowMove > 0)
+						suffix = " by moving front middle row to the left => " + (nbMiddleRowMove) + " * YAW@2";
+					System.out.println("AI::stepTwo => We matched the target right edge cubie of middle row" + suffix);
+				}
 				
 				// Let's find where is the topColor on this middleRight edge cubie of the front face
 				
@@ -531,13 +575,15 @@ public class RubiksCubeAI {
 				             new Defined3DMove(Move.PITCH, 2));
 	}
 	
+	
 	/*
 	 * Step Three main algorithm
-	 */
+	 */	
 	
-	private void alignTheCenter(RubiksCube rc, List<Defined3DMove> path) {
-		if (matchesStepThreeAlignTheCenter(rc)) {
-			System.out.println("AI::stepThree::AlignTheCenter => done !");
+	// Forming the Half-T
+	private void alignTheCenters(RubiksCube rc, List<Defined3DMove> path) {
+		if (matchesStepThreeAlignTheCenters(rc)) {
+			System.out.println("AI::stepThree::AlignTheCenters => done !");
 			return;
 		}
 		
@@ -547,18 +593,154 @@ public class RubiksCubeAI {
 		addLocalMove(rc, stepThreePath, Move.YAW, 2);
 		
 		if (RubiksCube2D.DEBUG)
-			System.out.println("AI::stepThree::AlignTheCenter => Moving middle front row to the left => " + stepThreePath);
+			System.out.println("AI::stepThree::AlignTheCenters => Moving middle front row to the left => " + stepThreePath);
 		
 		path.addAll(stepThreePath);
 		
 		// Go on with this algo until step two is finished
-		alignTheCenter(rc, path);
+		alignTheCenters(rc, path);
 	}
 	
+	// Place the remaining edges
+	private void placeTheMiddleLayerEdges(RubiksCube rc, List<Defined3DMove> path, int nbConsecutiveFaceWithoutFullTFound) {
+		if (matchesStepThreePlaceTheMiddleLayerEdges(rc)) {
+			System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => done !");
+			return;
+		}
+		
+		List<Defined3DMove> stepThreePath = new ArrayList<Defined3DMove>();
+
+		// First we turn the top and middle front row to the left for recursive purpose
+		addLocalMove(rc, stepThreePath, Move.YAW, rc.getSize());
+		addLocalMove(rc, stepThreePath, Move.YAW, 2);
+		
+		if (RubiksCube2D.DEBUG)
+			System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving top and middle front row to the left => " + stepThreePath);
+		
+		// Compute usefull cubie
+		Cubie frontFaceUpperLeftCornerCubie  = rc.getCubie(1, 3, 3);
+		Cubie frontFaceUpperRightCornerCubie = rc.getCubie(3, 3, 3);
+		Cubie frontFaceMiddleLeftEdgeCubie   = rc.getCubie(1, 2, 3);
+		Cubie frontFaceMiddleRightEdgeCubie  = rc.getCubie(3, 2, 3);
+		
+		// No Full-T found 4 consecutive times => apply left or right algo
+		if (nbConsecutiveFaceWithoutFullTFound >= 4) {
+			if (RubiksCube2D.DEBUG)
+				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T found " + nbConsecutiveFaceWithoutFullTFound + " consecutive times");
+			
+			// apply left algo only if middle left edge cubie of front face is not already correct
+			if (! frontFaceMiddleLeftEdgeCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace())
+			 || ! frontFaceMiddleLeftEdgeCubie.getLeftFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())) {
+				addLocalMoves(rc, stepThreePath, getStepThreeAlgoLeft());
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply left algo");
+			}
+			// apply right algo only if middle right edge cubie of front face is not already correct
+			else if (! frontFaceMiddleRightEdgeCubie.getFrontFace().equals(frontFaceUpperRightCornerCubie.getFrontFace())
+			 || ! frontFaceMiddleRightEdgeCubie.getRightFace().equals(frontFaceUpperRightCornerCubie.getRightFace())) {
+				addLocalMoves(rc, stepThreePath, getStepThreeAlgoRight());
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply right algo");
+			}
+			else {
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => all left and right middle edge cubie of front face are correct");
+			}
+			
+			
+		}
+		
+		// First check if the correct edge on the left side is in the proper position but is turned around
+		List<Defined3DMove> stepThreePreLeftMoves = null;
+		if (frontFaceMiddleLeftEdgeCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())
+		 && frontFaceMiddleLeftEdgeCubie.getLeftFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace())) {
+			stepThreePreLeftMoves = getStepThreeAlgoLeft();
+			if (RubiksCube2D.DEBUG)
+				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => middle front left edge cubie is in the proper position but is turned around => apply step 3 algo left to force the proper cubie to the bottom => " + stepThreePreLeftMoves);
+		}
+		addLocalMoves(rc, stepThreePath, stepThreePreLeftMoves);
+		
+		// First check if the correct edge on the left side is in the proper position but is turned around
+		List<Defined3DMove> stepThreePreRightMoves = null;
+		if (frontFaceMiddleRightEdgeCubie.getFrontFace().equals(frontFaceUpperRightCornerCubie.getRightFace())
+		 && frontFaceMiddleRightEdgeCubie.getRightFace().equals(frontFaceUpperRightCornerCubie.getFrontFace())) {
+			stepThreePreRightMoves = getStepThreeAlgoRight();
+			if (RubiksCube2D.DEBUG)
+				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => middle front right edge cubie is in the proper position but is turned around => apply step 3 algo right to force the proper cubie to the bottom => " + stepThreePreRightMoves);
+		}
+		addLocalMoves(rc, stepThreePath, stepThreePreRightMoves);
+		
+		// Trying to form the Full-T by turning the front bottom row to the left
+		// Then check that we match one correct edge on the middle row (left or right cubie)
+		Cubie frontFaceBottomCenterCubie     = rc.getCubie(2, 1, 3);
+		int nbBottomRowMove = 0;
+		while (! (frontFaceBottomCenterCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace()) 
+			   && (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace()) || frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperRightCornerCubie.getRightFace()))) && ++nbBottomRowMove <= 3) {
+			addLocalMove(rc, stepThreePath, Move.YAW, 1);
+			frontFaceBottomCenterCubie = rc.getCubie(2, 1, 3);
+		}
+		
+		// We had no match => remove last three unuseful moves (YAW1)
+		if (nbBottomRowMove == 4) {
+			rc.move(new Defined3DMove(Move.YAW, 1));
+			stepThreePath.remove(stepThreePath.size() - 1);
+			stepThreePath.remove(stepThreePath.size() - 1);
+			stepThreePath.remove(stepThreePath.size() - 1);
+			
+			if (RubiksCube2D.DEBUG)
+				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => no match found on bottom row for front face color : " + frontFaceUpperLeftCornerCubie.getFrontFace());
+			
+			nbConsecutiveFaceWithoutFullTFound++;
+		}
+		// We had a match !!
+		else {
+			nbConsecutiveFaceWithoutFullTFound = 0;
+			
+			if (RubiksCube2D.DEBUG && nbBottomRowMove > 0)
+				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
+			
+			// Let's find where is the bottomColor : on left or right edge cubie ?
+			List<Defined3DMove> stepThreeMoves = null;
+			
+			// Then deduce step 3 algo when the match is on the left
+			if (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())) {
+				stepThreeMoves = getStepThreeAlgoLeft();
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo left => " + stepThreeMoves);
+				
+			}
+			// Then deduce step 3 algo when the match is on the right
+			else if (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperRightCornerCubie.getRightFace())) {
+				stepThreeMoves = getStepThreeAlgoRight();
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo right => " + stepThreeMoves);
+			}
+			else {
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No match on bottom color " + frontFaceBottomCenterCubie.getBottomFace() + " on left edge cubie : " + frontFaceUpperLeftCornerCubie.getLeftFace() + " or on right edge cubie : " + frontFaceUpperRightCornerCubie.getRightFace());
+			}
+
+			// Finally apply algo
+			addLocalMoves(rc, stepThreePath, stepThreeMoves);
+		}
+		
+		if (RubiksCube2D.DEBUG)
+			System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => " + stepThreePath);
+		
+		path.addAll(stepThreePath);
+		
+		// Go on with this algo until step three is finished
+		placeTheMiddleLayerEdges(rc, path, nbConsecutiveFaceWithoutFullTFound);
+	}
+
 	/*
 	 * Step three utility methods
 	 */
-	private static boolean matchesStepThreeAlignTheCenter(RubiksCube rc) {
+	private static boolean matchesStepThreeAlignTheCenters(RubiksCube rc) {
 		if (! matchesStepTwo(rc))
 			return false;
 				
@@ -585,6 +767,65 @@ public class RubiksCubeAI {
 		
 		return true;
 	}
+	
+	private static boolean matchesStepThreePlaceTheMiddleLayerEdges(RubiksCube rc) {
+		if (! matchesStepThreeAlignTheCenters(rc))
+			return false;
+				
+		// Check each lateral face
+		Cubie frontFaceEdgeCubie        = rc.getCubie(2, 3, 3);
+		Cubie frontFaceCenterLeftCubie  = rc.getCubie(1, 2, 3);
+		Cubie frontFaceCenterRightCubie = rc.getCubie(3, 2, 3);
+		if (! frontFaceEdgeCubie.getFrontFace().equals(frontFaceCenterLeftCubie.getFrontFace())
+		 || ! frontFaceEdgeCubie.getFrontFace().equals(frontFaceCenterRightCubie.getFrontFace()))
+			return false;
+		
+		Cubie rightFaceEdgeCubie        = rc.getCubie(3, 3, 2);
+		Cubie rightFaceCenterLeftCubie  = rc.getCubie(3, 2, 3);
+		Cubie rightFaceCenterRightCubie = rc.getCubie(3, 2, 1);
+		if (! rightFaceEdgeCubie.getRightFace().equals(rightFaceCenterLeftCubie.getRightFace())
+		 || ! rightFaceEdgeCubie.getRightFace().equals(rightFaceCenterRightCubie.getRightFace()))
+			return false;
+		
+		Cubie backFaceEdgeCubie         = rc.getCubie(2, 3, 1);
+		Cubie backFaceCenterLeftCubie   = rc.getCubie(3, 2, 1);
+		Cubie backFaceCenterRightCubie  = rc.getCubie(1, 2, 1);
+		if (! backFaceEdgeCubie.getBackFace().equals(backFaceCenterLeftCubie.getBackFace())
+		 || ! backFaceEdgeCubie.getBackFace().equals(backFaceCenterRightCubie.getBackFace()))
+			return false;
+		
+		Cubie leftFaceEdgeCubie         = rc.getCubie(1, 3, 2);
+		Cubie leftFaceCenterLeftCubie   = rc.getCubie(1, 2, 1);
+		Cubie leftFaceCenterRightCubie  = rc.getCubie(1, 2, 3);
+		if (! leftFaceEdgeCubie.getLeftFace().equals(leftFaceCenterLeftCubie.getLeftFace())
+		 || ! leftFaceEdgeCubie.getLeftFace().equals(leftFaceCenterRightCubie.getLeftFace()))
+			return false;
+		
+		return true;
+	}
+	
+	private static List<Defined3DMove> getStepThreeAlgoLeft() {
+		return Arrays.asList(new Defined3DMove(Move.UNYAW, 1),
+	             			 new Defined3DMove(Move.UNPITCH, 1),
+	             			 new Defined3DMove(Move.YAW, 1),
+	             			 new Defined3DMove(Move.PITCH, 1),
+	             			 new Defined3DMove(Move.YAW, 1),
+	             			 new Defined3DMove(Move.UNROLL, 3),
+	             			 new Defined3DMove(Move.UNYAW, 1),
+	             			 new Defined3DMove(Move.ROLL, 3));
+	}
+
+	private static List<Defined3DMove> getStepThreeAlgoRight() {
+		return Arrays.asList(new Defined3DMove(Move.YAW, 1),
+    			 			 new Defined3DMove(Move.UNPITCH, 3),
+    			 			 new Defined3DMove(Move.UNYAW, 1),
+    			 			 new Defined3DMove(Move.PITCH, 3),
+    			 			 new Defined3DMove(Move.UNYAW, 1),
+    			 			 new Defined3DMove(Move.ROLL, 3),
+    			 			 new Defined3DMove(Move.YAW, 1),
+    			 			 new Defined3DMove(Move.UNROLL, 3));
+	}
+	
 	
 	/*
 	 * Global utility methods

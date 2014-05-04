@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -835,13 +833,23 @@ public class RubiksCubeAI {
 	 */
 	
 	// Here we turn the entire cube upside down to prepare next step algorithm
-	private void turnTheCubeOver(RubiksCube rc, List<Defined3DMove> path) {
+	private static void turnTheCubeOver(RubiksCube rc, List<Defined3DMove> path) {
 		for (int i=1; i <= rc.getSize(); i++) {
 			addLocalMove(rc, path, Move.DOUBLE_ROLL, i);
 		}
 		
 		if (RubiksCube2D.DEBUG)
 			System.out.println("AI::stepFour::TurnTheCubeOver => done !");
+	}
+	
+	// Here we turn the entire cube frontside back
+	private static void turnTheCubeAround(RubiksCube rc, List<Defined3DMove> path) {
+		for (int i=1; i <= rc.getSize(); i++) {
+			addLocalMove(rc, path, Move.DOUBLE_YAW, i);
+		}
+		
+		if (RubiksCube2D.DEBUG)
+			System.out.println("AI::stepFour::TurnTheCubeAround => done !");
 	}
 	
 	// Arrange the corners of last layer (on top now) without good facelets on good place
@@ -860,21 +868,23 @@ public class RubiksCubeAI {
 		// Check front right corner cubie
 		Cubie frontRightCornerCubie     = rc.getCubie(3, 3, 3);
 		Cubie frontFaceMiddleRightCubie = rc.getCubie(3, 2, 3); 
-		Facelet frontColor = frontFaceMiddleRightCubie.getFrontFace();
-		Facelet rightColor = frontFaceMiddleRightCubie.getRightFace();
 		
 		// Then check front left corner cubie
-		Cubie frontLeftCornerCubie      = rc.getCubie(1, 3, 3);
-		Cubie frontFaceMiddleLeftCubie  = rc.getCubie(1, 2, 3); 
-		Facelet leftColor = frontFaceMiddleLeftCubie.getLeftFace();
+		Cubie frontLeftCornerCubie      = rc.getCubie(1, 3, 3); 
 		
 		int nbTopRowMove = 0;
-		while (! (matchesCornerCubieOnFacelets(frontRightCornerCubie, topColor, frontColor, rightColor)
-			   && matchesCornerCubieOnFacelets(frontLeftCornerCubie, topColor, frontColor, leftColor)) && ++nbTopRowMove <= 3) {
+		while (! (matchesCubieOnTwoFacelets(frontRightCornerCubie, topColor, frontFaceMiddleRightCubie.getFrontFace())
+			   && matchesCubieOnTwoFacelets(frontLeftCornerCubie,  topColor, frontFaceMiddleRightCubie.getFrontFace())) && ++nbTopRowMove <= 3) {
 			addLocalMove(rc, stepFourPath, Move.YAW, rc.getSize());
-			frontRightCornerCubie = rc.getCubie(3, 3, 3);
-			frontLeftCornerCubie  = rc.getCubie(1, 3, 3);
+			frontRightCornerCubie     = rc.getCubie(3, 3, 3);
+			frontLeftCornerCubie      = rc.getCubie(1, 3, 3);
+			frontFaceMiddleRightCubie = rc.getCubie(3, 2, 3);
 		}
+		
+		Facelet rightColor = frontFaceMiddleRightCubie.getRightFace();
+		Cubie frontFaceMiddleLeftCubie  = rc.getCubie(1, 2, 3);
+		Facelet leftColor = frontFaceMiddleLeftCubie.getLeftFace();
+		Facelet frontColor = frontFaceMiddleRightCubie.getFrontFace();
 		
 		// We had no match => remove last three unusefull moves (YAW3)
 		if (nbTopRowMove == 4) {
@@ -887,36 +897,28 @@ public class RubiksCubeAI {
 				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => no match found on top row for side-by-side front face color : " + frontColor);
 			
 			// Then we search where are our two target corner cubie
+			frontLeftCornerCubie       = rc.getCubie(1, 3, 3);
 			Cubie backRightCornerCubie = rc.getCubie(3, 3, 1);
-			Cubie backLeftCornerCubie  = rc.getCubie(1, 3, 1);
 			
-			// We begin with the left corner cubie
-			boolean isLeftOnFirstPosition  = matchesCornerCubieOnFacelets(frontRightCornerCubie, topColor, frontColor, leftColor);
+			// We check for the left corner cubie on second position
 			boolean isLeftOnSecondPosition = matchesCornerCubieOnFacelets(frontLeftCornerCubie, topColor, frontColor, leftColor);
-			boolean isLeftOnThirdPosition  = matchesCornerCubieOnFacelets(backRightCornerCubie, topColor, frontColor, leftColor);
-			boolean isLeftOnFourthPosition = matchesCornerCubieOnFacelets(backLeftCornerCubie, topColor, frontColor, leftColor);
 			
-			// We follow with the right corner cubie
-			boolean isRightOnFirstPosition  = matchesCornerCubieOnFacelets(frontRightCornerCubie, topColor, frontColor, rightColor);
-			boolean isRightOnSecondPosition = matchesCornerCubieOnFacelets(frontLeftCornerCubie, topColor, frontColor, rightColor);
+			// We check for the right corner cubie on third position
 			boolean isRightOnThirdPosition  = matchesCornerCubieOnFacelets(backRightCornerCubie, topColor, frontColor, rightColor);
-			boolean isRightOnFourthPosition = matchesCornerCubieOnFacelets(backLeftCornerCubie, topColor, frontColor, rightColor);
 			
-			if (isLeftOnFirstPosition && isRightOnSecondPosition) {
-				addLocalMoves(rc, stepFourPath, getStepFourAlgoSwitchOneAndTwo());
-				
-				if (RubiksCube2D.DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => apply algo step 4 switch 1 and 2 : " + getStepFourAlgoSwitchOneAndTwo());
-			}
-			else if (isLeftOnSecondPosition && isRightOnThirdPosition) {
+			if (isLeftOnSecondPosition && isRightOnThirdPosition) {
 				addLocalMoves(rc, stepFourPath, getStepFourAlgoSwitchOneAndThree());
 				
 				if (RubiksCube2D.DEBUG)
 					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => apply algo step 4 switch 1 and 3 : " + getStepFourAlgoSwitchOneAndThree());
 			}
-			
-			// TODO Finish step four algo
-			
+			else {
+				// We turn the top front row to the left for recursive purpose
+				addLocalMove(rc, stepFourPath, Move.YAW, rc.getSize());
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we turn the top front row to the left to find two corner cubie to switch");
+			}
 		}
 		// We had a match !!
 		else {
@@ -926,9 +928,27 @@ public class RubiksCubeAI {
 					suffix = " by moving front top row to the left  => " + (nbTopRowMove) + " * YAW@" + rc.getSize();
 				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we matched side-by-side front color " + frontColor + suffix);
 			}
+			
+			// Check if the two corner cubie are already in proper sides
+			if (matchesCornerCubieOnFacelets(frontRightCornerCubie, topColor, frontColor, rightColor)) {
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are already in proper sides => go on !");
+			}
+			else {
+				addLocalMoves(rc, stepFourPath, getStepFourAlgoSwitchOneAndTwo());
+				
+				if (RubiksCube2D.DEBUG)
+					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are not in proper sides => apply algo step 4 switch 1 and 2 : " + getStepFourAlgoSwitchOneAndTwo());
+			}
+
+			// Turn the entire cube around so that we can deal with back corner cubies
+			turnTheCubeAround(rc, stepFourPath);
 		}
 		
-		// FIXME : add recursive algo ?
+		path.addAll(stepFourPath);
+		
+		// Call step 4 method recursively
+		arrangeTheLastLayerCorners(rc, path);
 	}
 	
 	/*

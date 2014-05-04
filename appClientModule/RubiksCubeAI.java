@@ -68,7 +68,10 @@ public class RubiksCubeAI {
 		// Step five
 		finishTheLastLayerCorners(rc, path, 0);
 		
-		// TODO : step six to seven
+		// Step six
+		finishTwoEdgesAndPrepareRemainingTwo(rc, path);
+		
+		// TODO : step seven
 		
 		if (RubiksCube2D.DEBUG)
 			System.out.println("AI : final path (before optimization) is => " + path);
@@ -1106,6 +1109,38 @@ public class RubiksCubeAI {
 				             new Defined3DMove(Move.UNPITCH, 1),
 				             new Defined3DMove(Move.UNYAW, 3),
 				             new Defined3DMove(Move.UNYAW, 3));
+	}
+	
+	/*
+	 * Step Six main algorithm
+	 */
+	private void finishTwoEdgesAndPrepareRemainingTwo(RubiksCube rc, List<Defined3DMove> path) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
+	 * Step Si utility methods
+	 */
+	private static boolean matchesStepSix(RubiksCube rc) {
+		if (! matchesStepFive(rc))
+			return false;
+		
+		// Get the four top layer edge cubies
+		// TODO
+
+		return true;
+	}
+	
+	private static List<Defined3DMove> getStepSixAlgo() {
+		return Arrays.asList(new Defined3DMove(Move.PITCH, 2),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNPITCH, 2),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.PITCH, 2),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNPITCH, 2));
 	}
 	
 	/*

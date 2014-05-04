@@ -65,7 +65,10 @@ public class RubiksCubeAI {
 		turnTheCubeOver(rc, path);
 		arrangeTheLastLayerCorners(rc, path);
 		
-		// TODO : step five to seven
+		// Step five
+		finishTheLastLayerCorners(rc, path, 0);
+		
+		// TODO : step six to seven
 		
 		if (RubiksCube2D.DEBUG)
 			System.out.println("AI : final path (before optimization) is => " + path);
@@ -917,7 +920,7 @@ public class RubiksCubeAI {
 				addLocalMove(rc, stepFourPath, Move.YAW, rc.getSize());
 				
 				if (RubiksCube2D.DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we turn the top front row to the left to find two corner cubie to switch");
+					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we turn the top front row to the left to find two corner cubie to switch => YAW@" + rc.getSize());
 			}
 		}
 		// We had a match !!
@@ -1025,6 +1028,84 @@ public class RubiksCubeAI {
 				             new Defined3DMove(Move.YAW, 3),
 				             new Defined3DMove(Move.UNPITCH, 1),
 				             new Defined3DMove(Move.YAW, 3));
+	}
+	
+	/*
+	 * Step Five main algorithm
+	 */
+	private void finishTheLastLayerCorners(RubiksCube rc, List<Defined3DMove> path, int nbConsecutiveFaceWithoutConfigFound) {
+		if (matchesStepFive(rc)) {
+			System.out.println("AI::stepFive::finishTheLastLayerCorners => done !");
+			return;
+		}
+		
+		List<Defined3DMove> stepFivePath = new ArrayList<Defined3DMove>();
+		
+		// Get top color from top face center cubie
+		Facelet topColor = rc.getCubie(2, 3, 2).getTopFace();
+		
+		// We want to identify one of 3 specific configurations => get three corner cubie for that
+		Cubie upperLeftFrontFaceCubie  = rc.getCubie(1, 3, 3);
+		Cubie upperRightFrontFaceCubie = rc.getCubie(3, 3, 3);
+		Cubie upperRightRightFaceCubie = rc.getCubie(3, 3, 1);
+		
+		if (nbConsecutiveFaceWithoutConfigFound == 4
+		 || (upperLeftFrontFaceCubie.getFrontFace().equals(topColor) && upperRightFrontFaceCubie.getTopFace().equals(topColor)
+		  || upperRightFrontFaceCubie.getRightFace().equals(topColor) && upperRightRightFaceCubie.getRightFace().equals(topColor)
+		  || upperRightFrontFaceCubie.getTopFace().equals(topColor) && upperRightRightFaceCubie.getRightFace().equals(topColor))) {
+			addLocalMoves(rc, stepFivePath, getStepFiveAlgo());
+			
+			if (RubiksCube2D.DEBUG) {
+				String detail = "";
+				if (nbConsecutiveFaceWithoutConfigFound == 4)
+					detail = "no match for one of the three configurations after full (4) top row turn";
+				else
+					detail = "we matched one of the three target configurations";
+				System.out.println("AI::stepFive::finishTheLastLayerCorners => " + detail + " => apply algo step 5 : " + getStepFiveAlgo());
+			}
+			
+			nbConsecutiveFaceWithoutConfigFound = 0;
+		}
+		else {
+			// We turn the top front row to the left for recursive purpose
+			addLocalMove(rc, stepFivePath, Move.YAW, rc.getSize());
+			nbConsecutiveFaceWithoutConfigFound++;
+			
+			if (RubiksCube2D.DEBUG)
+				System.out.println("AI::stepFive::finishTheLastLayerCorners => no match for one of the three target configurations => turn top row to the left => YAW@" + rc.getSize());
+		}
+		
+		path.addAll(stepFivePath);
+		
+		// Call step 5 method recursively
+		finishTheLastLayerCorners(rc, path, nbConsecutiveFaceWithoutConfigFound);
+	}
+	
+	/*
+	 * Step Five utility methods
+	 */
+	private static boolean matchesStepFive(RubiksCube rc) {
+		if (! matchesStepFour(rc))
+			return false;
+		
+		// Here we have to check that the top face has its top cross properly positionned => we reuse step one check :-)
+		if (! matchesStepOneTopCross(rc))
+			return false;
+		
+		return true;
+	}
+	
+	private static List<Defined3DMove> getStepFiveAlgo() {
+		return Arrays.asList(new Defined3DMove(Move.PITCH, 1),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNPITCH, 1),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.PITCH, 1),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNPITCH, 1),
+				             new Defined3DMove(Move.UNYAW, 3),
+				             new Defined3DMove(Move.UNYAW, 3));
 	}
 	
 	/*

@@ -41,9 +41,14 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				applet.repaint();
 				break;
 			case 't':
-				RubiksCubeAI ai = new RubiksCubeAI(applet.getRubiksCube());
+				RubiksCubeAI ai = new RubiksCubeAI(applet.getRubiksCube(), false);
 				ai.computeArtificialIntelligence();
 				break;
+			case 'y':
+				RubiksCubeAI ai2 = new RubiksCubeAI(applet.getRubiksCube(), true);
+				ai2.computeArtificialIntelligence();
+				applet.repaint();
+				break;	
 			case 'q':
 				applet.getRubiksCube().yaw(1);
 				applet.repaint();

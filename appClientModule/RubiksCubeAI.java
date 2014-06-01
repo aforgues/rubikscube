@@ -7,8 +7,8 @@ import java.util.ListIterator;
 public class RubiksCubeAI {
 	private RubiksCube initialRcConfig;
 	
-	public RubiksCubeAI(RubiksCube rc) {
-		if (! RubiksCube2D.DEBUG) {
+	public RubiksCubeAI(RubiksCube rc, boolean simulate) {
+		if (! simulate) {
 			try {
 				this.initialRcConfig = (RubiksCube) rc.clone();
 			} catch (CloneNotSupportedException e) {

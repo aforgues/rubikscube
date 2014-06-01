@@ -1,6 +1,5 @@
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.List;
 
 
 final class RubiksCube2DKeyListener implements KeyListener {
@@ -21,8 +20,14 @@ final class RubiksCube2DKeyListener implements KeyListener {
 		if (RubiksCube2D.DEBUG)
 			System.out.println("### Key Typed : #" + arg0.getKeyChar());
 		
+		// FIXME: this does not work..
+		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			System.exit(0);
+			return;
+		}	
+
 		RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
-		
+			
 		switch (arg0.getKeyChar()) {
 			case 'a':
 				applet.getRubiksCube().pitch(1);

@@ -412,12 +412,11 @@ public class RubiksCube implements Cloneable {
 	 */
 	public boolean isSolved() {
 		// On regarde face après face, si tous les cubes ont bien la même couleur
-		return     this.checkFaceSolved(Face.FRONT)
-				&& this.checkFaceSolved(Face.LEFT)
-				&& this.checkFaceSolved(Face.TOP)
-				&& this.checkFaceSolved(Face.RIGHT)
-				&& this.checkFaceSolved(Face.BOTTOM)
-				&& this.checkFaceSolved(Face.BACK);
+		for (Face face : Face.values()) {
+			if (! this.checkFaceSolved(face))
+				return false;
+		}
+		return true;
 	}
 	
 	private boolean checkFaceSolved(Face face) {

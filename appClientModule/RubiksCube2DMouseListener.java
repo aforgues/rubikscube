@@ -6,7 +6,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	// TODO: ˆ supprimer et remplacer par les variables de RubiksCube
 	private Point mouseRightPressedPoint;
 
-	private Defined3DMove getMoveInProgress(RubiksCube rc, Point mouseReleasedPoint) {
+	private DefinedMove getMoveInProgress(RubiksCube rc, Point mouseReleasedPoint) {
 		// Identification du cube qui a ŽtŽ cliquŽ
 		if (RubiksCube2D.DEBUG)
 			System.out.println("### Mouse released on : " + mouseReleasedPoint);
@@ -40,13 +40,13 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				if (horizontalDelta >= MOVE_SIZE) {
 					if (RubiksCube2D.DEBUG)
 						System.out.println("### Horizontal move from left to right detected !");						
-					return new Defined3DMove(Move.UNYAW);
+					return new DefinedMove(Move.UNYAW);
 				}
 				// Mouvement explicite de droite ˆ gauche
 				else if (horizontalDelta <= - MOVE_SIZE) {
 					if (RubiksCube2D.DEBUG)
 						System.out.println("### Horizontal move from right to left detected !");
-					return new Defined3DMove(Move.YAW);
+					return new DefinedMove(Move.YAW);
 				}
 			}
 		}
@@ -62,13 +62,13 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				if (verticalDelta >= MOVE_SIZE) {
 					if (RubiksCube2D.DEBUG)
 						System.out.println("### Vertical move from up to down detected !");
-					return new Defined3DMove(Move.UNPITCH);
+					return new DefinedMove(Move.UNPITCH);
 				}
 				// Mouvement explicite de bas en haut
 				else if (verticalDelta <= - MOVE_SIZE) {
 					if (RubiksCube2D.DEBUG)
 						System.out.println("### Vertical move from down to up detected !");
-					return new Defined3DMove(Move.PITCH);
+					return new DefinedMove(Move.PITCH);
 				}
 			}
 		}
@@ -88,12 +88,12 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							if (verticalDelta >= MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Anti hour circular move detected !");
-								return new Defined3DMove(Move.UNROLL);
+								return new DefinedMove(Move.UNROLL);
 							}
 							else if (verticalDelta <= - MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Hour circular move detected !");
-								return new Defined3DMove(Move.ROLL);
+								return new DefinedMove(Move.ROLL);
 							} 
 							break;
 							
@@ -101,12 +101,12 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							if (verticalDelta >= MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Hour circular move detected !");
-								return new Defined3DMove(Move.ROLL);
+								return new DefinedMove(Move.ROLL);
 							}
 							else if (verticalDelta <= - MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Anti hour circular move detected !");
-								return new Defined3DMove(Move.UNROLL);
+								return new DefinedMove(Move.UNROLL);
 							} 
 							break;
 							
@@ -114,12 +114,12 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							if (horizontalDelta >= MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Hour circular move detected !");
-								return new Defined3DMove(Move.ROLL);
+								return new DefinedMove(Move.ROLL);
 							}
 							else if (horizontalDelta <= - MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Anti hour circular move detected !");
-								return new Defined3DMove(Move.UNROLL);
+								return new DefinedMove(Move.UNROLL);
 							} 
 							break;
 							
@@ -127,12 +127,12 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							if (horizontalDelta >= MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Anti hour circular move detected !");
-								return new Defined3DMove(Move.UNROLL);
+								return new DefinedMove(Move.UNROLL);
 							}
 							else if (horizontalDelta <= - MOVE_SIZE) {
 								if (RubiksCube2D.DEBUG)
 									System.out.println("### Hour circular move detected !");
-								return new Defined3DMove(Move.ROLL);
+								return new DefinedMove(Move.ROLL);
 							} 
 							break;
 					}
@@ -145,7 +145,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							|| matchStartAndEndFaces(rc, Face.BOTTOM, Face.LEFT)) {
 						if (RubiksCube2D.DEBUG)
 							System.out.println("### Hour circular move detected !");
-						return new Defined3DMove(Move.ROLL);
+						return new DefinedMove(Move.ROLL);
 					}
 					else if (matchStartAndEndFaces(rc, Face.LEFT, Face.BOTTOM)
 							|| matchStartAndEndFaces(rc, Face.BOTTOM, Face.RIGHT)
@@ -153,7 +153,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							|| matchStartAndEndFaces(rc, Face.TOP, Face.LEFT)) {
 						if (RubiksCube2D.DEBUG)
 							System.out.println("### Anti hour circular move detected !");
-						return new Defined3DMove(Move.UNROLL);
+						return new DefinedMove(Move.UNROLL);
 					}
 				}
 			}
@@ -306,7 +306,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			
 			// On ne prend en compte le click relachŽ que si il se trouve sur le Rubik's Cube
 			if (isPointOnRubiksCube(rc, mouseReleasedPoint)) {
-				Defined3DMove definedMove = getMoveInProgress(rc, mouseReleasedPoint);
+				DefinedMove definedMove = getMoveInProgress(rc, mouseReleasedPoint);
 				if (definedMove != null) {
 					rc.move(definedMove);
 					
@@ -325,14 +325,14 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		}
 	}
 
-	private Defined3DMove getDefinedMoveInProgress(RubiksCube rc) {
+	private DefinedMove getDefinedMoveInProgress(RubiksCube rc) {
 		int size = rc.getSize();
 		Face startFace   = rc.getPressedFaceIdentified();
 		Point startPoint = rc.getPointOnPressedFaceIdentified();
 		Face endFace     = rc.getReleasedFaceIdentified();
 		Point endPoint   = rc.getPointOnReleasedFaceIdentified();
 		
-		Defined3DMove definedMove = new Defined3DMove();
+		DefinedMove definedMove = new DefinedMove();
 		
 		// On doit d'abord voir si les points sont cohŽrents :
 		// Sur une des faces horizontales

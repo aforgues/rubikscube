@@ -237,14 +237,14 @@ public class RubiksCube implements Cloneable {
 	
 	// Utiliser uniquement par le main pour le test Ascii
 	public void shuffle(int nbMove) {
-		List<Defined3DMove> moves = generateShuffleMoves(nbMove);
+		List<DefinedMove> moves = generateShuffleMoves(nbMove);
 		
 		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
 		for (int i = 1; i <= moves.size(); i++) {
 			if (VERBAL)
 				System.out.println("Shuffle move number " + i);
 			
-			Defined3DMove definedMove = moves.get(i - 1);
+			DefinedMove definedMove = moves.get(i - 1);
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
 			move(definedMove);
@@ -252,7 +252,7 @@ public class RubiksCube implements Cloneable {
 	}
 
 
-	public void move(Defined3DMove definedMove) {
+	public void move(DefinedMove definedMove) {
 		if (definedMove.getMove() != null) {
 			// On définit la liste d'index à déplacer
 			List<Integer> indexes = new ArrayList<Integer>();
@@ -309,9 +309,9 @@ public class RubiksCube implements Cloneable {
 		}
 	}
 	
-	public void move(List<Defined3DMove> moves) {
+	public void move(List<DefinedMove> moves) {
 		if (moves != null) {
-			for (Defined3DMove move : moves) {
+			for (DefinedMove move : moves) {
 				this.move(move);
 			}
 		}
@@ -320,11 +320,11 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Méthode permettant de mélanger le Rubik's Cube
 	 */
-	public List<Defined3DMove> generateShuffleMoves(int nbMove) {
+	public List<DefinedMove> generateShuffleMoves(int nbMove) {
 		if (VERBAL)
 			System.out.println("Starting shuffling Rubik's Cube in " + nbMove + " moves ...");
 		
-		List<Defined3DMove> moves = new ArrayList<Defined3DMove>(nbMove);
+		List<DefinedMove> moves = new ArrayList<DefinedMove>(nbMove);
 		
 		Random moveRandomGenerator = new Random();
 		Random faceRandomGenerator = new Random();
@@ -336,7 +336,7 @@ public class RubiksCube implements Cloneable {
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
 			int move = moveRandomGenerator.nextInt(Move.values().length - 1);
-			moves.add(new Defined3DMove(Defined3DMove.getMove(move), faceRandomGenerator.nextInt(getSize()) + 1));
+			moves.add(new DefinedMove(DefinedMove.getMove(move), faceRandomGenerator.nextInt(getSize()) + 1));
 		}
 		return moves;
 	}

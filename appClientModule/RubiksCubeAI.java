@@ -29,7 +29,7 @@ public class RubiksCubeAI {
 		return this.initialRcConfig != null && this.initialRcConfig.getSize() == 3;
 	}
 	
-	public List<Defined3DMove> computeArtificialIntelligence() {
+	public List<DefinedMove> computeArtificialIntelligence() {
 		if (! isAiAvalaible()) {
 			System.out.println("AI : only available for 3x3 Rubik's Cube !");
 			return Collections.emptyList();
@@ -43,8 +43,8 @@ public class RubiksCubeAI {
 		return computeNextMoves();
 	}
 
-	private List<Defined3DMove> computeNextMoves() {
-		List<Defined3DMove> path = new ArrayList<Defined3DMove>();
+	private List<DefinedMove> computeNextMoves() {
+		List<DefinedMove> path = new ArrayList<DefinedMove>();
 		
 		if (RubiksCube2D.DEBUG)
 			System.out.println("AI : starting to compute moves");
@@ -98,7 +98,7 @@ public class RubiksCubeAI {
 	/*
 	 * Prerequisite algorithm
 	 */
-	private void primeCube(List<Defined3DMove> path) {
+	private void primeCube(List<DefinedMove> path) {
 		RubiksCube rc = this.initialRcConfig;
 		
 		// Pre requisite : we must prime the cube
@@ -109,7 +109,7 @@ public class RubiksCubeAI {
 		// We move the top middle row clockwise, until the central facelet has the same color as previous topFacelet 
 		Cubie topFaceCenterCubie = rc.getCubie(2, 3, 2);
 		int nbMove = 0;
-		List<Defined3DMove> prereqPath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> prereqPath = new ArrayList<DefinedMove>();
 		while (! topFaceCenterCubie.getTopFace().equals(topFacelet) && ++nbMove <= 3) {
 			addLocalMove(prereqPath, Move.ROLL, 2);
 			topFaceCenterCubie = rc.getCubie(2, 3, 2);
@@ -137,7 +137,7 @@ public class RubiksCubeAI {
 	/*
 	 * Step One main algorithm
 	 */
-	private void placeTopRowCorner(List<Defined3DMove> path) {
+	private void placeTopRowCorner(List<DefinedMove> path) {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (matchesStepOneTopCross()) {
@@ -146,7 +146,7 @@ public class RubiksCubeAI {
 			return;
 		}
 		
-		List<Defined3DMove> stepOnePath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepOnePath = new ArrayList<DefinedMove>();
 
 		// First we turn the top front row to the left so that our original corner cubie is at the upper left of the front face
 		addLocalMove(stepOnePath, Move.YAW, rc.getSize());
@@ -165,7 +165,7 @@ public class RubiksCubeAI {
 			addLocalMove(stepOnePath, Move.ROLL, 1);
 			
 			if (RubiksCube2D.DEBUG)
-				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the left => " + new Defined3DMove(Move.ROLL, 1));			
+				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the left => " + new DefinedMove(Move.ROLL, 1));			
 		}
 		
 		// Then we check if our target cubie is on the top row of front face but on the wrong side on the right
@@ -174,14 +174,14 @@ public class RubiksCubeAI {
 			addLocalMove(stepOnePath, Move.UNPITCH, rc.getSize());
 			
 			if (RubiksCube2D.DEBUG)
-				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the right => " + new Defined3DMove(Move.UNPITCH, rc.getSize()));			
+				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the right => " + new DefinedMove(Move.UNPITCH, rc.getSize()));			
 		}
 		
 		// Our target cubie could already be at its good place (upper right of front face) but not facing the right way
 		Cubie frontFaceUpperRightCubie = rc.getCubie(3, 3, 3);
 		if (matchesCubieOnTwoFacelets(frontFaceUpperRightCubie, frontColor, topColor)) {
 			// Let's find where is the topColor on this upperRight corner cubie of the front face
-			List<Defined3DMove> stepOneTopRowMoves = null;
+			List<DefinedMove> stepOneTopRowMoves = null;
 			
 			// Then deduce step 1 algo when the match is front face : 4
 			if (frontFaceUpperRightCubie.getFrontFace().equals(topColor)) {
@@ -215,7 +215,7 @@ public class RubiksCubeAI {
 			
 			// We had no match => remove last three unuseful moves (YAW1)
 			if (nbBottomRowMove == 4) {
-				rc.move(new Defined3DMove(Move.YAW, 1));
+				rc.move(new DefinedMove(Move.YAW, 1));
 				stepOnePath.remove(stepOnePath.size() - 1);
 				stepOnePath.remove(stepOnePath.size() - 1);
 				stepOnePath.remove(stepOnePath.size() - 1);
@@ -226,7 +226,7 @@ public class RubiksCubeAI {
 					System.out.println("AI::stepOne => Moving front bottom row to the left until we match the target corner cubie => " + (nbBottomRowMove) + " * YAW@1");
 				
 				// Let's find where is the topColor on this bottomRight corner cubie of the front face
-				List<Defined3DMove> stepOneBottomRowMoves = null;
+				List<DefinedMove> stepOneBottomRowMoves = null;
 				
 				// Then deduce step 1 algo when the match is right face : 1
 				if (frontFaceBottomRightCubie.getRightFace().equals(topColor)) {
@@ -306,55 +306,55 @@ public class RubiksCubeAI {
 		return true;
 	}
 	
-	private static List<Defined3DMove> getStepOneAlgoOne() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.PITCH, 3));
+	private static List<DefinedMove> getStepOneAlgoOne() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.PITCH, 3));
 	}
 	
-	private static List<Defined3DMove> getStepOneAlgoTwo() {
-		return Arrays.asList(new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.PITCH, 3));
+	private static List<DefinedMove> getStepOneAlgoTwo() {
+		return Arrays.asList(new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.PITCH, 3));
 	}
 	
-	private static List<Defined3DMove> getStepOneAlgoThree() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.PITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.PITCH, 3));
+	private static List<DefinedMove> getStepOneAlgoThree() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.PITCH, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.PITCH, 3));
 	}
 
-	private static List<Defined3DMove> getStepOneAlgoFour() {
-		return Arrays.asList(new Defined3DMove(Move.ROLL, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNROLL, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.PITCH, 3));
+	private static List<DefinedMove> getStepOneAlgoFour() {
+		return Arrays.asList(new DefinedMove(Move.ROLL, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNROLL, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.PITCH, 3));
 	}
 
-	private static List<Defined3DMove> getStepOneAlgoFive() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.PITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.PITCH, 3));
+	private static List<DefinedMove> getStepOneAlgoFive() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.PITCH, 3),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.PITCH, 3));
 	}
 	
 	/*
 	 * Step Two main algorithm
 	 */
-	private void placeTheEdgesOfTopLayer(List<Defined3DMove> path) {
+	private void placeTheEdgesOfTopLayer(List<DefinedMove> path) {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (matchesStepTwo()) {
@@ -363,7 +363,7 @@ public class RubiksCubeAI {
 			return;
 		}
 		
-		List<Defined3DMove> stepTwoPath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepTwoPath = new ArrayList<DefinedMove>();
 		
 		// First we turn the top front row to the left for recursive purpose
 		addLocalMove(stepTwoPath, Move.YAW, rc.getSize());
@@ -371,7 +371,7 @@ public class RubiksCubeAI {
 		if (RubiksCube2D.DEBUG)
 			System.out.println("AI::stepTwo => Moving top front row to the left => " + stepTwoPath);
 		
-		List<Defined3DMove> stepTwoMoves = null;
+		List<DefinedMove> stepTwoMoves = null;
 		
 		// Let's identify upper left cubie of front face
 		Cubie frontFaceUpperLeftCubie = rc.getCubie(1, 3, 3);
@@ -406,7 +406,7 @@ public class RubiksCubeAI {
 			
 			// We had no match => remove last three unusefull moves (YAW2) and check on bottom row of front face
 			if (nbMiddleRowMove == 4) {
-				rc.move(new Defined3DMove(Move.YAW, 2));
+				rc.move(new DefinedMove(Move.YAW, 2));
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
@@ -450,7 +450,7 @@ public class RubiksCubeAI {
 				
 				// We had no match => remove last three unusefull moves (YAW1)
 				if (nbBottomRowMove == 4) {
-					rc.move(new Defined3DMove(Move.YAW, 1));
+					rc.move(new DefinedMove(Move.YAW, 1));
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					stepTwoPath.remove(stepTwoPath.size() - 1);
@@ -568,44 +568,44 @@ public class RubiksCubeAI {
 		return true;
 	}
 	
-	private static List<Defined3DMove> getStepTwoAlgoOne() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 2),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.PITCH, 2));
+	private static List<DefinedMove> getStepTwoAlgoOne() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 2),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.PITCH, 2));
 	}
 	
-	private static List<Defined3DMove> getStepTwoAlgoTwo() {
-		return Arrays.asList(new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 2),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.PITCH, 2));
+	private static List<DefinedMove> getStepTwoAlgoTwo() {
+		return Arrays.asList(new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.UNPITCH, 2),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.PITCH, 2));
 	}
 	
-	private static List<Defined3DMove> getStepTwoAlgoThree() {
-		return Arrays.asList(new Defined3DMove(Move.UNYAW, 2),
-				             new Defined3DMove(Move.ROLL, 3),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.UNROLL, 3));
+	private static List<DefinedMove> getStepTwoAlgoThree() {
+		return Arrays.asList(new DefinedMove(Move.UNYAW, 2),
+				             new DefinedMove(Move.ROLL, 3),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.UNROLL, 3));
 	}
 
-	private static List<Defined3DMove> getStepTwoAlgoFour() {
-		return Arrays.asList(new Defined3DMove(Move.UNYAW, 2),
-				             new Defined3DMove(Move.UNROLL, 3),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.ROLL, 3));
+	private static List<DefinedMove> getStepTwoAlgoFour() {
+		return Arrays.asList(new DefinedMove(Move.UNYAW, 2),
+				             new DefinedMove(Move.UNROLL, 3),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.ROLL, 3));
 	}
 
-	private static List<Defined3DMove> getStepTwoAlgoFive() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 2),
-							 new Defined3DMove(Move.YAW, 1),
-							 new Defined3DMove(Move.YAW, 1),
-							 new Defined3DMove(Move.PITCH, 2),
-				             new Defined3DMove(Move.YAW, 1),
-				             new Defined3DMove(Move.UNPITCH, 2),
-				             new Defined3DMove(Move.UNYAW, 1),
-				             new Defined3DMove(Move.PITCH, 2));
+	private static List<DefinedMove> getStepTwoAlgoFive() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 2),
+							 new DefinedMove(Move.YAW, 1),
+							 new DefinedMove(Move.YAW, 1),
+							 new DefinedMove(Move.PITCH, 2),
+				             new DefinedMove(Move.YAW, 1),
+				             new DefinedMove(Move.UNPITCH, 2),
+				             new DefinedMove(Move.UNYAW, 1),
+				             new DefinedMove(Move.PITCH, 2));
 	}
 	
 	
@@ -614,7 +614,7 @@ public class RubiksCubeAI {
 	 */	
 	
 	// Forming the Half-T
-	private void alignTheCenters(List<Defined3DMove> path) {
+	private void alignTheCenters(List<DefinedMove> path) {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (matchesStepThreeAlignTheCenters()) {
@@ -623,7 +623,7 @@ public class RubiksCubeAI {
 			return;
 		}
 		
-		List<Defined3DMove> stepThreePath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepThreePath = new ArrayList<DefinedMove>();
 		
 		// First we turn the top front row to the left for recursive purpose
 		addLocalMove(stepThreePath, Move.YAW, 2);
@@ -638,7 +638,7 @@ public class RubiksCubeAI {
 	}
 	
 	// Place the remaining edges
-	private void placeTheMiddleLayerEdges(List<Defined3DMove> path, int nbConsecutiveFaceWithoutFullTFound) {
+	private void placeTheMiddleLayerEdges(List<DefinedMove> path, int nbConsecutiveFaceWithoutFullTFound) {
 		if (matchesStepThreePlaceTheMiddleLayerEdges()) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => done !");
@@ -646,7 +646,7 @@ public class RubiksCubeAI {
 		}
 		
 		RubiksCube rc = this.initialRcConfig;
-		List<Defined3DMove> stepThreePath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepThreePath = new ArrayList<DefinedMove>();
 
 		// First we turn the top and middle front row to the left for recursive purpose
 		addLocalMove(stepThreePath, Move.YAW, rc.getSize());
@@ -691,7 +691,7 @@ public class RubiksCubeAI {
 		}
 		
 		// First check if the correct edge on the left side is in the proper position but is turned around
-		List<Defined3DMove> stepThreePreLeftMoves = null;
+		List<DefinedMove> stepThreePreLeftMoves = null;
 		if (frontFaceMiddleLeftEdgeCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())
 		 && frontFaceMiddleLeftEdgeCubie.getLeftFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace())) {
 			stepThreePreLeftMoves = getStepThreeAlgoLeft();
@@ -701,7 +701,7 @@ public class RubiksCubeAI {
 		addLocalMoves(stepThreePath, stepThreePreLeftMoves);
 		
 		// First check if the correct edge on the left side is in the proper position but is turned around
-		List<Defined3DMove> stepThreePreRightMoves = null;
+		List<DefinedMove> stepThreePreRightMoves = null;
 		if (frontFaceMiddleRightEdgeCubie.getFrontFace().equals(frontFaceUpperRightCornerCubie.getRightFace())
 		 && frontFaceMiddleRightEdgeCubie.getRightFace().equals(frontFaceUpperRightCornerCubie.getFrontFace())) {
 			stepThreePreRightMoves = getStepThreeAlgoRight();
@@ -722,7 +722,7 @@ public class RubiksCubeAI {
 		
 		// We had no match => remove last three unuseful moves (YAW1)
 		if (nbBottomRowMove == 4) {
-			rc.move(new Defined3DMove(Move.YAW, 1));
+			rc.move(new DefinedMove(Move.YAW, 1));
 			stepThreePath.remove(stepThreePath.size() - 1);
 			stepThreePath.remove(stepThreePath.size() - 1);
 			stepThreePath.remove(stepThreePath.size() - 1);
@@ -740,7 +740,7 @@ public class RubiksCubeAI {
 				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
 			
 			// Let's find where is the bottomColor : on left or right edge cubie ?
-			List<Defined3DMove> stepThreeMoves = null;
+			List<DefinedMove> stepThreeMoves = null;
 			
 			// Then deduce step 3 algo when the match is on the left
 			if (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())) {
@@ -846,26 +846,26 @@ public class RubiksCubeAI {
 		return true;
 	}
 	
-	private static List<Defined3DMove> getStepThreeAlgoLeft() {
-		return Arrays.asList(new Defined3DMove(Move.UNYAW, 1),
-	             			 new Defined3DMove(Move.UNPITCH, 1),
-	             			 new Defined3DMove(Move.YAW, 1),
-	             			 new Defined3DMove(Move.PITCH, 1),
-	             			 new Defined3DMove(Move.YAW, 1),
-	             			 new Defined3DMove(Move.UNROLL, 3),
-	             			 new Defined3DMove(Move.UNYAW, 1),
-	             			 new Defined3DMove(Move.ROLL, 3));
+	private static List<DefinedMove> getStepThreeAlgoLeft() {
+		return Arrays.asList(new DefinedMove(Move.UNYAW, 1),
+	             			 new DefinedMove(Move.UNPITCH, 1),
+	             			 new DefinedMove(Move.YAW, 1),
+	             			 new DefinedMove(Move.PITCH, 1),
+	             			 new DefinedMove(Move.YAW, 1),
+	             			 new DefinedMove(Move.UNROLL, 3),
+	             			 new DefinedMove(Move.UNYAW, 1),
+	             			 new DefinedMove(Move.ROLL, 3));
 	}
 
-	private static List<Defined3DMove> getStepThreeAlgoRight() {
-		return Arrays.asList(new Defined3DMove(Move.YAW, 1),
-    			 			 new Defined3DMove(Move.UNPITCH, 3),
-    			 			 new Defined3DMove(Move.UNYAW, 1),
-    			 			 new Defined3DMove(Move.PITCH, 3),
-    			 			 new Defined3DMove(Move.UNYAW, 1),
-    			 			 new Defined3DMove(Move.ROLL, 3),
-    			 			 new Defined3DMove(Move.YAW, 1),
-    			 			 new Defined3DMove(Move.UNROLL, 3));
+	private static List<DefinedMove> getStepThreeAlgoRight() {
+		return Arrays.asList(new DefinedMove(Move.YAW, 1),
+    			 			 new DefinedMove(Move.UNPITCH, 3),
+    			 			 new DefinedMove(Move.UNYAW, 1),
+    			 			 new DefinedMove(Move.PITCH, 3),
+    			 			 new DefinedMove(Move.UNYAW, 1),
+    			 			 new DefinedMove(Move.ROLL, 3),
+    			 			 new DefinedMove(Move.YAW, 1),
+    			 			 new DefinedMove(Move.UNROLL, 3));
 	}
 	
 	/*
@@ -873,7 +873,7 @@ public class RubiksCubeAI {
 	 */
 	
 	// Here we turn the entire cube upside down to prepare next step algorithm
-	private void turnTheCubeOver(List<Defined3DMove> path) {
+	private void turnTheCubeOver(List<DefinedMove> path) {
 		turnTheCube(path, Move.DOUBLE_ROLL);
 		
 		if (RubiksCube2D.DEBUG)
@@ -881,7 +881,7 @@ public class RubiksCubeAI {
 	}
 	
 	// Here we turn the entire cube frontside back
-	private void turnTheCubeAround(List<Defined3DMove> path) {
+	private void turnTheCubeAround(List<DefinedMove> path) {
 		turnTheCube(path, Move.DOUBLE_YAW);
 		
 		if (RubiksCube2D.DEBUG)
@@ -889,7 +889,7 @@ public class RubiksCubeAI {
 	}
 	
 	// Arrange the corners of last layer (on top now) without good facelets on good place
-	private void arrangeTheLastLayerCorners(List<Defined3DMove> path) {
+	private void arrangeTheLastLayerCorners(List<DefinedMove> path) {
 		if (matchesStepFour()) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => done !");
@@ -897,7 +897,7 @@ public class RubiksCubeAI {
 		}
 		
 		RubiksCube rc = this.initialRcConfig;
-		List<Defined3DMove> stepFourPath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepFourPath = new ArrayList<DefinedMove>();
 		
 		// First we get the top color
 		Facelet topColor = rc.getCubie(2, 3, 2).getTopFace();
@@ -926,7 +926,7 @@ public class RubiksCubeAI {
 		
 		// We had no match => remove last three unusefull moves (YAW3)
 		if (nbTopRowMove == 4) {
-			rc.move(new Defined3DMove(Move.YAW, rc.getSize()));
+			rc.move(new DefinedMove(Move.YAW, rc.getSize()));
 			stepFourPath.remove(stepFourPath.size() - 1);
 			stepFourPath.remove(stepFourPath.size() - 1);
 			stepFourPath.remove(stepFourPath.size() - 1);
@@ -997,7 +997,7 @@ public class RubiksCubeAI {
 		
 		// First we turn the entire cubie upside down to match the previous steps
 		for (int i = 1; i <= rc.getSize(); i++) {
-			rc.move(new Defined3DMove(Move.DOUBLE_ROLL, i));
+			rc.move(new DefinedMove(Move.DOUBLE_ROLL, i));
 		}
 		
 		if (! matchesStepThreePlaceTheMiddleLayerEdges())
@@ -1005,7 +1005,7 @@ public class RubiksCubeAI {
 		
 		// Then we move back the entire cubie upside down to go on with the next steps
 		for (int i = 1; i <= rc.getSize(); i++) {
-			rc.move(new Defined3DMove(Move.DOUBLE_ROLL, i));
+			rc.move(new DefinedMove(Move.DOUBLE_ROLL, i));
 		}
 		
 		// Now we check each corner cubie of top face
@@ -1039,38 +1039,38 @@ public class RubiksCubeAI {
 		return true;
 	}	
 
-	private static List<Defined3DMove> getStepFourAlgoSwitchOneAndTwo() {
-		return Arrays.asList(new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.ROLL, 3),
-				             new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.UNROLL, 3),
-				             new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.YAW, 3));
+	private static List<DefinedMove> getStepFourAlgoSwitchOneAndTwo() {
+		return Arrays.asList(new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.ROLL, 3),
+				             new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.UNROLL, 3),
+				             new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.YAW, 3));
 	}
 	
-	private static List<Defined3DMove> getStepFourAlgoSwitchOneAndThree() {
-		return Arrays.asList(new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.ROLL, 3),
-				             new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.UNROLL, 3),
-				             new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.YAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.YAW, 3));
+	private static List<DefinedMove> getStepFourAlgoSwitchOneAndThree() {
+		return Arrays.asList(new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.ROLL, 3),
+				             new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.UNROLL, 3),
+				             new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.YAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.YAW, 3));
 	}
 	
 	/*
 	 * Step Five main algorithm
 	 */
-	private void finishTheLastLayerCorners(List<Defined3DMove> path, int nbConsecutiveFaceWithoutConfigFound) {
+	private void finishTheLastLayerCorners(List<DefinedMove> path, int nbConsecutiveFaceWithoutConfigFound) {
 		if (matchesStepFive()) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("AI::stepFive => done !");
@@ -1078,7 +1078,7 @@ public class RubiksCubeAI {
 		}
 		
 		RubiksCube rc = this.initialRcConfig;
-		List<Defined3DMove> stepFivePath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepFivePath = new ArrayList<DefinedMove>();
 		
 		// Get top color from top face center cubie
 		Facelet topColor = rc.getCubie(2, 3, 2).getTopFace();
@@ -1134,24 +1134,24 @@ public class RubiksCubeAI {
 		return true;
 	}
 	
-	private static List<Defined3DMove> getStepFiveAlgo() {
-		return Arrays.asList(new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.PITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 1),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNYAW, 3));
+	private static List<DefinedMove> getStepFiveAlgo() {
+		return Arrays.asList(new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.PITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 1),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNYAW, 3));
 	}
 	
 	/*
 	 * Step Six main algorithm
 	 * Warning : in some cases, we won't be able to completely solve two edges, in this case we will have all 4 edges correctly positionned => step seven "H" pattern will resolve this :)
 	 */
-	private void finishTwoEdgesAndPrepareRemainingTwo(List<Defined3DMove> path) {
+	private void finishTwoEdgesAndPrepareRemainingTwo(List<DefinedMove> path) {
 		if (matchesStepSix()) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("AI::stepSix => done !");
@@ -1159,7 +1159,7 @@ public class RubiksCubeAI {
 		}
 		
 		RubiksCube rc = this.initialRcConfig;
-		List<Defined3DMove> stepSixPath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepSixPath = new ArrayList<DefinedMove>();
 		
 		// Get top color from top face center cubie
 		Facelet topColor = rc.getCubie(2, 3, 2).getTopFace();
@@ -1174,7 +1174,7 @@ public class RubiksCubeAI {
 		// We had no match => remove last three unusefull moves (YAW)
 		if (nbEntireCubeMove == 4) {
 			for (int i = 1; i <= rc.getSize(); i++) {
-				rc.move(new Defined3DMove(Move.YAW, i));
+				rc.move(new DefinedMove(Move.YAW, i));
 				stepSixPath.remove(stepSixPath.size() - 1);
 				stepSixPath.remove(stepSixPath.size() - 1);
 				stepSixPath.remove(stepSixPath.size() - 1);
@@ -1259,21 +1259,21 @@ public class RubiksCubeAI {
 		return count;
 	}
 	
-	private static List<Defined3DMove> getStepSixAlgo() {
-		return Arrays.asList(new Defined3DMove(Move.PITCH, 2),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 2),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.PITCH, 2),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNPITCH, 2));
+	private static List<DefinedMove> getStepSixAlgo() {
+		return Arrays.asList(new DefinedMove(Move.PITCH, 2),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 2),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.PITCH, 2),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNPITCH, 2));
 	}
 	
 	/*
 	 * Step Seven main algorithm
 	 */
-	private void solveTheRubiksCube(List<Defined3DMove> path) {
+	private void solveTheRubiksCube(List<DefinedMove> path) {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (rc.isSolved()) {
@@ -1282,7 +1282,7 @@ public class RubiksCubeAI {
 			return;
 		}
 		
-		List<Defined3DMove> stepSevenPath = new ArrayList<Defined3DMove>();
+		List<DefinedMove> stepSevenPath = new ArrayList<DefinedMove>();
 		
 		// Special case where step 6 did not completely solve two of the four edge cubies => apply H pattern algo
 		if (countCompletelySolvedTopEdgeCubie() == 0) {
@@ -1302,7 +1302,7 @@ public class RubiksCubeAI {
 		// We had no match => remove last three unusefull moves (YAW)
 		if (nbEntireCubeMove == 4) {
 			for (int i = 1; i <= rc.getSize(); i++) {
-				rc.move(new Defined3DMove(Move.YAW, i));
+				rc.move(new DefinedMove(Move.YAW, i));
 				stepSevenPath.remove(stepSevenPath.size() - 1);
 				stepSevenPath.remove(stepSevenPath.size() - 1);
 				stepSevenPath.remove(stepSevenPath.size() - 1);
@@ -1452,32 +1452,32 @@ public class RubiksCubeAI {
 		return true;
 	}
 	
-	private static List<Defined3DMove> getStepSevenAlgoHPattern() {
-		return Arrays.asList(new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.YAW, 2),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.PITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 2),
-				             new Defined3DMove(Move.UNYAW, 2),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNPITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 2),
-				             new Defined3DMove(Move.PITCH, 3),
-				             new Defined3DMove(Move.UNYAW, 3),
-				             new Defined3DMove(Move.UNYAW, 3));
+	private static List<DefinedMove> getStepSevenAlgoHPattern() {
+		return Arrays.asList(new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.YAW, 2),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.PITCH, 3),
+				             new DefinedMove(Move.UNYAW, 2),
+				             new DefinedMove(Move.UNYAW, 2),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNPITCH, 3),
+				             new DefinedMove(Move.UNYAW, 2),
+				             new DefinedMove(Move.PITCH, 3),
+				             new DefinedMove(Move.UNYAW, 3),
+				             new DefinedMove(Move.UNYAW, 3));
 	}
 	
-	private static List<Defined3DMove> getStepSevenAlgoFishPattern() {
-		List<Defined3DMove> moves = new ArrayList<Defined3DMove>();
-		moves.addAll(Arrays.asList(new Defined3DMove(Move.UNROLL, 3), new Defined3DMove(Move.PITCH, 1)));
+	private static List<DefinedMove> getStepSevenAlgoFishPattern() {
+		List<DefinedMove> moves = new ArrayList<DefinedMove>();
+		moves.addAll(Arrays.asList(new DefinedMove(Move.UNROLL, 3), new DefinedMove(Move.PITCH, 1)));
 		moves.addAll(getStepSevenAlgoHPattern());
-		moves.addAll(Arrays.asList(new Defined3DMove(Move.UNPITCH, 1), new Defined3DMove(Move.ROLL, 3)));
+		moves.addAll(Arrays.asList(new DefinedMove(Move.UNPITCH, 1), new DefinedMove(Move.ROLL, 3)));
 		return moves;
 	}
 	
@@ -1485,13 +1485,13 @@ public class RubiksCubeAI {
 	 * Global utility methods
 	 */
 
-	private void addLocalMove(List<Defined3DMove> localPath, Move move, int faceIndex) {
-		Defined3DMove defined3DMove = new Defined3DMove(move, faceIndex); 
+	private void addLocalMove(List<DefinedMove> localPath, Move move, int faceIndex) {
+		DefinedMove defined3DMove = new DefinedMove(move, faceIndex); 
 		this.initialRcConfig.move(defined3DMove);
 		localPath.add(defined3DMove);
 	}
 
-	private void addLocalMoves(List<Defined3DMove> localPath, List<Defined3DMove> moves) {
+	private void addLocalMoves(List<DefinedMove> localPath, List<DefinedMove> moves) {
 		if (moves != null) {
 			this.initialRcConfig.move(moves);
 			localPath.addAll(moves);
@@ -1499,7 +1499,7 @@ public class RubiksCubeAI {
 	}
 	
 	// Here we turn the entire cube considering given Move param
-	private void turnTheCube(List<Defined3DMove> path, Move move) {
+	private void turnTheCube(List<DefinedMove> path, Move move) {
 		for (int i=1; i <= this.initialRcConfig.getSize(); i++) {
 			addLocalMove(path, move, i);
 		}
@@ -1548,11 +1548,11 @@ public class RubiksCubeAI {
 		return count;
 	}
 	
-	private static void optimizeMoves(List<Defined3DMove> path) {
-		Defined3DMove prevMove = null;
+	private static void optimizeMoves(List<DefinedMove> path) {
+		DefinedMove prevMove = null;
 		int count = 1;
-		for (ListIterator<Defined3DMove> it = path.listIterator(); it.hasNext(); ) {
-			Defined3DMove move = it.next();
+		for (ListIterator<DefinedMove> it = path.listIterator(); it.hasNext(); ) {
+			DefinedMove move = it.next();
 			
 			/*
 			 * Check if some move is repeated 3 times
@@ -1576,7 +1576,7 @@ public class RubiksCubeAI {
 					System.out.println("AI : we should replace last three " + move + " with a " + Move.inverse(move.getMove()) + "@" + move.getFaceIndex());
 				
 				// Finally we replace with the inverse move
-				move = new Defined3DMove(Move.inverse(move.getMove()), move.getFaceIndex());
+				move = new DefinedMove(Move.inverse(move.getMove()), move.getFaceIndex());
 				it.add(move);
 				
 				// We reinit the previous correctly then we reset the iterator at the current position
@@ -1589,7 +1589,7 @@ public class RubiksCubeAI {
 			/*
 			 * Check if some move is followed by its opposite
 			 */
-			if (prevMove != null && move.equals(new Defined3DMove(Move.inverse(prevMove.getMove()), prevMove.getFaceIndex()))) {
+			if (prevMove != null && move.equals(new DefinedMove(Move.inverse(prevMove.getMove()), prevMove.getFaceIndex()))) {
 				it.remove();
 				it.previous();
 				it.remove();

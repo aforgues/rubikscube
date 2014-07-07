@@ -1,5 +1,5 @@
 
-public class Defined3DMove {
+public class DefinedMove {
 
 	private static final int NO_INDEX_FOR_FACE_MOVE = -1;
 	
@@ -13,14 +13,14 @@ public class Defined3DMove {
 	public void setMove(Move move) {this.move = move;}
 	public void setFaceIndex(int faceIndex) {this.faceIndex = faceIndex;}
 	
-	public Defined3DMove() {}
+	public DefinedMove() {}
 
-	public Defined3DMove(Move move, int faceIndex) {
+	public DefinedMove(Move move, int faceIndex) {
 		this.move = move;
 		this.faceIndex = faceIndex;
 	}
 	
-	public Defined3DMove(Move move) {
+	public DefinedMove(Move move) {
 		this(move, NO_INDEX_FOR_FACE_MOVE);
 	}
 	
@@ -52,7 +52,7 @@ public class Defined3DMove {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Defined3DMove other = (Defined3DMove) obj;
+		DefinedMove other = (DefinedMove) obj;
 		if (faceIndex != other.faceIndex)
 			return false;
 		if (move != other.move)

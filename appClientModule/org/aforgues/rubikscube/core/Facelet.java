@@ -1,3 +1,4 @@
+package org.aforgues.rubikscube.core;
 /**
  * Enum permettant de lister les diffrentes couleurs possibles des diffrentes faces d'un cube composant une face du Rubki's Cube
  * 

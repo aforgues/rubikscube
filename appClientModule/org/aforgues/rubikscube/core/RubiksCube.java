@@ -1,8 +1,13 @@
+package org.aforgues.rubikscube.core;
+
+
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import org.aforgues.rubikscube.presentation.RubiksCube2D;
 
 /**
  * Classe de configuration du Rubik's Cube

@@ -1,6 +1,13 @@
+package org.aforgues.rubikscube.presentation;
+
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import org.aforgues.rubikscube.core.DefinedMove;
+import org.aforgues.rubikscube.core.Face;
+import org.aforgues.rubikscube.core.Move;
+import org.aforgues.rubikscube.core.RubiksCube;
 
 final class RubiksCube2DMouseListener implements MouseListener {
 	// TODO: ˆ supprimer et remplacer par les variables de RubiksCube

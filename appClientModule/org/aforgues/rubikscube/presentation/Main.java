@@ -1,3 +1,6 @@
+package org.aforgues.rubikscube.presentation;
+import org.aforgues.rubikscube.core.RubiksCube;
+
 
 public class Main {
 	public static void main(String[] args) {

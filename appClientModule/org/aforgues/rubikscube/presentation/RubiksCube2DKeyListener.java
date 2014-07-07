@@ -1,5 +1,10 @@
+package org.aforgues.rubikscube.presentation;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import org.aforgues.rubikscube.ai.RubiksCubeAI;
+import org.aforgues.rubikscube.core.RubiksCube;
 
 
 final class RubiksCube2DKeyListener implements KeyListener {

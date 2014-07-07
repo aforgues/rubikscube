@@ -1,3 +1,4 @@
+package org.aforgues.rubikscube.core;
 
 public class ThreeDimCoordinate implements Comparable<ThreeDimCoordinate>, Cloneable {
 

@@ -1,8 +1,14 @@
+package org.aforgues.rubikscube.presentation;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.Collections;
 import java.util.List;
+
+import org.aforgues.rubikscube.core.CubeExtractorUtility;
+import org.aforgues.rubikscube.core.Cubie;
+import org.aforgues.rubikscube.core.Face;
+import org.aforgues.rubikscube.core.RubiksCube;
 
 /**
  * 

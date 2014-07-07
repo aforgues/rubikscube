@@ -1,5 +1,7 @@
+package org.aforgues.rubikscube.core;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class CubeExtractorUtility {
 

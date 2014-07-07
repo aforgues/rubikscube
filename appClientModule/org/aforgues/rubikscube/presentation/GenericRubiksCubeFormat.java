@@ -1,3 +1,6 @@
+package org.aforgues.rubikscube.presentation;
+import org.aforgues.rubikscube.core.RubiksCube;
+
 public abstract class GenericRubiksCubeFormat {
 
 	protected RubiksCube rubiksCube;

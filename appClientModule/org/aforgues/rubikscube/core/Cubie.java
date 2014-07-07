@@ -1,3 +1,5 @@
+package org.aforgues.rubikscube.core;
+
 
 public class Cubie implements Comparable<Cubie>, Cloneable {
 	

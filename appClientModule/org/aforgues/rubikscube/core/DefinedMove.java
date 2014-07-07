@@ -1,3 +1,5 @@
+package org.aforgues.rubikscube.core;
+
 
 public class DefinedMove {
 

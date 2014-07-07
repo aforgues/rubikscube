@@ -1,3 +1,4 @@
+package org.aforgues.rubikscube.presentation;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,12 +10,15 @@ import java.awt.event.WindowEvent;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
+import org.aforgues.rubikscube.core.Facelet;
+import org.aforgues.rubikscube.core.RubiksCube;
+
 
 public class RubiksCube2D extends JApplet {
 
 
 	private static final long serialVersionUID = 1L;
-	static final boolean DEBUG = false;
+	public static final boolean DEBUG = false;
 	
 	private RubiksCube rubiksCube;
 	

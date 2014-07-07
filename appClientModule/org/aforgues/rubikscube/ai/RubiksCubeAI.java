@@ -1,8 +1,17 @@
+package org.aforgues.rubikscube.ai;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
+
+import org.aforgues.rubikscube.core.Cubie;
+import org.aforgues.rubikscube.core.DefinedMove;
+import org.aforgues.rubikscube.core.Facelet;
+import org.aforgues.rubikscube.core.Move;
+import org.aforgues.rubikscube.core.RubiksCube;
+import org.aforgues.rubikscube.presentation.RubiksCube2D;
 
 
 public class RubiksCubeAI {

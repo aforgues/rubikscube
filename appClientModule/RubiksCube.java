@@ -253,37 +253,59 @@ public class RubiksCube implements Cloneable {
 
 
 	public void move(Defined3DMove definedMove) {
-		switch (definedMove.getMove()) {
-			case PITCH:
-				pitch(definedMove.getFaceIndex());
-				break;
-			case DOUBLE_PITCH: // a virer ??
-				pitch(definedMove.getFaceIndex());
-				pitch(definedMove.getFaceIndex());
-				break;
-			case UNPITCH:
-				unpitch(definedMove.getFaceIndex());
-				break;
-			case YAW:
-				yaw(definedMove.getFaceIndex());
-				break;
-			case DOUBLE_YAW:// a virer ??
-				yaw(definedMove.getFaceIndex());
-				yaw(definedMove.getFaceIndex());
-				break;
-			case UNYAW:
-				unyaw(definedMove.getFaceIndex());
-				break;
-			case ROLL:
-				roll(definedMove.getFaceIndex());
-				break;
-			case DOUBLE_ROLL:// a virer ??
-				roll(definedMove.getFaceIndex());
-				roll(definedMove.getFaceIndex());
-				break;
-			case UNROLL:
-				unroll(definedMove.getFaceIndex());
-				break;	
+		if (definedMove.getMove() != null) {
+			// On définit la liste d'index à déplacer
+			List<Integer> indexes = new ArrayList<Integer>();
+			if (definedMove.isFaceMove()) {
+				for (int i = 1; i <= getSize(); i++) {
+					indexes.add(Integer.valueOf(i));
+				}
+			}
+			else {
+				indexes.add(definedMove.getFaceIndex());
+			}
+			
+			// Ensuite on boucle sur ces indexes pour déplacer la ou les faces du cube souhaitées
+			for (int index : indexes) {
+				switch (definedMove.getMove()) {
+					// On tourne le cube autour de l'axe X 
+					case PITCH:
+						pitch(index);
+						break;
+					case DOUBLE_PITCH:
+						pitch(index);
+						pitch(index);
+						break;
+					// On tourne le cube autour de l'axe X 
+					case UNPITCH:
+						unpitch(index);
+						break;
+					// On tourne le cube autour de l'axe Y 
+					case YAW:
+						yaw(index);
+						break;
+					case DOUBLE_YAW:
+						yaw(index);
+						yaw(index);
+						break;
+					// On tourne le cube autour de l'axe Y 
+					case UNYAW:
+						unyaw(index);
+						break;
+					// On tourne le cube autour de l'axe Z globalement
+					case ROLL:
+						roll(index);
+						break;
+					case DOUBLE_ROLL:
+						roll(index);
+						roll(index);
+						break;
+					// On tourne le cube autour de l'axe Z globalement
+					case UNROLL:
+						unroll(index);
+						break;	
+				}
+			}
 		}
 	}
 	

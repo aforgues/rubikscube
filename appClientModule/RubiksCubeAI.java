@@ -26,7 +26,7 @@ public class RubiksCubeAI {
 	}
 	
 	private boolean isAiAvalaible() {
-		return this.initialRcConfig.getSize() == 3;
+		return this.initialRcConfig != null && this.initialRcConfig.getSize() == 3;
 	}
 	
 	public List<Defined3DMove> computeArtificialIntelligence() {

@@ -258,7 +258,7 @@ public class RubiksCube implements Cloneable {
 
 
 	public void move(DefinedMove definedMove) {
-		if (definedMove.getMove() != null) {
+		if (definedMove != null && definedMove.getMove() != null) {
 			// On définit la liste d'index à déplacer
 			List<Integer> indexes = new ArrayList<Integer>();
 			if (definedMove.isFaceMove()) {

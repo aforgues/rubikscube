@@ -2,8 +2,10 @@ package org.aforgues.rubikscube.presentation;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.List;
 
 import org.aforgues.rubikscube.ai.RubiksCubeAI;
+import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.RubiksCube;
 
 
@@ -52,7 +54,16 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				break;
 			case 't':
 				RubiksCubeAI ai = new RubiksCubeAI(applet.getRubiksCube(), false);
-				ai.computeArtificialIntelligence();
+				List<DefinedMove> moves = ai.computeArtificialIntelligence();
+				applet.setDefinedMoves(moves);
+				break;
+			case 'n':
+				DefinedMove move = applet.getNextMove();
+				if (move != null) {
+					System.out.println("Move : " + move);
+					applet.getRubiksCube().move(move);
+					applet.repaint();
+				}
 				break;
 			case 'y':
 				RubiksCubeAI ai2 = new RubiksCubeAI(applet.getRubiksCube(), true);

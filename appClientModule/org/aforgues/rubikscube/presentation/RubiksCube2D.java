@@ -6,10 +6,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
+import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.Facelet;
 import org.aforgues.rubikscube.core.RubiksCube;
 
@@ -22,12 +24,35 @@ public class RubiksCube2D extends JApplet {
 	
 	private RubiksCube rubiksCube;
 	
+	// Champs spéciaux pour le calcul de l'IA
+	private List<DefinedMove> moves;
+	private int currentMoveIndex;
+	
 	public void initRubiksCube(int size) {
 		this.rubiksCube = new RubiksCube(size);
 	}
 
-	public RubiksCube getRubiksCube() {
-		return this.rubiksCube;
+	public RubiksCube getRubiksCube() {return this.rubiksCube;}
+	public List<DefinedMove> getMoves() {return this.moves;}
+	public DefinedMove getNextMove() {
+		if (this.moves == null || this.moves.isEmpty())
+			return null;
+		
+		if (this.currentMoveIndex == this.moves.size())
+			return null;
+		
+		return this.moves.get(currentMoveIndex++);
+	}
+	
+	public void setDefinedMoves(List<DefinedMove> moves) {
+		this.moves = moves;
+		this.currentMoveIndex = 0;
+	}
+	
+	// TODO : utiliser cette méthode lors de n'importe quel mouvement autre que l'appui sur la touche 'N'
+	public void clearDefinedMoves() {
+		this.moves = null;
+		this.currentMoveIndex = 0;
 	}
 	
 	public void init() {

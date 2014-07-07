@@ -94,7 +94,8 @@ public class RubiksCubeAI {
 			System.out.println("AI : complete path (before optimization) is => " + path);
 		
 		// Finally we optimize moves in order to replace 3 PITCH with an UNPITCH for example
-		optimizeMoves(path);
+		// FIXME: en testant manuellement l'algo, on identifie un bug qui fait qu'on n'arrive plus au bout de la résolution du Rubik's Cube
+		//optimizeMoves(path);
 		
 		long duration = System.currentTimeMillis() - start;
 
@@ -624,8 +625,6 @@ public class RubiksCubeAI {
 	
 	// Forming the Half-T
 	private void alignTheCenters(List<DefinedMove> path) {
-		RubiksCube rc = this.initialRcConfig;
-		
 		if (matchesStepThreeAlignTheCenters()) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("AI::stepThree::AlignTheCenters => done !");
@@ -1495,9 +1494,9 @@ public class RubiksCubeAI {
 	 */
 
 	private void addLocalMove(List<DefinedMove> localPath, Move move, int faceIndex) {
-		DefinedMove defined3DMove = new DefinedMove(move, faceIndex); 
-		this.initialRcConfig.move(defined3DMove);
-		localPath.add(defined3DMove);
+		DefinedMove definedMove = new DefinedMove(move, faceIndex); 
+		this.initialRcConfig.move(definedMove);
+		localPath.add(definedMove);
 	}
 
 	private void addLocalMoves(List<DefinedMove> localPath, List<DefinedMove> moves) {

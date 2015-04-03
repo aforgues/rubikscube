@@ -11,7 +11,7 @@ public abstract class GenericRubiksCubeFormat {
 	}
 
 	/**
-	 * Méthode principale d'affichage du cube sous toutes ses faces 
+	 * M√©thode principale d'affichage du cube sous toutes ses faces 
 	 */
 	public void show() {
 		showBackFace();
@@ -23,7 +23,7 @@ public abstract class GenericRubiksCubeFormat {
 	}
 
 	/**
-	 * Cubes attendus pour l'affichage de la face arrière
+	 * Cubes attendus pour l'affichage de la face arri√®re
 	 * 
 	 * X1Y1Z1 X2Y1Z1 X3Y1Z1 
 	 *                    

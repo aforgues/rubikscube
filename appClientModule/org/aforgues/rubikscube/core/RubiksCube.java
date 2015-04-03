@@ -72,7 +72,7 @@ public class RubiksCube implements Cloneable {
 	}
 	    
 	/**
-	 * Initialisation de la configuration d'un Rubik's Cube terminé
+	 * Initialisation de la configuration d'un Rubik's Cube termin√©
 	 */
 	private void initConfig() {
 		if (VERBAL)
@@ -84,7 +84,7 @@ public class RubiksCube implements Cloneable {
 		 * Face droite  : verte
 		 * Face basse   : blanche
 		 * Face haute   : jaune
-		 * Face arrière : orange 
+		 * Face arri√®re : orange 
 		 */
 		
 		config = new ArrayList<Cubie>();
@@ -122,7 +122,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/**
-	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade avant ou un frontflip en snowboard) : tangage
+	 * Rotation selon l'axe X de 90¬∞ vers l'avant (comme une roulade avant ou un frontflip en snowboard) : tangage
 	 */
 	public void pitch(int index) {
 		if (VERBAL)
@@ -138,7 +138,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/**
-	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade arrière ou un backflip en snowboard) : tangage
+	 * Rotation selon l'axe X de 90¬∞ vers l'avant (comme une roulade arri√®re ou un backflip en snowboard) : tangage
 	 */
 	public void unpitch(int index) {
 		if (VERBAL)
@@ -150,7 +150,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/**
-	 * Rotation selon l'axe Y de 90° vers la droite (comme un toupis dans le sens des aiguilles d'une montre vue de haut) : lacet
+	 * Rotation selon l'axe Y de 90¬∞ vers la droite (comme un toupis dans le sens des aiguilles d'une montre vue de haut) : lacet
 	 */
 	public void yaw(int index) {
 		if (VERBAL)
@@ -166,7 +166,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/**
-	 * Rotation selon l'axe Y de 90° vers la gauche (comme un toupis de gaucher dans le sens inverse des aiguilles d'une montre vue de haut) : lacet
+	 * Rotation selon l'axe Y de 90¬∞ vers la gauche (comme un toupis de gaucher dans le sens inverse des aiguilles d'une montre vue de haut) : lacet
 	 */
 	public void unyaw(int index) {
 		if (VERBAL)
@@ -178,7 +178,7 @@ public class RubiksCube implements Cloneable {
 	}
 
 	/**
-	 * Rotation selon l'axe Z de 90° vers la droite (comme pour fermer une porte à clef dans le sens des aiguilles d'une montre vue de face)  : roulis
+	 * Rotation selon l'axe Z de 90¬∞ vers la droite (comme pour fermer une porte √† clef dans le sens des aiguilles d'une montre vue de face)  : roulis
 	 */
 	public void roll(int index) {
 		if (VERBAL)
@@ -194,7 +194,7 @@ public class RubiksCube implements Cloneable {
 	}
 
 	/**
-	 * Rotation selon l'axe Z de 90° vers la gauche (comme pour ouvrir une porte à clef dans le sens inverse des aiguilles d'une montre vue de face)  : roulis
+	 * Rotation selon l'axe Z de 90¬∞ vers la gauche (comme pour ouvrir une porte √† clef dans le sens inverse des aiguilles d'une montre vue de face)  : roulis
 	 */
 	public void unroll(int index) {
 		if (VERBAL)
@@ -210,7 +210,7 @@ public class RubiksCube implements Cloneable {
 			System.out.println("Retrieving cubes of axis " + axis.name() + " on face " + index);
 		
 		if (index < 1 || index > getSize()) {
-			System.out.println("### ERROR : Cannot rotate RubiksCube face n°" + index + " on " + axis.name() + " axis => allowed indexes are in [1-" + getSize() + "] range");
+			System.out.println("### ERROR : Cannot rotate RubiksCube face n¬∞" + index + " on " + axis.name() + " axis => allowed indexes are in [1-" + getSize() + "] range");
 			return Collections.emptyList();
 		}
 		
@@ -244,14 +244,14 @@ public class RubiksCube implements Cloneable {
 	public void shuffle(int nbMove) {
 		List<DefinedMove> moves = generateShuffleMoves(nbMove);
 		
-		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
+		// On va effectuer <code>moves</code> mouvements al√©atoires √† la suite
 		for (int i = 1; i <= moves.size(); i++) {
 			if (VERBAL)
 				System.out.println("Shuffle move number " + i);
 			
 			DefinedMove definedMove = moves.get(i - 1);
 			
-			// On récupère un des 9 mouvements possibles aléatoirement
+			// On r√©cup√®re un des 9 mouvements possibles al√©atoirement
 			move(definedMove);
 		}
 	}
@@ -259,7 +259,7 @@ public class RubiksCube implements Cloneable {
 
 	public void move(DefinedMove definedMove) {
 		if (definedMove != null && definedMove.getMove() != null) {
-			// On définit la liste d'index à déplacer
+			// On d√©finit la liste d'index √† d√©placer
 			List<Integer> indexes = new ArrayList<Integer>();
 			if (definedMove.isFaceMove()) {
 				for (int i = 1; i <= getSize(); i++) {
@@ -270,7 +270,7 @@ public class RubiksCube implements Cloneable {
 				indexes.add(definedMove.getFaceIndex());
 			}
 			
-			// Ensuite on boucle sur ces indexes pour déplacer la ou les faces du cube souhaitées
+			// Ensuite on boucle sur ces indexes pour d√©placer la ou les faces du cube souhait√©es
 			for (int index : indexes) {
 				switch (definedMove.getMove()) {
 					// On tourne le cube autour de l'axe X 
@@ -323,7 +323,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/**
-	 * Méthode permettant de mélanger le Rubik's Cube
+	 * M√©thode permettant de m√©langer le Rubik's Cube
 	 */
 	public List<DefinedMove> generateShuffleMoves(int nbMove) {
 		if (VERBAL)
@@ -334,12 +334,12 @@ public class RubiksCube implements Cloneable {
 		Random moveRandomGenerator = new Random();
 		Random faceRandomGenerator = new Random();
 		
-		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
+		// On va effectuer <code>moves</code> mouvements al√©atoires √† la suite
 		for (int i = 1; i <= nbMove; i++) {
 			if (VERBAL)
 				System.out.println("Shuffle move number " + i);
 			
-			// On récupère un des 9 mouvements possibles aléatoirement
+			// On r√©cup√®re un des 9 mouvements possibles al√©atoirement
 			int move = moveRandomGenerator.nextInt(Move.values().length - 1);
 			moves.add(new DefinedMove(DefinedMove.getMove(move), faceRandomGenerator.nextInt(getSize()) + 1));
 		}
@@ -408,7 +408,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	public boolean clearStuffIdentified() {
-		// On réinitialise les face et point identifiée
+		// On r√©initialise les face et point identifi√©e
 		if (this.hasPressedFaceIdentified()) {
 			this.setPressedFaceIdentified(null);
 			
@@ -434,11 +434,11 @@ public class RubiksCube implements Cloneable {
 	}
 
 	/**
-	 * Indique si le RubiksCube est résolu : toutes les faces sont correctement terminées
+	 * Indique si le RubiksCube est r√©solu : toutes les faces sont correctement termin√©es
 	 * @return
 	 */
 	public boolean isSolved() {
-		// On regarde face après face, si tous les cubes ont bien la même couleur
+		// On regarde face apr√®s face, si tous les cubes ont bien la m√™me couleur
 		for (Face face : Face.values()) {
 			if (! this.checkFaceSolved(face))
 				return false;

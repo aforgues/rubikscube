@@ -70,6 +70,8 @@ public enum Move {
 				return YAW;
 			case UNPITCH:
 				return PITCH;
+			default:
+				break;
 		}
 		return null;
 	}

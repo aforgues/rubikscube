@@ -24,7 +24,7 @@ public class RubiksCube2D extends JApplet {
 	
 	private RubiksCube rubiksCube;
 	
-	// Champs spéciaux pour le calcul de l'IA
+	// Champs sp√©ciaux pour le calcul de l'IA
 	private List<DefinedMove> moves;
 	private int currentMoveIndex;
 	
@@ -49,7 +49,7 @@ public class RubiksCube2D extends JApplet {
 		this.currentMoveIndex = 0;
 	}
 	
-	// TODO : utiliser cette méthode lors de n'importe quel mouvement autre que l'appui sur la touche 'N'
+	// TODO : utiliser cette m√©thode lors de n'importe quel mouvement autre que l'appui sur la touche 'N'
 	public void clearDefinedMoves() {
 		this.moves = null;
 		this.currentMoveIndex = 0;
@@ -110,7 +110,7 @@ public class RubiksCube2D extends JApplet {
 				if (DEBUG)
 					System.out.println("# Component resized : ### " + arg0.getComponent());
 				
-				// TODO : recentrer le rubik's cube en cas de redimentionnement de la fenêtre
+				// TODO : recentrer le rubik's cube en cas de redimentionnement de la fen√®tre
 			}
 
 			@Override
@@ -139,7 +139,7 @@ public class RubiksCube2D extends JApplet {
 		f.setMinimumSize(new Dimension(width, height));
 		f.setSize(new Dimension(width, height));
 		
-		// FIXME : je n'arrive pas à initialiser la taille de la fenetre !
+		// FIXME : je n'arrive pas √† initialiser la taille de la fenetre !
 		f.setMaximumSize(new Dimension(width, height));
 		
 		f.setVisible(true);

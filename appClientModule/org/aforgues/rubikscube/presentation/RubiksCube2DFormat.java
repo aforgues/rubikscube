@@ -54,7 +54,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	@Override
 	public void show() {
 		//if (this.rubiksCube == null)
-			// TODO : effacer le cube actuallement affiché
+			// TODO : effacer le cube actuallement affich√©
 			//this.graphics.clear ?
 		
 		super.show();

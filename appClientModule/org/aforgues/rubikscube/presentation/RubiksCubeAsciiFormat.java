@@ -141,7 +141,7 @@ public class RubiksCubeAsciiFormat extends GenericRubiksCubeFormat {
 				sb.append(cubes.get(columnIndex).getCoordinates().simpleFormat() + "|");
 		}
 		sb.append("\n");
-		// En cas de dernière ligne seulement
+		// En cas de derni√®re ligne seulement
 		if (lineNumber == rubiksCubeSize) {
 			for (int columnIndex = 0; columnIndex < rubiksCubeSize; columnIndex++) {
 				// En cas de 1ere colonne

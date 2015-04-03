@@ -1,8 +1,8 @@
 package org.aforgues.rubikscube.core;
 /**
- * Enum permettant de lister les différentes couleurs possibles des différentes faces d'un cube composant une face du Rubki's Cube
+ * Enum permettant de lister les diff√©rentes couleurs possibles des diff√©rentes faces d'un cube composant une face du Rubki's Cube
  * 
- * La couleur {None} correspond à l'absence de couleur, c'est à dire le cas ou une face d'un cube n'est pas visible
+ * La couleur {None} correspond √† l'absence de couleur, c'est √† dire le cas ou une face d'un cube n'est pas visible
  * 
  * @author Arnaud Forgues
  */

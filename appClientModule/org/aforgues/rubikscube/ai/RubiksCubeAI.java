@@ -94,7 +94,7 @@ public class RubiksCubeAI {
 			System.out.println("AI : complete path (before optimization) is => " + path);
 		
 		// Finally we optimize moves in order to replace 3 PITCH with an UNPITCH for example
-		// FIXME: en testant manuellement l'algo, on identifie un bug qui fait qu'on n'arrive plus au bout de la rŽsolution du Rubik's Cube
+		// FIXME: en testant manuellement l'algo, on identifie un bug qui fait qu'on n'arrive plus au bout de la rÃ©solution du Rubik's Cube
 		//optimizeMoves(path);
 		
 		long duration = System.currentTimeMillis() - start;
@@ -232,8 +232,10 @@ public class RubiksCubeAI {
 			}
 			// We had a match !!
 			else {
-				if (RubiksCube2D.DEBUG && nbBottomRowMove > 0)
-					System.out.println("AI::stepOne => Moving front bottom row to the left until we match the target corner cubie => " + (nbBottomRowMove) + " * YAW@1");
+				if (RubiksCube2D.DEBUG) {
+					if (nbBottomRowMove > 0)
+						System.out.println("AI::stepOne => Moving front bottom row to the left until we match the target corner cubie => " + (nbBottomRowMove) + " * YAW@1");
+				}
 				
 				// Let's find where is the topColor on this bottomRight corner cubie of the front face
 				List<DefinedMove> stepOneBottomRowMoves = null;
@@ -744,8 +746,10 @@ public class RubiksCubeAI {
 		else {
 			nbConsecutiveFaceWithoutFullTFound = 0;
 			
-			if (RubiksCube2D.DEBUG && nbBottomRowMove > 0)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
+			if (RubiksCube2D.DEBUG) {
+				if (nbBottomRowMove > 0)
+					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
+			}
 			
 			// Let's find where is the bottomColor : on left or right edge cubie ?
 			List<DefinedMove> stepThreeMoves = null;

@@ -143,7 +143,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 	}
 
 	/**
-	 * Méthode permettant de mélanger le Rubik's Cube
+	 * M√©thode permettant de m√©langer le Rubik's Cube
 	 */
 	private void smoothShuffle(RubiksCube2D applet, int nbMove) {
 		RubiksCube rc = applet.getRubiksCube();
@@ -151,14 +151,14 @@ final class RubiksCube2DKeyListener implements KeyListener {
 		
 		/*List<Defined3DMove> moves = rc.generateShuffleMoves(nbMove);
 		
-		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
+		// On va effectuer <code>moves</code> mouvements al√©atoires √† la suite
 		for (int i = 1; i <= moves.size(); i++) {
 			if (RubiksCube2D.DEBUG)
 				System.out.println("Shuffle move number " + i);
 			
 			Defined3DMove definedMove = moves.get(i - 1);
 			
-			// On récupère un des 9 mouvements possibles aléatoirement
+			// On r√©cup√®re un des 9 mouvements possibles al√©atoirement
 			switch (definedMove.getMove()) {
 				case PITCH:
 					rc.pitch(definedMove.getFaceIndex());
@@ -201,7 +201,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 
 	private void repaintSmoothly(RubiksCube2D applet) {
 //		try {
-//			// FIXME : marche pô !!
+//			// FIXME : marche p√¥ !!
 //			Thread.sleep(200);
 //			applet.getContentPane().setSize(applet.getWidth(), applet.getHeight());
 //			applet.invalidate();

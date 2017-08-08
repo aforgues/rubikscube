@@ -20,7 +20,7 @@ public class RubiksCube2D extends JApplet {
 
 
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	
 	private RubiksCube rubiksCube;
 	

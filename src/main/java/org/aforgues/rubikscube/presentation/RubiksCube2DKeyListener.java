@@ -148,55 +148,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 	private void smoothShuffle(RubiksCube2D applet, int nbMove) {
 		RubiksCube rc = applet.getRubiksCube();
 		rc.shuffle(nbMove);
-		
-		/*List<Defined3DMove> moves = rc.generateShuffleMoves(nbMove);
-		
-		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
-		for (int i = 1; i <= moves.size(); i++) {
-			if (RubiksCube2D.DEBUG)
-				System.out.println("Shuffle move number " + i);
-			
-			Defined3DMove definedMove = moves.get(i - 1);
-			
-			// On récupère un des 9 mouvements possibles aléatoirement
-			switch (definedMove.getMove()) {
-				case PITCH:
-					rc.pitch(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_PITCH:
-					rc.pitch(definedMove.getFaceIndex());
-					repaintSmoothly(applet);
-					rc.pitch(definedMove.getFaceIndex());
-					break;
-				case UNPITCH:
-					rc.unpitch(definedMove.getFaceIndex());
-					break;
-				case YAW:
-					rc.yaw(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_YAW:
-					rc.yaw(definedMove.getFaceIndex());
-					repaintSmoothly(applet);
-					rc.yaw(definedMove.getFaceIndex());
-					break;
-				case UNYAW:
-					rc.unyaw(definedMove.getFaceIndex());
-					break;
-				case ROLL:
-					rc.roll(definedMove.getFaceIndex());
-					break;
-				case DOUBLE_ROLL:
-					rc.roll(definedMove.getFaceIndex());
-					repaintSmoothly(applet);
-					rc.roll(definedMove.getFaceIndex());
-					break;
-				case UNROLL:
-					rc.unroll(definedMove.getFaceIndex());
-					break;	
-			}*/
-			repaintSmoothly(applet);
-		/*}*/
-		
+		repaintSmoothly(applet);
 	}
 
 	private void repaintSmoothly(RubiksCube2D applet) {

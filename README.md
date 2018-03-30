@@ -10,9 +10,11 @@ Including
 
 Roadmap / backlog (with no priority)
 -
+- add log4j or logback dependancy to replace basic DEBUG flags
 - add Unit / integration tests
 - optimize AI with more OO code
-- add open API
-- add Android version ?
+- add rest API (play framework or spring boot ?)
+- add Android version ? 
+- add iOS version with spriteKit (2D) or sceneKit (3D)
 - display AI moves ? 
-- add 3D display ?
+- add 3D web display ?

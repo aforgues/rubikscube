@@ -6,8 +6,10 @@ import java.util.List;
 
 import org.aforgues.rubikscube.ai.RubiksCubeAI;
 import org.aforgues.rubikscube.core.DefinedMove;
+import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;
 
+import javax.swing.JFrame;
 
 final class RubiksCube2DKeyListener implements KeyListener {
 	@Override
@@ -31,75 +33,27 @@ final class RubiksCube2DKeyListener implements KeyListener {
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 			return;
-		}	
+		}
 
-		RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
-			
+		JFrame f = (JFrame) arg0.getSource();
+		RubiksCube2D applet = (RubiksCube2D) f.getContentPane().getComponent(0);
+
+		/*
+		 * L'appui sur la touche 't' permet de générer une solution à partir d'une position donnée du Rubik's Cube
+		 * Ensuite il suffit d'appuyer sur la touche 'n' pour appliquer les mouvements de la solution un par un
+		 *
+		 */
+
 		switch (arg0.getKeyChar()) {
-			case 'a':
-				applet.getRubiksCube().pitch(1);
-				applet.repaint();
-				break;
-			case 'z':
-				applet.getRubiksCube().pitch(2);
-				applet.repaint();
-				break;
-			case 'e':
-				applet.getRubiksCube().pitch(3);
-				applet.repaint();
-				break;
-			case 'r':
-				applet.getRubiksCube().unpitch(1);
-				applet.repaint();
-				break;
 			case 't':
-				RubiksCubeAI ai = new RubiksCubeAI(applet.getRubiksCube(), false);
-				List<DefinedMove> moves = ai.computeArtificialIntelligence();
-				applet.setDefinedMoves(moves);
+				applet.getRubiksCube().solve(false);
 				break;
 			case 'n':
-				DefinedMove move = applet.getNextMove();
-				if (move != null) {
-					System.out.println("Move : " + move);
-					applet.getRubiksCube().move(move);
-					applet.repaint();
-				}
+				applet.getRubiksCube().moveToNextPosition();
+				applet.repaint();
 				break;
 			case 'y':
-				RubiksCubeAI ai2 = new RubiksCubeAI(applet.getRubiksCube(), true);
-				ai2.computeArtificialIntelligence();
-				applet.repaint();
-				break;	
-			case 'q':
-				applet.getRubiksCube().yaw(1);
-				applet.repaint();
-				break;
-			case 's':
-				applet.getRubiksCube().yaw(2);
-				applet.repaint();
-				break;
-			case 'd':
-				applet.getRubiksCube().yaw(3);
-				applet.repaint();
-				break;
-			case 'f':
-				applet.getRubiksCube().unyaw(1);
-				applet.repaint();
-				break;
-			case 'w':
-				applet.getRubiksCube().roll(1);
-				applet.repaint();
-				break;
-			case 'x':
-				applet.getRubiksCube().roll(2);
-				applet.repaint();
-				break;
-			case 'c':
-				applet.getRubiksCube().roll(3);
-				applet.repaint();
-				break;
-			case 'v':
-				applet.getRubiksCube().unroll(1);
+				applet.getRubiksCube().solve(true);
 				applet.repaint();
 				break;
 			case 'm':

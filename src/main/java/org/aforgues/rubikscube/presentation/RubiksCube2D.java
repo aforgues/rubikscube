@@ -23,37 +23,12 @@ public class RubiksCube2D extends JApplet {
 	public static final boolean DEBUG = true;
 	
 	private RubiksCube rubiksCube;
-	
-	// Champs spéciaux pour le calcul de l'IA
-	private List<DefinedMove> moves;
-	private int currentMoveIndex;
-	
+
 	public void initRubiksCube(int size) {
 		this.rubiksCube = new RubiksCube(size);
 	}
 
 	public RubiksCube getRubiksCube() {return this.rubiksCube;}
-	public List<DefinedMove> getMoves() {return this.moves;}
-	public DefinedMove getNextMove() {
-		if (this.moves == null || this.moves.isEmpty())
-			return null;
-		
-		if (this.currentMoveIndex == this.moves.size())
-			return null;
-		
-		return this.moves.get(currentMoveIndex++);
-	}
-	
-	public void setDefinedMoves(List<DefinedMove> moves) {
-		this.moves = moves;
-		this.currentMoveIndex = 0;
-	}
-	
-	// TODO : utiliser cette méthode lors de n'importe quel mouvement autre que l'appui sur la touche 'N'
-	public void clearDefinedMoves() {
-		this.moves = null;
-		this.currentMoveIndex = 0;
-	}
 	
 	public void init() {
 		setBackground(Facelet.NONE.getAwtColor());
@@ -120,11 +95,12 @@ public class RubiksCube2D extends JApplet {
 			}
 		
 		});
-		
+		f.addKeyListener(new RubiksCube2DKeyListener());
+
 		RubiksCube2D applet = new RubiksCube2D();
 		applet.initRubiksCube(size);
 		
-		applet.addKeyListener(new RubiksCube2DKeyListener());
+		//applet.addKeyListener(new RubiksCube2DKeyListener());
 		applet.addMouseListener(new RubiksCube2DMouseListener());
 		// TODO: ajouter un MouseMotionListener pour afficher les cubes survoler lors d'un clic gauche
 		

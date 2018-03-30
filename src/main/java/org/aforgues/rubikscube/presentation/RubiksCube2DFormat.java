@@ -21,7 +21,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 
 	private final boolean DEBUG = false;
 
-	public static final int CUBE_SIZE = 30;
+	public static final int CUBE_SIZE = 50;
 	public static final int CUBE_MARGIN = CUBE_SIZE/10;
 	
 	private Graphics2D graphics;

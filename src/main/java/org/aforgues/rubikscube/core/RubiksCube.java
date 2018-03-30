@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.aforgues.rubikscube.ai.RubiksCubeAI;
 import org.aforgues.rubikscube.presentation.RubiksCube2D;
 
 /**
@@ -36,6 +37,10 @@ public class RubiksCube implements Cloneable {
 	private int size;
     private List<Cubie> config;
 
+    private RubiksCubeAI ai;
+
+    // FIXME : extract these fields outside this class
+    // Specific fields for 2D display manipulations
     private Face identifiedPressedFace;
 	private Point pointOnPressedFaceIdentified;
 	private Face identifiedReleasedFace;
@@ -119,12 +124,13 @@ public class RubiksCube implements Cloneable {
 	
 	public void reset() {
 		this.initConfig();
+		this.resetSolvingPath();
 	}
 	
 	/**
 	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade avant ou un frontflip en snowboard) : tangage
 	 */
-	public void pitch(int index) {
+	private void pitch(int index) {
 		if (VERBAL)
 			System.out.println("Pitching (rotation on X axis) Rubik's Cube on face " + index);
 		
@@ -140,7 +146,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade arrière ou un backflip en snowboard) : tangage
 	 */
-	public void unpitch(int index) {
+	private void unpitch(int index) {
 		if (VERBAL)
 			System.out.println("Unpitching (inverse rotation on X axis) Rubik's Cube on face " + index + " through 3 pitches");
 		
@@ -152,7 +158,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Rotation selon l'axe Y de 90° vers la droite (comme un toupis dans le sens des aiguilles d'une montre vue de haut) : lacet
 	 */
-	public void yaw(int index) {
+	private void yaw(int index) {
 		if (VERBAL)
 			System.out.println("Yawing (rotation on Y axis) Rubik's Cube on face " + index);
 		
@@ -168,7 +174,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Rotation selon l'axe Y de 90° vers la gauche (comme un toupis de gaucher dans le sens inverse des aiguilles d'une montre vue de haut) : lacet
 	 */
-	public void unyaw(int index) {
+	private void unyaw(int index) {
 		if (VERBAL)
 			System.out.println("Unyawing (inverse rotation on Y axis) Rubik's Cube on face " + index + " through 3 yaws");
 		
@@ -180,7 +186,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Rotation selon l'axe Z de 90° vers la droite (comme pour fermer une porte à clef dans le sens des aiguilles d'une montre vue de face)  : roulis
 	 */
-	public void roll(int index) {
+	private void roll(int index) {
 		if (VERBAL)
 			System.out.println("Rolling (rotation on Z axis) Rubik's Cube on face " + index);
 		
@@ -196,7 +202,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Rotation selon l'axe Z de 90° vers la gauche (comme pour ouvrir une porte à clef dans le sens inverse des aiguilles d'une montre vue de face)  : roulis
 	 */
-	public void unroll(int index) {
+	private void unroll(int index) {
 		if (VERBAL)
 			System.out.println("Unrolling (inverse rotation on Z axis) Rubik's Cube on face " + index + " through 3 rolls");
 		
@@ -240,7 +246,6 @@ public class RubiksCube implements Cloneable {
 		return cubes;
 	}
 	
-	// Utiliser uniquement par le main pour le test Ascii
 	public void shuffle(int nbMove) {
 		List<DefinedMove> moves = generateShuffleMoves(nbMove);
 		
@@ -252,12 +257,28 @@ public class RubiksCube implements Cloneable {
 			DefinedMove definedMove = moves.get(i - 1);
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
-			move(definedMove);
+			internalMove(definedMove);
 		}
+
+		this.resetSolvingPath();
 	}
 
+    public void moveToNextPosition() {
+		internalMove(getNextMove());
+	}
 
-	public void move(DefinedMove definedMove) {
+	public void move(DefinedMove move) {
+		internalMove(move);
+	}
+
+	public void manualMove(DefinedMove move) {
+	    internalMove(move);
+
+        // Comme on a tourné manuellement le RubiksCube, on réinitialise l'éventuelle solution calculée par l'AI
+        this.resetSolvingPath();
+    }
+
+	private void internalMove(DefinedMove definedMove) {
 		if (definedMove != null && definedMove.getMove() != null) {
 			// On définit la liste d'index à déplacer
 			List<Integer> indexes = new ArrayList<Integer>();
@@ -265,9 +286,13 @@ public class RubiksCube implements Cloneable {
 				for (int i = 1; i <= getSize(); i++) {
 					indexes.add(Integer.valueOf(i));
 				}
+				if (VERBAL)
+					System.out.println("Moving all face with " +  definedMove.getMove().name());
 			}
 			else {
 				indexes.add(definedMove.getFaceIndex());
+				if (VERBAL)
+					System.out.println("Moving " +  definedMove);
 			}
 			
 			// Ensuite on boucle sur ces indexes pour déplacer la ou les faces du cube souhaitées
@@ -317,7 +342,7 @@ public class RubiksCube implements Cloneable {
 	public void move(List<DefinedMove> moves) {
 		if (moves != null) {
 			for (DefinedMove move : moves) {
-				this.move(move);
+				this.internalMove(move);
 			}
 		}
 	}
@@ -325,7 +350,7 @@ public class RubiksCube implements Cloneable {
 	/**
 	 * Méthode permettant de mélanger le Rubik's Cube
 	 */
-	public List<DefinedMove> generateShuffleMoves(int nbMove) {
+	private List<DefinedMove> generateShuffleMoves(int nbMove) {
 		if (VERBAL)
 			System.out.println("Starting shuffling Rubik's Cube in " + nbMove + " moves ...");
 		
@@ -347,6 +372,7 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	/*
+	 * FIXME : extract these methods outside this class (specific to 2D display manipulation)
 	 * Methods to handle face or point identification while mouse clicking
 	 */
 	
@@ -431,6 +457,40 @@ public class RubiksCube implements Cloneable {
 		}
 		
 		return false;
+	}
+
+	/**
+	 *  Using artificial intelligence to solve the RubiksCube
+	 */
+	public void solve(boolean isSimulation) {
+		this.ai = new RubiksCubeAI(this, isSimulation);
+		ai.computeArtificialIntelligence();
+	}
+
+	private DefinedMove getNextMove() {
+		if (this.ai != null) {
+		    DefinedMove nextMove = this.ai.getNextMove();
+		    if (nextMove != null)
+		        return nextMove;
+		    else {
+		        this.resetSolvingPath();
+		        return null;
+            }
+
+		}
+		else {
+			if (VERBAL)
+				System.out.println("No path already computed by the RubiksCube AI => solving it !");
+			this.solve(false);
+			return getNextMove();
+		}
+	}
+
+	public void resetSolvingPath() {
+		if (this.ai != null) {
+			this.ai.reset();
+			this.ai = null;
+		}
 	}
 
 	/**
@@ -570,5 +630,6 @@ public class RubiksCube implements Cloneable {
 			return false;
 		return true;
 	}
+
 
 }

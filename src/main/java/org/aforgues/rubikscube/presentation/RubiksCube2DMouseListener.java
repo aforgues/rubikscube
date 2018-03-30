@@ -326,7 +326,7 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			if (isPointOnRubiksCube(rc, mouseReleasedPoint)) {
 				DefinedMove definedMove = getMoveInProgress(rc, mouseReleasedPoint);
 				if (definedMove != null) {
-					rc.move(definedMove);
+					rc.manualMove(definedMove);
 					
 					RubiksCube2D applet = ((RubiksCube2D) arg0.getSource());
 					applet.repaint();

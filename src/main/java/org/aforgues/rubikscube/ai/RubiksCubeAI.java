@@ -132,7 +132,7 @@ public class RubiksCubeAI {
 		long duration = System.currentTimeMillis() - start;
 
 		System.out.println("AI : Rubik's Cube solved in " + path.size() + " moves in " + duration + " ms");
-		System.out.println("AI : final path is => " + path);
+		//System.out.println("AI : final  path is => " + path);
 
 		BlockingQueue queue = new LinkedBlockingQueue<>();
 		queue.addAll(path);
@@ -157,16 +157,21 @@ public class RubiksCubeAI {
 		while (! topFaceCenterCubie.getTopFace().equals(topFacelet) && ++nbMove <= 3) {
 			addLocalMove(prereqPath, Move.ROLL, 2);
 			topFaceCenterCubie = rc.getCubie(2, 3, 2);
-		};
-		
+		}
+
+        // We had no match => remove last three unuseful moves (ROLL2)
 		if (nbMove == 4) {
-			// We move the top center column, until the central facelet has the same color as previous topFacelet 
-			nbMove = 0;
-			prereqPath.clear();
+            rc.move(new DefinedMove(Move.ROLL, 2));
+            prereqPath.remove(prereqPath.size() - 1);
+            prereqPath.remove(prereqPath.size() - 1);
+            prereqPath.remove(prereqPath.size() - 1);
+
+            // We move the top center column, until the central facelet has the same color as previous topFacelet
+            nbMove = 0;
 			while (! topFaceCenterCubie.getTopFace().equals(topFacelet) && ++nbMove <= 3) {
 				addLocalMove(prereqPath, Move.PITCH, 2);
 				topFaceCenterCubie = rc.getCubie(2, 3, 2);
-			};
+			}
 		}
 		path.addAll(prereqPath);
 		
@@ -456,7 +461,7 @@ public class RubiksCubeAI {
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
 				stepTwoPath.remove(stepTwoPath.size() - 1);
-				
+
 				// Before checking on bottom row, we deal with specific cases : if our target edge cubie is on the top row on the right, back or left face
 				// We check for right edge cubie of top layer
 				if (matchesCubieOnTwoFacelets(rc.getCubie(3, 3, 2), topColor, frontColor)) {
@@ -770,7 +775,7 @@ public class RubiksCubeAI {
 			stepThreePath.remove(stepThreePath.size() - 1);
 			stepThreePath.remove(stepThreePath.size() - 1);
 			stepThreePath.remove(stepThreePath.size() - 1);
-			
+
 			if (DEBUG)
 				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => no match found on bottom row for front face color : " + frontFaceUpperLeftCornerCubie.getFrontFace());
 			
@@ -976,7 +981,7 @@ public class RubiksCubeAI {
 			stepFourPath.remove(stepFourPath.size() - 1);
 			stepFourPath.remove(stepFourPath.size() - 1);
 			stepFourPath.remove(stepFourPath.size() - 1);
-			
+
 			if (DEBUG)
 				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => no match found on top row for side-by-side front face color : " + frontColor);
 			
@@ -1225,7 +1230,7 @@ public class RubiksCubeAI {
 				stepSixPath.remove(stepSixPath.size() - 1);
 				stepSixPath.remove(stepSixPath.size() - 1);
 			}
-			
+
 			// apply step 6 algo
 			addLocalMoves(stepSixPath, getStepSixAlgo());
 			
@@ -1353,7 +1358,7 @@ public class RubiksCubeAI {
 				stepSevenPath.remove(stepSevenPath.size() - 1);
 				stepSevenPath.remove(stepSevenPath.size() - 1);
 			}
-			
+
 			if (DEBUG)
 				System.out.println("AI::stepSeven => no match found for H or Fish pattern => should not happened => Fail !!");
 		}
@@ -1385,8 +1390,13 @@ public class RubiksCubeAI {
 		
 		path.addAll(stepSevenPath);
 		
-		if (DEBUG)
-			System.out.println("AI::stepSeven => done !");
+		if (DEBUG) {
+            System.out.println("AI::stepSeven => done !");
+
+            if (rc.isSolved()) {
+                System.out.println("AI::stepSeven => checked that it is really done !");
+            }
+        }
 	}
 	
 	/*

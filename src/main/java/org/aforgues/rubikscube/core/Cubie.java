@@ -150,7 +150,7 @@ public class Cubie implements Comparable<Cubie>, Cloneable {
 	
 	@Override
 	public String toString() {
-		return "Cube [coord=" + coord + ", frontFace=" + frontFace + ", leftFace=" + leftFace
+		return "Cubie [coord=" + coord + ", frontFace=" + frontFace + ", leftFace=" + leftFace
 				+ ", rightFace=" + rightFace + ", bottomFace=" + bottomFace
 				+ ", topFace=" + topFace + ", backFace=" + backFace + "]";
 	}

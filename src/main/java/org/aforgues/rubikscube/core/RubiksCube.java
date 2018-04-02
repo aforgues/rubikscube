@@ -263,8 +263,10 @@ public class RubiksCube implements Cloneable {
 		this.resetSolvingPath();
 	}
 
-    public void moveToNextPosition() {
-		internalMove(getNextMove());
+    public boolean moveToNextPosition() {
+		DefinedMove nextMove = getNextMove();
+		internalMove(nextMove);
+		return (nextMove != null);
 	}
 
 	public void move(DefinedMove move) {

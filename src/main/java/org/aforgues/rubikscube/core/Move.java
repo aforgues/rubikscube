@@ -48,7 +48,7 @@ public enum Move {
 	
 	private int index;
 
-	private Move(int index) {
+	Move(int index) {
 		this.index = index;
 	}
 

@@ -2,32 +2,32 @@ package org.aforgues.rubikscube.presentation;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.List;
 
-import org.aforgues.rubikscube.ai.RubiksCubeAI;
-import org.aforgues.rubikscube.core.DefinedMove;
-import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JFrame;
 
 final class RubiksCube2DKeyListener implements KeyListener {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2DKeyListener.class);
+
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("# Key pressed : " + arg0.getKeyChar());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("# Key pressed : {}", arg0.getKeyChar());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("# Key released : " + arg0.getKeyChar());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("# Key released : {}", arg0.getKeyChar());
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("### Key Typed : #" + arg0.getKeyChar());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("### Key Typed : #{}", arg0.getKeyChar());
 		
 		// FIXME: this does not work..
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -89,8 +89,7 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				break;
 			
 			default:
-				if (RubiksCube2D.DEBUG)
-					System.out.println("### Key typed : no action defined on this key");
+				LOGGER.warn("### Key typed : no action defined on this key : {}", arg0.getKeyChar());
 		}
 
 		

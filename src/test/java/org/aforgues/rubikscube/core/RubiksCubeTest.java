@@ -5,8 +5,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RubiksCubeTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCubeTest.class);
 
     private static final int RUBIKS_CUBE_SIZE = 3;
     private static final int NB_SHUFFLE_MOVE = 20;
@@ -45,7 +49,9 @@ public class RubiksCubeTest {
     }
 
     private void printRubiksCubeState(String phase) {
-        System.out.println(phase + " : ");
-        new RubiksCubeAsciiFormat(rc).show();
+        LOGGER.info(phase + " : {}", rc);
+
+        if (LOGGER.isDebugEnabled())
+            new RubiksCubeAsciiFormat(rc).show();
     }
 }

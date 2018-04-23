@@ -1,8 +1,14 @@
 package org.aforgues.rubikscube.presentation;
+import org.aforgues.rubikscube.core.DefinedMove;
+import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Main {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
 	public static void main(String[] args) {
 		new Main();
 	}
@@ -11,32 +17,30 @@ public class Main {
 	 * @see java.lang.Object#Object()
 	 */
 	public Main() {
+		LOGGER.info("Init 3x3 Rubik's Cube");
 		RubiksCube r = new RubiksCube(3);
 		RubiksCubeAsciiFormat asciiFormat = new RubiksCubeAsciiFormat(r);
-		//RubiksCube2DFormat graphicFormat = new RubiksCube2DFormat(r);
 		asciiFormat.show();
-		//graphicFormat.show();
-		
-		r.shuffle(20);
-		
-		asciiFormat.show();
-		//graphicFormat.show();
-		
-		/*System.out.println("Rotating face 1 of Rubik's Cube one time on Z axis");
-		r.roll(1);
-		RubiksCubeAsciiFomat.showAsciiFormat(r);
-		
-		System.out.println("Rotating face 1 of Rubik's Cube one time on X axis");
-		r.pitch(1);
-		RubiksCubeAsciiFomat.showAsciiFormat(r);
 
-		System.out.println("Rotating face 2 of Rubik's Cube one time on Y axis");
-		r.yaw(2);
-		RubiksCubeAsciiFomat.showAsciiFormat(r);
+		LOGGER.info("Shuffling Rubik's Cube 20 times");
+		r.shuffle(20);
+		asciiFormat.show();
 		
-		System.out.println("Rotating face 3 of Rubik's Cube one time on Z axis");
-		r.roll(3);
-		RubiksCubeAsciiFomat.showAsciiFormat(r);*/
+		LOGGER.info("Rotating face 1 of Rubik's Cube one time on Z axis");
+		r.move(new DefinedMove(Move.ROLL, 1));
+		asciiFormat.show();
+
+		LOGGER.info("Rotating face 1 of Rubik's Cube one time on X axis");
+		r.move(new DefinedMove(Move.PITCH, 1));
+		asciiFormat.show();
+
+		LOGGER.info("Rotating face 2 of Rubik's Cube one time on Y axis");
+		r.move(new DefinedMove(Move.YAW,2));
+		asciiFormat.show();
+		
+		LOGGER.info("Rotating face 3 of Rubik's Cube one time on Z axis");
+		r.move(new DefinedMove(Move.ROLL,3));
+		asciiFormat.show();
 	}
 
 }

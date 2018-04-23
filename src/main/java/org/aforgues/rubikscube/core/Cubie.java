@@ -1,8 +1,13 @@
 package org.aforgues.rubikscube.core;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Cubie implements Comparable<Cubie>, Cloneable {
-	
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Cubie.class);
+
 	private final int rubiksCubeSize;
 	private ThreeDimCoordinate coord;
 	
@@ -59,8 +64,10 @@ public class Cubie implements Comparable<Cubie>, Cloneable {
     }
     
 	public void pitch() {
-		//System.out.println("Starting cube pitching (around X axis) : " + this.toString());
-		
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Starting cube pitching (around X axis) : {}", this.toString());
+		}
+
 		// Changing coordinates
 		int oldYCoord = this.getCoordinates().getY();
 		this.coord.setY(this.coord.getZ());
@@ -82,13 +89,17 @@ public class Cubie implements Comparable<Cubie>, Cloneable {
 		this.topFace = oldFrontFace;
 		
 		// Left and right faces doesn't change
-		
-		//System.out.println("Ending cube pitching (around X axis) : " + this.toString());
+
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Ending cube pitching (around X axis) : {}", this.toString());
+		}
 		
 	}
 
 	public void yaw() {
-		//System.out.println("Starting cube yawing (around Y axis) : " + this.toString());
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Starting cube yawing (around Y axis) : {}", this.toString());
+		}
 		
 		// Changing coordinates
 		int oldZCoord = this.getCoordinates().getZ();
@@ -111,12 +122,16 @@ public class Cubie implements Comparable<Cubie>, Cloneable {
 		this.leftFace = oldFrontFace;
 		
 		// Top and bottom faces doesn't change
-		
-		//System.out.println("Ending cube yawing (around Y axis) : " + this.toString());
+
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Ending cube yawing (around Y axis) : {}", this.toString());
+		}
 	}
 	
 	public void roll() {
-		//System.out.println("Starting cube rolling (around Z axis) : " + this.toString());
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Starting cube rolling (around Z axis) : {}", this.toString());
+		}
 		
 		// Changing coordinates
 		int oldXCoord = this.getCoordinates().getX();
@@ -139,8 +154,10 @@ public class Cubie implements Comparable<Cubie>, Cloneable {
 		this.rightFace = oldTopFace;
 		
 		// Front and back faces doesn't change
-		
-		//System.out.println("Ending cube rolling (around Z axis) : " + this.toString());
+
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Ending cube rolling (around Z axis) : {}", this.toString());
+		}
 	}
 	
 	@Override

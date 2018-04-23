@@ -9,6 +9,8 @@ import org.aforgues.rubikscube.core.CubeExtractorUtility;
 import org.aforgues.rubikscube.core.Cubie;
 import org.aforgues.rubikscube.core.Face;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -19,7 +21,7 @@ import org.aforgues.rubikscube.core.RubiksCube;
  */
 public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 
-	private final boolean DEBUG = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2DFormat.class);
 
 	public static final int CUBE_SIZE = 50;
 	public static final int CUBE_MARGIN = CUBE_SIZE/10;
@@ -67,8 +69,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showBackFace() {
 		List<Cubie> cubes = rubiksCube.getBackFaceCubes();
 		
-		if (DEBUG) {
-			System.out.println("\nBack Face 2D :\n");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("\nBack Face 2D :\n");
 		}
 			
 		x_offset = getBackFaceOffset().getX();
@@ -93,8 +95,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showTopFace() {
 		List<Cubie> cubes = rubiksCube.getTopFaceCubes();
 		
-		if (DEBUG) {
-			System.out.println("\nTop Face 2D :\n");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("\nTop Face 2D :\n");
 		}
 
 		x_offset = getTopFaceOffset().getX();
@@ -118,8 +120,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showLeftFace() {
 		List<Cubie> cubes = rubiksCube.getLeftFaceCubes();
 		
-		if (DEBUG){
-			System.out.println("\nLeft Face 2D :\n");
+		if (LOGGER.isTraceEnabled()){
+			LOGGER.trace("\nLeft Face 2D :\n");
 		}
 
 		x_offset = getLeftFaceOffset().getX();
@@ -143,8 +145,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showFrontFace() {
 		List<Cubie> cubes = rubiksCube.getFrontFaceCubes();
 		
-		if (DEBUG) {
-			System.out.println("\nFront Face 2D :\n");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("\nFront Face 2D :\n");
 		}
 
 		x_offset = getFrontFaceOffset().getX();
@@ -168,8 +170,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showRightFace() {
 		List<Cubie> cubes = rubiksCube.getRightFaceCubes();
 		
-		if (DEBUG) {
-			System.out.println("\nRight Face 2D :\n");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("\nRight Face 2D :\n");
 		}
 
 		x_offset = getRightFaceOffset().getX();
@@ -194,8 +196,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	protected void showBottomFace() {
 		List<Cubie> cubes = rubiksCube.getBottomFaceCubes();
 		
-		if (DEBUG) {
-			System.out.println("\nBottom Face 2D :\n");
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("\nBottom Face 2D :\n");
 		}
 
 		x_offset = getBottomFaceOffset().getX();
@@ -244,8 +246,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 				this.graphics.fill3DRect((int)x, (int)y, CUBE_SIZE, CUBE_SIZE, true);
 			}
 			
-			if (DEBUG) {
-				System.out.println("x=" + (columnIndex + 1) + ", y=" + lineNumber + ", color=" + cubes.get(columnIndex).getFace(face));
+			if (LOGGER.isTraceEnabled()) {
+				LOGGER.trace("x={}, y={}, color={}", (columnIndex + 1), lineNumber, cubes.get(columnIndex).getFace(face));
 			}
 		}
 	}

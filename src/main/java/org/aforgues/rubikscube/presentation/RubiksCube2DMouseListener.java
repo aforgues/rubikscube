@@ -8,24 +8,27 @@ import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.Face;
 import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class RubiksCube2DMouseListener implements MouseListener {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2DMouseListener.class);
+
 	// TODO: à supprimer et remplacer par les variables de RubiksCube
 	private Point mouseRightPressedPoint;
 
 	private DefinedMove getMoveInProgress(RubiksCube rc, Point mouseReleasedPoint) {
 		// Identification du cube qui a été cliqué
-		if (RubiksCube2D.DEBUG)
-			System.out.println("### Mouse released on : " + mouseReleasedPoint);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("### Mouse released on : {}", mouseReleasedPoint);
 		
 		// En cas de click gauche, on est sur un mouvement spécifique d'une face
 		if (! rc.isFaceMove()) {
 			if (rc.getReleasedFaceIdentified() == null)
 				return null;
 
-			if (RubiksCube2D.DEBUG) {
-				System.out.println("Moving RubiksCube : startPoint " + rc.getPointOnPressedFaceIdentified().toString() + " on face " + rc.getPressedFaceIdentified() +
-						           ", endPoint " + rc.getPointOnReleasedFaceIdentified().toString() + " on  face " + rc.getReleasedFaceIdentified());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Moving RubiksCube : startPoint {} on face {}, endPoint {} on  face {}", rc.getPointOnPressedFaceIdentified().toString(), rc.getPressedFaceIdentified(), rc.getPointOnReleasedFaceIdentified().toString(), rc.getReleasedFaceIdentified());
 			}
 			return getDefinedMoveInProgress(rc);
 		}
@@ -45,14 +48,14 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				
 				// Mouvement explicite de gauche à droite
 				if (horizontalDelta >= MOVE_SIZE) {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Horizontal move from left to right detected !");						
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Horizontal move from left to right detected !");
 					return new DefinedMove(Move.UNYAW);
 				}
 				// Mouvement explicite de droite à gauche
 				else if (horizontalDelta <= - MOVE_SIZE) {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Horizontal move from right to left detected !");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Horizontal move from right to left detected !");
 					return new DefinedMove(Move.YAW);
 				}
 			}
@@ -67,14 +70,14 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				
 				// Mouvement explicite de haut en bas
 				if (verticalDelta >= MOVE_SIZE) {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Vertical move from up to down detected !");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Vertical move from up to down detected !");
 					return new DefinedMove(Move.UNPITCH);
 				}
 				// Mouvement explicite de bas en haut
 				else if (verticalDelta <= - MOVE_SIZE) {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Vertical move from down to up detected !");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Vertical move from down to up detected !");
 					return new DefinedMove(Move.PITCH);
 				}
 			}
@@ -93,52 +96,52 @@ final class RubiksCube2DMouseListener implements MouseListener {
 					switch (rc.getPressedFaceIdentified()) {
 						case LEFT:
 							if (verticalDelta >= MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Anti hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Anti hour circular move detected !");
 								return new DefinedMove(Move.UNROLL);
 							}
 							else if (verticalDelta <= - MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Hour circular move detected !");
 								return new DefinedMove(Move.ROLL);
 							} 
 							break;
 							
 						case RIGHT:
 							if (verticalDelta >= MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Hour circular move detected !");
 								return new DefinedMove(Move.ROLL);
 							}
 							else if (verticalDelta <= - MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Anti hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Anti hour circular move detected !");
 								return new DefinedMove(Move.UNROLL);
 							} 
 							break;
 							
 						case TOP:
 							if (horizontalDelta >= MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Hour circular move detected !");
 								return new DefinedMove(Move.ROLL);
 							}
 							else if (horizontalDelta <= - MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Anti hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Anti hour circular move detected !");
 								return new DefinedMove(Move.UNROLL);
 							} 
 							break;
 							
 						case BOTTOM:
 							if (horizontalDelta >= MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Anti hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Anti hour circular move detected !");
 								return new DefinedMove(Move.UNROLL);
 							}
 							else if (horizontalDelta <= - MOVE_SIZE) {
-								if (RubiksCube2D.DEBUG)
-									System.out.println("### Hour circular move detected !");
+								if (LOGGER.isDebugEnabled())
+									LOGGER.debug("### Hour circular move detected !");
 								return new DefinedMove(Move.ROLL);
 							} 
 							break;
@@ -153,16 +156,16 @@ final class RubiksCube2DMouseListener implements MouseListener {
 							|| matchStartAndEndFaces(rc, Face.TOP, Face.RIGHT)
 							|| matchStartAndEndFaces(rc, Face.RIGHT, Face.BOTTOM)
 							|| matchStartAndEndFaces(rc, Face.BOTTOM, Face.LEFT)) {
-						if (RubiksCube2D.DEBUG)
-							System.out.println("### Hour circular move detected !");
+						if (LOGGER.isDebugEnabled())
+							LOGGER.debug("### Hour circular move detected !");
 						return new DefinedMove(Move.ROLL);
 					}
 					else if (matchStartAndEndFaces(rc, Face.LEFT, Face.BOTTOM)
 							|| matchStartAndEndFaces(rc, Face.BOTTOM, Face.RIGHT)
 							|| matchStartAndEndFaces(rc, Face.RIGHT, Face.TOP)
 							|| matchStartAndEndFaces(rc, Face.TOP, Face.LEFT)) {
-						if (RubiksCube2D.DEBUG)
-							System.out.println("### Anti hour circular move detected !");
+						if (LOGGER.isDebugEnabled())
+							LOGGER.debug("### Anti hour circular move detected !");
 						return new DefinedMove(Move.UNROLL);
 					}
 				}
@@ -179,9 +182,9 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	private boolean isPointOnLateralFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
 		boolean ok = face != null && face.isALateralFace();
-		if (RubiksCube2D.DEBUG) {
+		if (LOGGER.isDebugEnabled()) {
 			if (ok)
-				System.out.println("### Point " + point + " identified on Lateral faces (Left or Right or Top or Bottom)");					
+				LOGGER.debug("### Point {} identified on Lateral faces (Left or Right or Top or Bottom)", point);
 		}
 		return ok;
 	}
@@ -189,9 +192,9 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	private boolean isPointOnVerticalFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
 		boolean ok = face != null && face.isAVerticalFace();
-		if (RubiksCube2D.DEBUG) {
+		if (LOGGER.isDebugEnabled()) {
 			if (ok)
-				System.out.println("### Point " + point + " identified on Vertical faces (Back or Top or Front or Bottom)");					
+				LOGGER.debug("### Point {} identified on Vertical faces (Back or Top or Front or Bottom)", point);
 		}
 		return ok;
 	}
@@ -199,29 +202,29 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	private boolean isPointOnHorizontalFaces(RubiksCube rc, Point point) {
 		Face face = identifyFace(rc, point);
 		boolean ok = face != null && face.isAnHorizontalFace();
-		if (RubiksCube2D.DEBUG) {
+		if (LOGGER.isDebugEnabled()) {
 			if (ok)			
-				System.out.println("### Point " + point + " identified on Horizontal faces (Left or Front or Right)");
+				LOGGER.debug("### Point {} identified on Horizontal faces (Left or Front or Right)", point);
 		}
 		return ok;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("# Mouse clicked on : " + arg0.getPoint());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("# Mouse clicked on : {}", arg0.getPoint());
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("# Mouse entered on : " + arg0.getPoint());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("# Mouse entered on : {}", arg0.getPoint());
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		if (RubiksCube2D.DEBUG)
-			System.out.println("# Mouse exited on : " + arg0.getPoint());
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("# Mouse exited on : {}", arg0.getPoint());
 	}
 
 	private boolean isPointOnRubiksCube(RubiksCube rc, Point point) {
@@ -256,8 +259,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 					(int) Math.floor((point.getX() - format.getFaceOffset(faceIdentified).getX()) / (RubiksCube2DFormat.CUBE_SIZE)),
 			        (int) Math.floor((point.getY() - format.getFaceOffset(faceIdentified).getY()) / (RubiksCube2DFormat.CUBE_SIZE)));
 			
-			if (RubiksCube2D.DEBUG)
-				System.out.println("# Point identified on face : " + pointCoordOnFace);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("# Point identified on face : {}", pointCoordOnFace);
 		}
 		return pointCoordOnFace;
 	}
@@ -303,9 +306,9 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			identifiedFace = Face.TOP;
 		}
 			
-		if (RubiksCube2D.DEBUG) {
+		if (LOGGER.isDebugEnabled()) {
 			if (identifiedFace != null)
-				System.out.println("# Face identified : " + identifiedFace);
+				LOGGER.debug("# Face identified : {}", identifiedFace);
 		}
 		
 		return identifiedFace;
@@ -420,8 +423,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 			if (endFace.isALateralFace()) {
 				// Gestion du mouvement circulaire d'une face avec face de départ = face d'arrivée
 				if (startFace == endFace) {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Circular face move : from a face to the same one");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Circular face move : from a face to the same one");
 				
 					if (startFace.isAnHorizontalLateralFace() && startPoint.getX() == endPoint.getX()) {
 						if (startFace == Face.LEFT) {
@@ -462,8 +465,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 				}
 				// Gestion du mouvement circulaire d'une face avec face de départ <> face d'arrivée
 				else {
-					if (RubiksCube2D.DEBUG)
-						System.out.println("### Circular face move from a specific face to a different one");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("### Circular face move from a specific face to a different one");
 					
 					if (matchStartAndEndFaces(rc, Face.TOP, Face.RIGHT) && startPoint.getY() == (size - endPoint.getX() - 1)) {
 						definedMove.setFaceIndex(Double.valueOf(startPoint.getY()).intValue() + 1);

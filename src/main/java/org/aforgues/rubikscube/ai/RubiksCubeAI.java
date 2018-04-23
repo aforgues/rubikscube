@@ -9,12 +9,16 @@ import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.Facelet;
 import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.aforgues.rubikscube.presentation.RubiksCube2D.DEBUG;
 
 
 public class RubiksCubeAI {
-	private RubiksCube initialRcConfig;
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCubeAI.class);
+    
+    private RubiksCube initialRcConfig;
 	private BlockingQueue<DefinedMove> solvingPath;
 	private int solvingPathSize;
 	
@@ -23,7 +27,7 @@ public class RubiksCubeAI {
 			try {
 				this.initialRcConfig = (RubiksCube) rc.clone();
 			} catch (CloneNotSupportedException e) {
-				System.out.println("Unable to clone " + rc + " - " + e.getMessage());
+				LOGGER.error("Unable to clone {} - {}", rc, e.getMessage());
 			}
 		}
 		// do not clone for test purpose so that we can see the effect of moves on cube directly
@@ -32,7 +36,7 @@ public class RubiksCubeAI {
 		}
 		
 		if (! isAiAvalaible())
-			System.out.println("AI : only available for 3x3 Rubik's Cube !");
+			LOGGER.warn("AI : only available for 3x3 Rubik's Cube !");
 	}
 	
 	private boolean isAiAvalaible() {
@@ -41,11 +45,11 @@ public class RubiksCubeAI {
 	
 	public void computeArtificialIntelligence() {
 		if (! isAiAvalaible()) {
-			System.out.println("AI : only available for 3x3 Rubik's Cube !");
+			LOGGER.warn("AI : only available for 3x3 Rubik's Cube !");
 		}
 		
 		if (this.initialRcConfig.isSolved()) {
-			System.out.println("AI : RubiksCube is already solved !!!");
+			LOGGER.info("AI : RubiksCube is already solved !!!");
 		}
 
 		this.solvingPath = computeNextMoves();
@@ -56,18 +60,18 @@ public class RubiksCubeAI {
 		try {
 
 			if (this.solvingPath != null && ! this.solvingPath.isEmpty()) {
-				if (DEBUG) {
-                    System.out.println("AI : Solving path - step " + (this.solvingPathSize - this.solvingPath.size() + 1) + " on " + this.solvingPathSize);
+				if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("AI : Solving path - step {} on {}", (this.solvingPathSize - this.solvingPath.size() + 1), this.solvingPathSize);
                 }
                 DefinedMove nextMove = this.solvingPath.take();
-                if (DEBUG) {
-                    System.out.println("AI : next move => " + nextMove);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("AI : next move => {}", nextMove);
                 }
 				return nextMove;
 			}
 			else {
-                if (DEBUG) {
-                    System.out.println("AI : RubiksCube is already solved");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("AI : RubiksCube is already solved");
                 }
             }
 		} catch (InterruptedException e) {
@@ -82,13 +86,14 @@ public class RubiksCubeAI {
 			this.solvingPath.clear();
 		this.solvingPath = null;
 		this.solvingPathSize = 0;
+
+        LOGGER.info("AI : RubiksCube solving path was reset !");
 	}
 
 	private BlockingQueue<DefinedMove> computeNextMoves() {
 		List<DefinedMove> path = new ArrayList<DefinedMove>();
 		
-		if (DEBUG)
-			System.out.println("AI : starting to compute moves");
+		LOGGER.info("AI : starting to compute moves");
 		
 		long start = System.currentTimeMillis();
 		
@@ -122,8 +127,8 @@ public class RubiksCubeAI {
 		// Step seven
 		solveTheRubiksCube(path);
 		
-		if (DEBUG)
-			System.out.println("AI : complete path (before optimization) is => " + path);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI : complete path (before optimization) is => {}", path);
 		
 		// Finally we optimize moves in order to replace 3 PITCH with an UNPITCH for example
 		// FIXME: en testant manuellement l'algo, on identifie un bug qui fait qu'on n'arrive plus au bout de la résolution du Rubik's Cube
@@ -131,8 +136,8 @@ public class RubiksCubeAI {
 		
 		long duration = System.currentTimeMillis() - start;
 
-		System.out.println("AI : Rubik's Cube solved in " + path.size() + " moves in " + duration + " ms");
-		//System.out.println("AI : final  path is => " + path);
+		LOGGER.info("AI : Rubik's Cube solved in {} moves in {} ms", path.size(), duration);
+		//LOGGER.debug("AI : final  path is => {}", path);
 
 		BlockingQueue queue = new LinkedBlockingQueue<>();
 		queue.addAll(path);
@@ -175,11 +180,11 @@ public class RubiksCubeAI {
 		}
 		path.addAll(prereqPath);
 		
-		if (DEBUG) {
+		if (LOGGER.isDebugEnabled()) {
 			if (prereqPath.isEmpty())
-				System.out.println("AI::prerequisite => already done !");
+				LOGGER.debug("AI::prerequisite => already done !");
 			else
-				System.out.println("AI::prerequisite => " + path);
+				LOGGER.debug("AI::prerequisite => {}", path);
 		}
 	}
 
@@ -190,8 +195,8 @@ public class RubiksCubeAI {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (matchesStepOneTopCross()) {
-			if (DEBUG)
-				System.out.println("AI::stepOne => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepOne => done !");
 			return;
 		}
 		
@@ -200,8 +205,8 @@ public class RubiksCubeAI {
 		// First we turn the top front row to the left so that our original corner cubie is at the upper left of the front face
 		addLocalMove(stepOnePath, Move.YAW, rc.getSize());
 		
-		if (DEBUG)
-			System.out.println("AI::stepOne => Moving top front row to the left => " + stepOnePath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepOne => Moving top front row to the left => {}", stepOnePath);
 		
 		// Let's identify upper left cubie of front face
 		Cubie frontFaceUpperLeftCubie = rc.getCubie(1, 3, 3);
@@ -213,8 +218,8 @@ public class RubiksCubeAI {
 		if (matchesCubieOnTwoFacelets(topFaceUpperLeftCubie, frontColor, topColor)) {
 			addLocalMove(stepOnePath, Move.ROLL, 1);
 			
-			if (DEBUG)
-				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the left => " + new DefinedMove(Move.ROLL, 1));			
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepOne => target cubie is on top face but wrong side on the left => {}", new DefinedMove(Move.ROLL, 1));
 		}
 		
 		// Then we check if our target cubie is on the top row of front face but on the wrong side on the right
@@ -222,8 +227,8 @@ public class RubiksCubeAI {
 		if (matchesCubieOnTwoFacelets(topFaceUpperRightCubie, frontColor, topColor)) {
 			addLocalMove(stepOnePath, Move.UNPITCH, rc.getSize());
 			
-			if (DEBUG)
-				System.out.println("AI::stepOne => target cubie is on top face but wrong side on the right => " + new DefinedMove(Move.UNPITCH, rc.getSize()));			
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepOne => target cubie is on top face but wrong side on the right => {}", new DefinedMove(Move.UNPITCH, rc.getSize()));
 		}
 		
 		// Our target cubie could already be at its good place (upper right of front face) but not facing the right way
@@ -236,16 +241,16 @@ public class RubiksCubeAI {
 			if (frontFaceUpperRightCubie.getFrontFace().equals(topColor)) {
 				stepOneTopRowMoves = getStepOneAlgoFour();
 				
-				if (DEBUG)
-					System.out.println("AI::stepOne => about to apply step 1 algo 4 => " + stepOneTopRowMoves);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepOne => about to apply step 1 algo 4 => {}", stepOneTopRowMoves);
 				
 			}
 			// Then deduce step 1 algo when the match is right face : 5
 			else if (frontFaceUpperRightCubie.getRightFace().equals(topColor)) {
 				stepOneTopRowMoves = getStepOneAlgoFive();
 				
-				if (DEBUG)
-					System.out.println("AI::stepOne => about to apply step 1 algo 5 => " + stepOneTopRowMoves);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepOne => about to apply step 1 algo 5 => {}", stepOneTopRowMoves);
 
 			}
 			
@@ -271,9 +276,9 @@ public class RubiksCubeAI {
 			}
 			// We had a match !!
 			else {
-				if (DEBUG) {
+				if (LOGGER.isDebugEnabled()) {
 					if (nbBottomRowMove > 0)
-						System.out.println("AI::stepOne => Moving front bottom row to the left until we match the target corner cubie => " + (nbBottomRowMove) + " * YAW@1");
+						LOGGER.debug("AI::stepOne => Moving front bottom row to the left until we match the target corner cubie => {} * YAW@1", (nbBottomRowMove));
 				}
 				
 				// Let's find where is the topColor on this bottomRight corner cubie of the front face
@@ -283,24 +288,24 @@ public class RubiksCubeAI {
 				if (frontFaceBottomRightCubie.getRightFace().equals(topColor)) {
 					stepOneBottomRowMoves = getStepOneAlgoOne();
 					
-					if (DEBUG)
-						System.out.println("AI::stepOne => about to apply step 1 algo 1 => " + stepOneBottomRowMoves);
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepOne => about to apply step 1 algo 1 => {}", stepOneBottomRowMoves);
 					
 				}
 				// Then deduce step 1 algo when the match is front face : 2
 				else if (frontFaceBottomRightCubie.getFrontFace().equals(topColor)) {
 					stepOneBottomRowMoves = getStepOneAlgoTwo();
 					
-					if (DEBUG)
-						System.out.println("AI::stepOne => about to apply step 1 algo 2 => " + stepOneBottomRowMoves);
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepOne => about to apply step 1 algo 2 => {}", stepOneBottomRowMoves);
 					
 				}
 				// Then deduce step 1 algo when the match is bottom face : 3
 				else {
 					stepOneBottomRowMoves = getStepOneAlgoThree();
 					
-					if (DEBUG)
-						System.out.println("AI::stepOne => about to apply step 1 algo 3 => " + stepOneBottomRowMoves);
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepOne => about to apply step 1 algo 3 => {}", stepOneBottomRowMoves);
 					
 				}
 				
@@ -409,8 +414,8 @@ public class RubiksCubeAI {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (matchesStepTwo()) {
-			if (DEBUG)
-				System.out.println("AI::stepTwo => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepTwo => done !");
 			return;
 		}
 		
@@ -419,8 +424,8 @@ public class RubiksCubeAI {
 		// First we turn the top front row to the left for recursive purpose
 		addLocalMove(stepTwoPath, Move.YAW, rc.getSize());
 		
-		if (DEBUG)
-			System.out.println("AI::stepTwo => Moving top front row to the left => " + stepTwoPath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepTwo => Moving top front row to the left => {}", stepTwoPath);
 		
 		List<DefinedMove> stepTwoMoves = null;
 		
@@ -437,12 +442,12 @@ public class RubiksCubeAI {
 			if (frontFaceMiddleEdgeCubie.getFrontFace().equals(topColor)) {
 				stepTwoMoves = getStepTwoAlgoFive();
 				
-				if (DEBUG)
-					System.out.println("AI::stepTwo => target edge cubie is on top row of front face but on the wrong side => about to apply step 2 algo 5 => " + stepTwoMoves);				
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepTwo => target edge cubie is on top row of front face but on the wrong side => about to apply step 2 algo 5 => {}", stepTwoMoves);
 			}
 			else {
-				if (DEBUG)
-					System.out.println("AI::stepTwo => target edge cubie is already on top row of front face and also on the good side");
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepTwo => target edge cubie is already on top row of front face and also on the good side");
 			}
 			
 		}
@@ -469,8 +474,8 @@ public class RubiksCubeAI {
 					addLocalMove(stepTwoPath, Move.YAW, 1);
 					addLocalMove(stepTwoPath, Move.UNROLL, 2);
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => target edge cubie is on top row of right face => moving the middle column of right face clockwise to match the bottom row => ROLL@2, YAW@1, UNROLL@2");				
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepTwo => target edge cubie is on top row of right face => moving the middle column of right face clockwise to match the bottom row => ROLL@2, YAW@1, UNROLL@2");				
 				}
 				// Then we check for back edge cubie of top layer
 				else if (matchesCubieOnTwoFacelets(rc.getCubie(2, 3, 1), topColor, frontColor)) {
@@ -478,8 +483,8 @@ public class RubiksCubeAI {
 					addLocalMove(stepTwoPath, Move.YAW, 1);
 					addLocalMove(stepTwoPath, Move.UNPITCH, 2);
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => target edge cubie is on top row of back face => moving the middle column of back face clockwise to match the bottom row => PITCH@2, YAW@1, UNPITCH@2");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepTwo => target edge cubie is on top row of back face => moving the middle column of back face clockwise to match the bottom row => PITCH@2, YAW@1, UNPITCH@2");
 				}
 				// Finally we check for left edge cubie of top layer
 				else if (matchesCubieOnTwoFacelets(rc.getCubie(1, 3, 2), topColor, frontColor)) {
@@ -487,8 +492,8 @@ public class RubiksCubeAI {
 					addLocalMove(stepTwoPath, Move.YAW, 1);
 					addLocalMove(stepTwoPath, Move.ROLL, 2);
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => target edge cubie is on top row of left face => moving the middle column of left face counter-clockwise to match the bottom row => UNROLL@2, YAW@1, ROLL@2");
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepTwo => target edge cubie is on top row of left face => moving the middle column of left face counter-clockwise to match the bottom row => UNROLL@2, YAW@1, ROLL@2");
 				}
 				
 				// Now we can check on bottom row of front face
@@ -506,16 +511,15 @@ public class RubiksCubeAI {
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					stepTwoPath.remove(stepTwoPath.size() - 1);
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => No match for target edge cubie on bottom row !! That should not be the case ;-)");
+					LOGGER.error("AI::stepTwo => No match for target edge cubie on bottom row !! That should not be the case ;-)");
 				}
 				// We had a match !!
 				else {
-					if (DEBUG) {
+					if (LOGGER.isDebugEnabled()) {
 						String suffix = "";
 						if (nbBottomRowMove > 0)
-							suffix = " by moving front bottom row to the left => " + (nbBottomRowMove) + " * YAW@1";
-						System.out.println("AI::stepTwo => We matched the target center edge cubie of bottom row" + suffix);
+							suffix = "by moving front bottom row to the left => " + (nbBottomRowMove) + " * YAW@1";
+						LOGGER.debug("AI::stepTwo => We matched the target center edge cubie of bottom row {}", suffix);
 					}
 					
 					// Let's find where is the topColor on this bottomCenter edge cubie of the front face
@@ -524,26 +528,26 @@ public class RubiksCubeAI {
 					if (frontFaceBottomCenterCubie.getBottomFace().equals(topColor)) {
 						stepTwoMoves = getStepTwoAlgoOne();
 						
-						if (DEBUG)
-							System.out.println("AI::stepTwo => about to apply step 2 algo 1 => " + stepTwoMoves);
+						if (LOGGER.isDebugEnabled())
+							LOGGER.debug("AI::stepTwo => about to apply step 2 algo 1 => {}", stepTwoMoves);
 						
 					}
 					// Then deduce step 2 algo when the match is front face : 2
 					else if (frontFaceBottomCenterCubie.getFrontFace().equals(topColor)) {
 						stepTwoMoves = getStepTwoAlgoTwo();
 						
-						if (DEBUG)
-							System.out.println("AI::stepTwo => about to apply step 2 algo 2 => " + stepTwoMoves);
+						if (LOGGER.isDebugEnabled())
+							LOGGER.debug("AI::stepTwo => about to apply step 2 algo 2 => {}", stepTwoMoves);
 					}
 				}
 			}
 			// We had a match !!
 			else {
-				if (DEBUG) {
+				if (LOGGER.isDebugEnabled()) {
 					String suffix = "";
 					if (nbMiddleRowMove > 0)
-						suffix = " by moving front middle row to the left => " + (nbMiddleRowMove) + " * YAW@2";
-					System.out.println("AI::stepTwo => We matched the target right edge cubie of middle row" + suffix);
+						suffix = "by moving front middle row to the left => " + (nbMiddleRowMove) + " * YAW@2";
+					LOGGER.debug("AI::stepTwo => We matched the target right edge cubie of middle row {}", suffix);
 				}
 				
 				// Let's find where is the topColor on this middleRight edge cubie of the front face
@@ -552,16 +556,16 @@ public class RubiksCubeAI {
 				if (frontFaceMiddleRightCubie.getRightFace().equals(topColor)) {
 					stepTwoMoves = getStepTwoAlgoThree();
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => about to apply step 2 algo 3 => " + stepTwoMoves);
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepTwo => about to apply step 2 algo 3 => {}", stepTwoMoves);
 					
 				}
 				// Then deduce step 2 algo when the match is front face : 4
 				else if (frontFaceMiddleRightCubie.getFrontFace().equals(topColor)) {
 					stepTwoMoves = getStepTwoAlgoFour();
 					
-					if (DEBUG)
-						System.out.println("AI::stepTwo => about to apply step 2 algo 4 => " + stepTwoMoves);
+					if (LOGGER.isDebugEnabled())
+						LOGGER.debug("AI::stepTwo => about to apply step 2 algo 4 => {}", stepTwoMoves);
 					
 				}
 			}
@@ -570,8 +574,8 @@ public class RubiksCubeAI {
 		// Finally apply algo
 		addLocalMoves(stepTwoPath, stepTwoMoves);
 		
-		if (DEBUG)
-			System.out.println("AI::stepTwo => " + stepTwoPath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepTwo => {}", stepTwoPath);
 		
 		path.addAll(stepTwoPath);
 		
@@ -667,8 +671,8 @@ public class RubiksCubeAI {
 	// Forming the Half-T
 	private void alignTheCenters(List<DefinedMove> path) {
 		if (matchesStepThreeAlignTheCenters()) {
-			if (DEBUG)
-				System.out.println("AI::stepThree::AlignTheCenters => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::AlignTheCenters => done !");
 			return;
 		}
 		
@@ -677,8 +681,8 @@ public class RubiksCubeAI {
 		// First we turn the top front row to the left for recursive purpose
 		addLocalMove(stepThreePath, Move.YAW, 2);
 		
-		if (DEBUG)
-			System.out.println("AI::stepThree::AlignTheCenters => Moving middle front row to the left => " + stepThreePath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepThree::AlignTheCenters => Moving middle front row to the left => {}", stepThreePath);
 		
 		path.addAll(stepThreePath);
 		
@@ -689,8 +693,8 @@ public class RubiksCubeAI {
 	// Place the remaining edges
 	private void placeTheMiddleLayerEdges(List<DefinedMove> path, int nbConsecutiveFaceWithoutFullTFound) {
 		if (matchesStepThreePlaceTheMiddleLayerEdges()) {
-			if (DEBUG)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => done !");
 			return;
 		}
 		
@@ -701,8 +705,8 @@ public class RubiksCubeAI {
 		addLocalMove(stepThreePath, Move.YAW, rc.getSize());
 		addLocalMove(stepThreePath, Move.YAW, 2);
 		
-		if (DEBUG)
-			System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving top and middle front row to the left => " + stepThreePath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => Moving top and middle front row to the left => {}", stepThreePath);
 		
 		// Compute usefull cubie
 		Cubie frontFaceUpperLeftCornerCubie  = rc.getCubie(1, 3, 3);
@@ -712,28 +716,28 @@ public class RubiksCubeAI {
 		
 		// No Full-T found 4 consecutive times => apply left or right algo
 		if (nbConsecutiveFaceWithoutFullTFound >= 4) {
-			if (DEBUG)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T found " + nbConsecutiveFaceWithoutFullTFound + " consecutive times");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T found {} consecutive times", nbConsecutiveFaceWithoutFullTFound);
 			
 			// apply left algo only if middle left edge cubie of front face is not already correct
 			if (! frontFaceMiddleLeftEdgeCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace())
 			 || ! frontFaceMiddleLeftEdgeCubie.getLeftFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())) {
 				addLocalMoves(stepThreePath, getStepThreeAlgoLeft());
 				
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply left algo");
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply left algo");
 			}
 			// apply right algo only if middle right edge cubie of front face is not already correct
 			else if (! frontFaceMiddleRightEdgeCubie.getFrontFace().equals(frontFaceUpperRightCornerCubie.getFrontFace())
 			 || ! frontFaceMiddleRightEdgeCubie.getRightFace().equals(frontFaceUpperRightCornerCubie.getRightFace())) {
 				addLocalMoves(stepThreePath, getStepThreeAlgoRight());
 				
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply right algo");
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => apply right algo");
 			}
 			else {
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => all left and right middle edge cubie of front face are correct");
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => No Full-T => all left and right middle edge cubie of front face are correct");
 			}
 			
 			
@@ -744,8 +748,8 @@ public class RubiksCubeAI {
 		if (frontFaceMiddleLeftEdgeCubie.getFrontFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())
 		 && frontFaceMiddleLeftEdgeCubie.getLeftFace().equals(frontFaceUpperLeftCornerCubie.getFrontFace())) {
 			stepThreePreLeftMoves = getStepThreeAlgoLeft();
-			if (DEBUG)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => middle front left edge cubie is in the proper position but is turned around => apply step 3 algo left to force the proper cubie to the bottom => " + stepThreePreLeftMoves);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => middle front left edge cubie is in the proper position but is turned around => apply step 3 algo left to force the proper cubie to the bottom => {}", stepThreePreLeftMoves);
 		}
 		addLocalMoves(stepThreePath, stepThreePreLeftMoves);
 		
@@ -754,8 +758,8 @@ public class RubiksCubeAI {
 		if (frontFaceMiddleRightEdgeCubie.getFrontFace().equals(frontFaceUpperRightCornerCubie.getRightFace())
 		 && frontFaceMiddleRightEdgeCubie.getRightFace().equals(frontFaceUpperRightCornerCubie.getFrontFace())) {
 			stepThreePreRightMoves = getStepThreeAlgoRight();
-			if (DEBUG)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => middle front right edge cubie is in the proper position but is turned around => apply step 3 algo right to force the proper cubie to the bottom => " + stepThreePreRightMoves);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => middle front right edge cubie is in the proper position but is turned around => apply step 3 algo right to force the proper cubie to the bottom => {}", stepThreePreRightMoves);
 		}
 		addLocalMoves(stepThreePath, stepThreePreRightMoves);
 		
@@ -776,8 +780,8 @@ public class RubiksCubeAI {
 			stepThreePath.remove(stepThreePath.size() - 1);
 			stepThreePath.remove(stepThreePath.size() - 1);
 
-			if (DEBUG)
-				System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => no match found on bottom row for front face color : " + frontFaceUpperLeftCornerCubie.getFrontFace());
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => no match found on bottom row for front face color : {}", frontFaceUpperLeftCornerCubie.getFrontFace());
 			
 			nbConsecutiveFaceWithoutFullTFound++;
 		}
@@ -785,9 +789,9 @@ public class RubiksCubeAI {
 		else {
 			nbConsecutiveFaceWithoutFullTFound = 0;
 			
-			if (DEBUG) {
+			if (LOGGER.isDebugEnabled()) {
 				if (nbBottomRowMove > 0)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => " + (nbBottomRowMove) + " * YAW@1");
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => Moving front bottom row to the left until we match the target center edge cubie => {} * YAW@1", (nbBottomRowMove));
 			}
 			
 			// Let's find where is the bottomColor : on left or right edge cubie ?
@@ -797,28 +801,28 @@ public class RubiksCubeAI {
 			if (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperLeftCornerCubie.getLeftFace())) {
 				stepThreeMoves = getStepThreeAlgoLeft();
 				
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo left => " + stepThreeMoves);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo left => {}", stepThreeMoves);
 				
 			}
 			// Then deduce step 3 algo when the match is on the right
 			else if (frontFaceBottomCenterCubie.getBottomFace().equals(frontFaceUpperRightCornerCubie.getRightFace())) {
 				stepThreeMoves = getStepThreeAlgoRight();
 				
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo right => " + stepThreeMoves);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => about to apply step 3 algo right => {}", stepThreeMoves);
 			}
 			else {
-				if (DEBUG)
-					System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => No match on bottom color " + frontFaceBottomCenterCubie.getBottomFace() + " on left edge cubie : " + frontFaceUpperLeftCornerCubie.getLeftFace() + " or on right edge cubie : " + frontFaceUpperRightCornerCubie.getRightFace());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => No match on bottom color {} on left edge cubie : {} or on right edge cubie : {}", frontFaceBottomCenterCubie.getBottomFace(), frontFaceUpperLeftCornerCubie.getLeftFace(), frontFaceUpperRightCornerCubie.getRightFace());
 			}
 
 			// Finally apply algo
 			addLocalMoves(stepThreePath, stepThreeMoves);
 		}
 		
-		if (DEBUG)
-			System.out.println("AI::stepThree::PlaceTheMiddleLayerEdges => " + stepThreePath);
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepThree::PlaceTheMiddleLayerEdges => {}", stepThreePath);
 		
 		path.addAll(stepThreePath);
 		
@@ -927,23 +931,23 @@ public class RubiksCubeAI {
 	private void turnTheCubeOver(List<DefinedMove> path) {
 		turnTheCube(path, Move.DOUBLE_ROLL);
 		
-		if (DEBUG)
-			System.out.println("AI::stepFour::TurnTheCubeOver => done !");
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepFour::TurnTheCubeOver => done !");
 	}
 	
 	// Here we turn the entire cube frontside back
 	private void turnTheCubeAround(List<DefinedMove> path) {
 		turnTheCube(path, Move.DOUBLE_YAW);
 		
-		if (DEBUG)
-			System.out.println("AI::stepFour::TurnTheCubeAround => done !");
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("AI::stepFour::TurnTheCubeAround => done !");
 	}
 	
 	// Arrange the corners of last layer (on top now) without good facelets on good place
 	private void arrangeTheLastLayerCorners(List<DefinedMove> path) {
 		if (matchesStepFour()) {
-			if (DEBUG)
-				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => done !");
 			return;
 		}
 		
@@ -982,8 +986,8 @@ public class RubiksCubeAI {
 			stepFourPath.remove(stepFourPath.size() - 1);
 			stepFourPath.remove(stepFourPath.size() - 1);
 
-			if (DEBUG)
-				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => no match found on top row for side-by-side front face color : " + frontColor);
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => no match found on top row for side-by-side front face color : {}", frontColor);
 			
 			// Then we search where are our two target corner cubie
 			frontLeftCornerCubie       = rc.getCubie(1, 3, 3);
@@ -998,36 +1002,36 @@ public class RubiksCubeAI {
 			if (isLeftOnSecondPosition && isRightOnThirdPosition) {
 				addLocalMoves(stepFourPath, getStepFourAlgoSwitchOneAndThree());
 				
-				if (DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => apply algo step 4 switch 1 and 3 : " + getStepFourAlgoSwitchOneAndThree());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => apply algo step 4 switch 1 and 3 : {}", getStepFourAlgoSwitchOneAndThree());
 			}
 			else {
 				// We turn the top front row to the left for recursive purpose
 				addLocalMove(stepFourPath, Move.YAW, rc.getSize());
 				
-				if (DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we turn the top front row to the left to find two corner cubie to switch => YAW@" + rc.getSize());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => we turn the top front row to the left to find two corner cubie to switch => YAW@{}", rc.getSize());
 			}
 		}
 		// We had a match !!
 		else {
-			if (DEBUG) {
+			if (LOGGER.isDebugEnabled()) {
 				String suffix = "";
 				if (nbTopRowMove > 0)
-					suffix = " by moving front top row to the left  => " + (nbTopRowMove) + " * YAW@" + rc.getSize();
-				System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => we matched side-by-side front color " + frontColor + suffix);
+					suffix = "by moving front top row to the left  => " + (nbTopRowMove) + " * YAW@" + rc.getSize();
+				LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => we matched side-by-side front color {} {}", frontColor, suffix);
 			}
 			
 			// Check if the two corner cubie are already in proper sides
 			if (matchesCornerCubieOnFacelets(frontRightCornerCubie, topColor, frontColor, rightColor)) {
-				if (DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are already in proper sides => go on !");
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are already in proper sides => go on !");
 			}
 			else {
 				addLocalMoves(stepFourPath, getStepFourAlgoSwitchOneAndTwo());
 				
-				if (DEBUG)
-					System.out.println("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are not in proper sides => apply algo step 4 switch 1 and 2 : " + getStepFourAlgoSwitchOneAndTwo());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepFour::ArrangeTheLastLayerCorners => left and right corner cubie are not in proper sides => apply algo step 4 switch 1 and 2 : {}", getStepFourAlgoSwitchOneAndTwo());
 			}
 
 			// Turn the entire cube around so that we can deal with back corner cubies
@@ -1123,8 +1127,8 @@ public class RubiksCubeAI {
 	 */
 	private void finishTheLastLayerCorners(List<DefinedMove> path, int nbConsecutiveFaceWithoutConfigFound) {
 		if (matchesStepFive()) {
-			if (DEBUG)
-				System.out.println("AI::stepFive => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepFive => done !");
 			return;
 		}
 		
@@ -1145,13 +1149,13 @@ public class RubiksCubeAI {
 		  || upperRightFrontFaceCubie.getTopFace().equals(topColor) && upperRightRightFaceCubie.getRightFace().equals(topColor))) {
 			addLocalMoves(stepFivePath, getStepFiveAlgo());
 			
-			if (DEBUG) {
+			if (LOGGER.isDebugEnabled()) {
 				String detail = "";
 				if (nbConsecutiveFaceWithoutConfigFound == 4)
 					detail = "no match for one of the three configurations after full (4) top row turn";
 				else
 					detail = "we matched one of the three target configurations";
-				System.out.println("AI::stepFive => " + detail + " => apply algo step 5 : " + getStepFiveAlgo());
+				LOGGER.debug("AI::stepFive => {} => apply algo step 5 : {}", detail, getStepFiveAlgo());
 			}
 			
 			nbConsecutiveFaceWithoutConfigFound = 0;
@@ -1161,8 +1165,8 @@ public class RubiksCubeAI {
 			addLocalMove(stepFivePath, Move.YAW, rc.getSize());
 			nbConsecutiveFaceWithoutConfigFound++;
 			
-			if (DEBUG)
-				System.out.println("AI::stepFive => no match for one of the three target configurations => turn top row to the left => YAW@" + rc.getSize());
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepFive => no match for one of the three target configurations => turn top row to the left => YAW@{}", rc.getSize());
 		}
 		
 		path.addAll(stepFivePath);
@@ -1204,8 +1208,8 @@ public class RubiksCubeAI {
 	 */
 	private void finishTwoEdgesAndPrepareRemainingTwo(List<DefinedMove> path) {
 		if (matchesStepSix()) {
-			if (DEBUG)
-				System.out.println("AI::stepSix => done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepSix => done !");
 			return;
 		}
 		
@@ -1234,23 +1238,23 @@ public class RubiksCubeAI {
 			// apply step 6 algo
 			addLocalMoves(stepSixPath, getStepSixAlgo());
 			
-			if (DEBUG)
-				System.out.println("AI::stepSix => no match found on front top edge cubie on any face => applying step 6 algo anyway : " + getStepSixAlgo());
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepSix => no match found on front top edge cubie on any face => applying step 6 algo anyway : {}", getStepSixAlgo());
 		}
 		// We had a match !!
 		else {
-			if (DEBUG) {
+			if (LOGGER.isDebugEnabled()) {
 				String suffix = "";
 				if (nbEntireCubeMove > 0)
-					suffix = " by moving entire cube to the left  => " + (nbEntireCubeMove) + " * YAW";
-				System.out.println("AI::stepSix => we matched on a front top edge cubie of Face " + rc.getCubie(1, 3, 3).getFrontFace() + suffix);
+					suffix = "by moving entire cube to the left  => " + (nbEntireCubeMove) + " * YAW";
+				LOGGER.debug("AI::stepSix => we matched on a front top edge cubie of Face {} {}", rc.getCubie(1, 3, 3).getFrontFace(), suffix);
 			}
 			
 			// apply step 6 algo
 			addLocalMoves(stepSixPath, getStepSixAlgo());
 			
-			if (DEBUG)
-				System.out.println("AI::stepSix => applying step 6 algo : " + getStepSixAlgo());
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepSix => applying step 6 algo : {}", getStepSixAlgo());
 		}
 			
 		path.addAll(stepSixPath);
@@ -1328,8 +1332,8 @@ public class RubiksCubeAI {
 		RubiksCube rc = this.initialRcConfig;
 		
 		if (rc.isSolved()) {
-			if (DEBUG)
-				System.out.println("AI::stepSeven => already done !");
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepSeven => already done !");
 			return;
 		}
 		
@@ -1340,8 +1344,8 @@ public class RubiksCubeAI {
 			// apply step 6 algo
 			addLocalMoves(stepSevenPath, getStepSevenAlgoHPattern());
 			
-			if (DEBUG)
-				System.out.println("AI::stepSeven => all four edges flipped after step six => applying step 7 H pattern algo : " + getStepSevenAlgoHPattern());
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug("AI::stepSeven => all four edges flipped after step six => applying step 7 H pattern algo : {}", getStepSevenAlgoHPattern());
 		}
 		
 		// We will turn the entire cube to the left until we identify one of the two target configurations
@@ -1359,42 +1363,41 @@ public class RubiksCubeAI {
 				stepSevenPath.remove(stepSevenPath.size() - 1);
 			}
 
-			if (DEBUG)
-				System.out.println("AI::stepSeven => no match found for H or Fish pattern => should not happened => Fail !!");
+			LOGGER.error("AI::stepSeven => no match found for H or Fish pattern => should not happen => Fail !!");
 		}
 		// We had a match !!
 		// Now we want to identify one of the 2 specific configurations named Dedmore "H" pattern and Dedmore "Fish" pattern
 		else {
-			if (DEBUG) {
+			if (LOGGER.isDebugEnabled()) {
 				String suffix = "";
 				if (nbEntireCubeMove > 0)
-					suffix = " by moving entire cube to the left  => " + (nbEntireCubeMove) + " * YAW";
-				System.out.println("AI::stepSeven => we matched one of the two pattern (H or Fish)" + suffix);
+					suffix = "by moving entire cube to the left  => " + (nbEntireCubeMove) + " * YAW";
+				LOGGER.debug("AI::stepSeven => we matched one of the two pattern (H or Fish) {}", suffix);
 			}
 			
 			if (matchesStepSevenDedmoreHPattern()) {
 				// apply step 7 algo H pattern
 				addLocalMoves(stepSevenPath, getStepSevenAlgoHPattern());
 				
-				if (DEBUG)
-					System.out.println("AI::stepSeven => applying step 7 H pattern algo : " + getStepSevenAlgoHPattern());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepSeven => applying step 7 H pattern algo : {}", getStepSevenAlgoHPattern());
 			}
 			else {
 				// apply step 7 algo Fish pattern
 				addLocalMoves(stepSevenPath, getStepSevenAlgoFishPattern());
 				
-				if (DEBUG)
-					System.out.println("AI::stepSeven => applying step 7 Fish pattern algo : " + getStepSevenAlgoFishPattern());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI::stepSeven => applying step 7 Fish pattern algo : {}", getStepSevenAlgoFishPattern());
 			}
 		}
 		
 		path.addAll(stepSevenPath);
 		
-		if (DEBUG) {
-            System.out.println("AI::stepSeven => done !");
+		if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("AI::stepSeven => done !");
 
             if (rc.isSolved()) {
-                System.out.println("AI::stepSeven => checked that it is really done !");
+                LOGGER.debug("AI::stepSeven => checked that it is really done !");
             }
         }
 	}
@@ -1628,8 +1631,8 @@ public class RubiksCubeAI {
 				it.previous();
 				it.remove();
 				
-				if (DEBUG)
-					System.out.println("AI : we should replace last three " + move + " with a " + Move.inverse(move.getMove()) + "@" + move.getFaceIndex());
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI : we should replace last three {} with a {}@{}", move, Move.inverse(move.getMove()), move.getFaceIndex());
 				
 				// Finally we replace with the inverse move
 				move = new DefinedMove(Move.inverse(move.getMove()), move.getFaceIndex());
@@ -1650,8 +1653,8 @@ public class RubiksCubeAI {
 				it.previous();
 				it.remove();
 				
-				if (DEBUG)
-					System.out.println("AI : we should remove last " + move + " and its previous inverse " + prevMove);
+				if (LOGGER.isDebugEnabled())
+					LOGGER.debug("AI : we should remove last {} and its previous inverse {}", move, prevMove);
 			}
 				
 			prevMove = move;

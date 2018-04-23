@@ -6,21 +6,21 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
-import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.Facelet;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class RubiksCube2D extends JApplet {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2D.class);
 
 	private static final long serialVersionUID = 1L;
-	public static final boolean DEBUG = false;
 	
 	private RubiksCube rubiksCube;
 
@@ -53,14 +53,14 @@ public class RubiksCube2D extends JApplet {
 				size = Integer.valueOf(args[0]);
 			}
 			catch (NumberFormatException e) {
-				System.out.println("Bad parameter format : you must provide a numeric size for the Rubik's Cube");
+				LOGGER.error("Bad parameter format : you must provide a numeric size for the Rubik's Cube");
 			}
 		}
 		
 		JFrame f = new JFrame("Rubik's Cube 2D");
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.out.println("Exiting Rubik's Cube program...");
+				LOGGER.info("Exiting Rubik's Cube program...");
 				System.exit(0);
 			}
 		});
@@ -69,29 +69,32 @@ public class RubiksCube2D extends JApplet {
 
 			@Override
 			public void componentHidden(ComponentEvent arg0) {
-				if (DEBUG)
-					System.out.println("# Component hidden : ### " + arg0.getComponent());
-				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("# Component hidden : ### {}", arg0.getComponent());
+				}
 			}
 
 			@Override
 			public void componentMoved(ComponentEvent arg0) {
-				if (DEBUG)
-					System.out.println("# Component moved : ### " + arg0.getComponent());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("# Component moved : ### {}", arg0.getComponent());
+				}
 			}
 
 			@Override
 			public void componentResized(ComponentEvent arg0) {
-				if (DEBUG)
-					System.out.println("# Component resized : ### " + arg0.getComponent());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("# Component resized : ### {}", arg0.getComponent());
+				}
 				
 				// TODO : recentrer le rubik's cube en cas de redimentionnement de la fenètre
 			}
 
 			@Override
 			public void componentShown(ComponentEvent arg0) {
-				if (DEBUG)
-					System.out.println("# Component shown : ### " + arg0.getComponent());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("# Component shown : ### {}", arg0.getComponent());
+				}
 			}
 		
 		});

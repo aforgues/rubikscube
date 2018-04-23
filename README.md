@@ -6,7 +6,7 @@ Including
 -
 - 2x2, 3x3, 4x4... NxN manipulation with ascii and 2D display
 - keyboard and mouse moves
-- AI implementation for 3x3 configuration
+- AI implementation for 3x3 configuration, inspired by http://www.chessandpoker.com/rubiks-cube-solution.html
 
 Roadmap / backlog (with no priority)
 -

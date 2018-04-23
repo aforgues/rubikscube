@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.aforgues.rubikscube.ai.RubiksCubeAI;
-import org.aforgues.rubikscube.presentation.RubiksCube2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Classe de configuration du Rubik's Cube
@@ -29,8 +30,8 @@ import org.aforgues.rubikscube.presentation.RubiksCube2D;
  */
 
 public class RubiksCube implements Cloneable {
-	
-	private static final boolean VERBAL = false;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube.class);
 	
 	private final static int MIN_SIZE = 2;
 	
@@ -60,7 +61,7 @@ public class RubiksCube implements Cloneable {
 	
 	public RubiksCube(int size) {
 		if (size < MIN_SIZE) {
-			System.out.println("RubiksCube size cannot be less than " + MIN_SIZE + " (actual : " + size + ") => forcing size to " + MIN_SIZE);
+			LOGGER.warn("RubiksCube size cannot be less than {} (actual : {}) => forcing size to {}", MIN_SIZE, size, MIN_SIZE);
 			size = MIN_SIZE;
 		}
 		this.size = size;
@@ -80,8 +81,8 @@ public class RubiksCube implements Cloneable {
 	 * Initialisation de la configuration d'un Rubik's Cube terminé
 	 */
 	private void initConfig() {
-		if (VERBAL)
-			System.out.println("Initializing Rubik's Cube configuration");
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Initializing Rubik's Cube configuration");
 		
 		/**
 		 * Face avant   : rouge
@@ -131,8 +132,8 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade avant ou un frontflip en snowboard) : tangage
 	 */
 	private void pitch(int index) {
-		if (VERBAL)
-			System.out.println("Pitching (rotation on X axis) Rubik's Cube on face " + index);
+		if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Pitching (rotation on X axis) Rubik's Cube on face {}", index);
 		
 		List<Cubie> cubes = getCubes(index, Axis.X);
 		
@@ -147,9 +148,9 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe X de 90° vers l'avant (comme une roulade arrière ou un backflip en snowboard) : tangage
 	 */
 	private void unpitch(int index) {
-		if (VERBAL)
-			System.out.println("Unpitching (inverse rotation on X axis) Rubik's Cube on face " + index + " through 3 pitches");
-		
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Unpitching (inverse rotation on X axis) Rubik's Cube on face {} through 3 pitches", index);
+
 		pitch(index);
 		pitch(index);
 		pitch(index);
@@ -159,8 +160,8 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe Y de 90° vers la droite (comme un toupis dans le sens des aiguilles d'une montre vue de haut) : lacet
 	 */
 	private void yaw(int index) {
-		if (VERBAL)
-			System.out.println("Yawing (rotation on Y axis) Rubik's Cube on face " + index);
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Yawing (rotation on Y axis) Rubik's Cube on face {}", index);
 		
 		List<Cubie> cubes = getCubes(index, Axis.Y);
 		
@@ -175,8 +176,8 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe Y de 90° vers la gauche (comme un toupis de gaucher dans le sens inverse des aiguilles d'une montre vue de haut) : lacet
 	 */
 	private void unyaw(int index) {
-		if (VERBAL)
-			System.out.println("Unyawing (inverse rotation on Y axis) Rubik's Cube on face " + index + " through 3 yaws");
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Unyawing (inverse rotation on Y axis) Rubik's Cube on face {} through 3 yaws", index);
 		
 		yaw(index);
 		yaw(index);
@@ -187,8 +188,8 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe Z de 90° vers la droite (comme pour fermer une porte à clef dans le sens des aiguilles d'une montre vue de face)  : roulis
 	 */
 	private void roll(int index) {
-		if (VERBAL)
-			System.out.println("Rolling (rotation on Z axis) Rubik's Cube on face " + index);
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Rolling (rotation on Z axis) Rubik's Cube on face {}", index);
 		
 		List<Cubie> cubes = getCubes(index, Axis.Z);
 		
@@ -203,8 +204,8 @@ public class RubiksCube implements Cloneable {
 	 * Rotation selon l'axe Z de 90° vers la gauche (comme pour ouvrir une porte à clef dans le sens inverse des aiguilles d'une montre vue de face)  : roulis
 	 */
 	private void unroll(int index) {
-		if (VERBAL)
-			System.out.println("Unrolling (inverse rotation on Z axis) Rubik's Cube on face " + index + " through 3 rolls");
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Unrolling (inverse rotation on Z axis) Rubik's Cube on face {} through 3 rolls", index);
 		
 		roll(index);
 		roll(index);
@@ -212,11 +213,11 @@ public class RubiksCube implements Cloneable {
 	}
 	
 	public List<Cubie> getCubes(int index, Axis axis) {
-		if (VERBAL)
-			System.out.println("Retrieving cubes of axis " + axis.name() + " on face " + index);
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Retrieving cubes of axis {} on face {}", axis.name(), index);
 		
 		if (index < 1 || index > getSize()) {
-			System.out.println("### ERROR : Cannot rotate RubiksCube face n°" + index + " on " + axis.name() + " axis => allowed indexes are in [1-" + getSize() + "] range");
+			LOGGER.error("### ERROR : Cannot rotate RubiksCube face n°{} on {} axis => allowed indexes are in [1-{}] range", index, axis.name(), getSize());
 			return Collections.emptyList();
 		}
 		
@@ -251,8 +252,8 @@ public class RubiksCube implements Cloneable {
 		
 		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
 		for (int i = 1; i <= moves.size(); i++) {
-			if (VERBAL)
-				System.out.println("Shuffle move number " + i);
+            if (LOGGER.isTraceEnabled())
+				LOGGER.trace("Shuffle move number {}", i);
 			
 			DefinedMove definedMove = moves.get(i - 1);
 			
@@ -288,13 +289,13 @@ public class RubiksCube implements Cloneable {
 				for (int i = 1; i <= getSize(); i++) {
 					indexes.add(Integer.valueOf(i));
 				}
-				if (VERBAL)
-					System.out.println("Moving all face with " +  definedMove.getMove().name());
+                if (LOGGER.isTraceEnabled())
+					LOGGER.trace("Moving all face with {}", definedMove.getMove().name());
 			}
 			else {
 				indexes.add(definedMove.getFaceIndex());
-				if (VERBAL)
-					System.out.println("Moving " +  definedMove);
+                if (LOGGER.isTraceEnabled())
+					LOGGER.trace("Moving {}", definedMove);
 			}
 			
 			// Ensuite on boucle sur ces indexes pour déplacer la ou les faces du cube souhaitées
@@ -353,8 +354,8 @@ public class RubiksCube implements Cloneable {
 	 * Méthode permettant de mélanger le Rubik's Cube
 	 */
 	private List<DefinedMove> generateShuffleMoves(int nbMove) {
-		if (VERBAL)
-			System.out.println("Starting shuffling Rubik's Cube in " + nbMove + " moves ...");
+        if (LOGGER.isTraceEnabled())
+			LOGGER.trace("Starting shuffling Rubik's Cube in {} moves ...", nbMove);
 		
 		List<DefinedMove> moves = new ArrayList<DefinedMove>(nbMove);
 		
@@ -363,8 +364,8 @@ public class RubiksCube implements Cloneable {
 		
 		// On va effectuer <code>moves</code> mouvements aléatoires à la suite
 		for (int i = 1; i <= nbMove; i++) {
-			if (VERBAL)
-				System.out.println("Shuffle move number " + i);
+            if (LOGGER.isTraceEnabled())
+				LOGGER.trace("Shuffle move number {}", i);
 			
 			// On récupère un des 9 mouvements possibles aléatoirement
 			int move = moveRandomGenerator.nextInt(Move.values().length - 1);
@@ -481,8 +482,8 @@ public class RubiksCube implements Cloneable {
 
 		}
 		else {
-			if (VERBAL)
-				System.out.println("No path already computed by the RubiksCube AI => solving it !");
+            if (LOGGER.isTraceEnabled())
+				LOGGER.trace("No path already computed by the RubiksCube AI => solving it !");
 			this.solve(false);
 			return getNextMove();
 		}
@@ -516,8 +517,8 @@ public class RubiksCube implements Cloneable {
 			else
 				return false;
 		}
-		if (RubiksCube2D.DEBUG)
-			System.out.println("Checking RubiksCube solved : " + face + " Face matched !");
+        if (LOGGER.isDebugEnabled())
+			LOGGER.debug("Checking RubiksCube solved : {} Face matched !", face);
 		
 		return true;
 	}
@@ -576,7 +577,7 @@ public class RubiksCube implements Cloneable {
 		if (x < 1 || x > getSize()
 		 || y < 1 || y > getSize()
 		 || z < 1 || z > getSize()) {
-			System.out.println("### ERROR : Cannot get Cubie on coord x=" + x + ", y=" + y + ", z=" + z + " => allowed coords are in [1-" + getSize() + "] range");
+			LOGGER.error("### ERROR : Cannot get Cubie on coord x={}, y={}, z={} => allowed coords are in [1-{}] range", x, y, z, getSize());
 			return null;
 		}
 		

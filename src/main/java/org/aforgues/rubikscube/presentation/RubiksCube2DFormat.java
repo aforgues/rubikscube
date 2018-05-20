@@ -1,7 +1,6 @@
 package org.aforgues.rubikscube.presentation;
 
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,16 +22,22 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2DFormat.class);
 
-	public static final int CUBE_SIZE = 50;
-	public static final int CUBE_MARGIN = CUBE_SIZE/10;
-	
+    private static final int DEFAULT_CUBE_SIZE = 50;
+    private static final int MIN_CUBE_SIZE = 5;
+    private static final Color LEFT_CLICK_SELECTION_COLOR = Color.PINK;
+
+    public int getCubeSize()   { return this.cubeSize;    }
+	public int getCubeMargin() { return this.cubeSize/10; }
+
 	private Graphics2D graphics;
+	private int    cubeSize;
 	private double x_offset = 0;
 	private double y_offset = 0;
 	
 	public RubiksCube2DFormat(RubiksCube rubiksCube, Graphics2D g) {
 		super(rubiksCube);
 		this.graphics = g;
+		this.cubeSize = DEFAULT_CUBE_SIZE;
 	}
 	
 	public Point getFaceOffset(Face face) {
@@ -58,7 +63,7 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 		//if (this.rubiksCube == null)
 			// TODO : effacer le cube actuallement affiché
 			//this.graphics.clear ?
-		
+
 		super.show();
 	}
 	
@@ -83,8 +88,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 	
 	public Point getBackFaceOffset() {
-		return new Point((1 + rubiksCube.getSize()) * CUBE_SIZE + CUBE_MARGIN,
-				         1 * CUBE_SIZE);
+		return new Point((1 + rubiksCube.getSize()) * this.cubeSize + getCubeMargin(),
+				         1 * this.cubeSize);
 	}
 	
 	/* (non-Javadoc)
@@ -109,8 +114,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 	
 	public Point getTopFaceOffset() {
-		return new Point((1 + rubiksCube.getSize()) * CUBE_SIZE + CUBE_MARGIN,
-				         (1 + rubiksCube.getSize()) * CUBE_SIZE + CUBE_MARGIN);
+		return new Point((1 + rubiksCube.getSize()) * this.cubeSize + getCubeMargin(),
+				         (1 + rubiksCube.getSize()) * this.cubeSize + getCubeMargin());
 	}
 	
 	/* (non-Javadoc)
@@ -134,8 +139,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 
 	public Point getLeftFaceOffset() {
-		return new Point(1 * CUBE_SIZE,
-				         (1 + 2 * rubiksCube.getSize()) * CUBE_SIZE + 2 * CUBE_MARGIN);
+		return new Point(1 * this.cubeSize,
+				         (1 + 2 * rubiksCube.getSize()) * this.cubeSize + 2 * getCubeMargin());
 	}
 	
 	/* (non-Javadoc)
@@ -159,8 +164,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 	
 	public Point getFrontFaceOffset() {
-		return new Point((1 + rubiksCube.getSize()) * CUBE_SIZE + CUBE_MARGIN,
-				         (1 + 2 * rubiksCube.getSize()) * CUBE_SIZE + 2 * CUBE_MARGIN);
+		return new Point((1 + rubiksCube.getSize()) * this.cubeSize + getCubeMargin(),
+				         (1 + 2 * rubiksCube.getSize()) * this.cubeSize + 2 * getCubeMargin());
 	}
 	
 	/* (non-Javadoc)
@@ -185,8 +190,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 	
 	public Point getRightFaceOffset() {
-		return new Point((1 + 2 * rubiksCube.getSize()) * CUBE_SIZE + 2 * CUBE_MARGIN,
-				         (1 + 2 * rubiksCube.getSize()) * CUBE_SIZE + 2 * CUBE_MARGIN);
+		return new Point((1 + 2 * rubiksCube.getSize()) * this.cubeSize + 2 * getCubeMargin(),
+				         (1 + 2 * rubiksCube.getSize()) * this.cubeSize + 2 * getCubeMargin());
 	}
 	
 	/* (non-Javadoc)
@@ -210,8 +215,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	}
 	
 	public Point getBottomFaceOffset() {
-		return new Point((1 + rubiksCube.getSize()) * CUBE_SIZE + CUBE_MARGIN,
-				         (1 + 3 * rubiksCube.getSize()) * CUBE_SIZE + 3 * CUBE_MARGIN);
+		return new Point((1 + rubiksCube.getSize()) * this.cubeSize + getCubeMargin(),
+				         (1 + 3 * rubiksCube.getSize()) * this.cubeSize + 3 * getCubeMargin());
 	}
 	
 	/**
@@ -226,8 +231,8 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 				                  && this.rubiksCube.isFaceMove();
 		
 		for (int columnIndex = 0; columnIndex < this.rubiksCube.getSize(); columnIndex++) {
-			double x = x_offset + columnIndex * CUBE_SIZE;
-			double y = y_offset + (lineNumber - 1) * CUBE_SIZE;
+			double x = x_offset + columnIndex * this.cubeSize;
+			double y = y_offset + (lineNumber - 1) * this.cubeSize;
 			
 			boolean showPointIdentified = (this.rubiksCube.hasPointOnPressedFaceIdentified()
 				     && this.rubiksCube.getPointOnPressedFaceIdentified().equals(new Point(columnIndex, lineNumber - 1)))
@@ -235,15 +240,15 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 			
 			if (showFaceIdentified) {
 				this.graphics.setPaint(java.awt.Color.BLACK);
-				this.graphics.drawRect((int)x, (int)y, CUBE_SIZE, CUBE_SIZE);
+				this.graphics.drawRect((int)x, (int)y, this.cubeSize, this.cubeSize);
 			}
 			else if (showPointIdentified) {
-				this.graphics.setPaint(java.awt.Color.PINK);
-				this.graphics.fill3DRect((int)x, (int)y, CUBE_SIZE, CUBE_SIZE, true);
+				this.graphics.setPaint(LEFT_CLICK_SELECTION_COLOR);
+				this.graphics.fill3DRect((int)x, (int)y, this.cubeSize, this.cubeSize, true);
 			}
 			else {
 				this.graphics.setPaint(cubes.get(columnIndex).getFace(face).getAwtColor());
-				this.graphics.fill3DRect((int)x, (int)y, CUBE_SIZE, CUBE_SIZE, true);
+				this.graphics.fill3DRect((int)x, (int)y, this.cubeSize, this.cubeSize, true);
 			}
 			
 			if (LOGGER.isTraceEnabled()) {
@@ -251,5 +256,20 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 			}
 		}
 	}
+
+    public void zoom(int offset) {
+        int resultingCubeSize = this.cubeSize + offset;
+	    if (resultingCubeSize < MIN_CUBE_SIZE)
+	        this.cubeSize = MIN_CUBE_SIZE;
+	    else
+    	    this.cubeSize = resultingCubeSize;
+
+        // It works too, but the mouse selection is broken then
+        //this.graphics.scale(factor, factor);
+    }
+
+    public void updateRubiksCube(RubiksCube rubiksCube) {
+	    super.rubiksCube = rubiksCube;
+    }
 }
 

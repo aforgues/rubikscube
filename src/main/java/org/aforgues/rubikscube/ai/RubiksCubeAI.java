@@ -45,7 +45,8 @@ public class RubiksCubeAI {
 	
 	public void computeArtificialIntelligence() {
 		if (! isAiAvalaible()) {
-			LOGGER.warn("AI : only available for 3x3 Rubik's Cube !");
+			LOGGER.warn("AI : Rubik's Cube size ({}) is not managed by the AI algorithm => exiting AI !", this.initialRcConfig.getSize());
+			return;
 		}
 		
 		if (this.initialRcConfig.isSolved()) {

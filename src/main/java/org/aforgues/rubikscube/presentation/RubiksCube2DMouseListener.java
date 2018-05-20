@@ -14,6 +14,16 @@ import org.slf4j.LoggerFactory;
 final class RubiksCube2DMouseListener implements MouseListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube2DMouseListener.class);
 
+	private RubiksCube2D applet;
+
+    public RubiksCube2DMouseListener(RubiksCube2D applet) {
+        this.applet = applet;
+    }
+
+    private int getRubiksCube2DCubeSize() {
+        return this.applet.getGraphicFormat().getCubeSize();
+    }
+	
 	// TODO: à supprimer et remplacer par les variables de RubiksCube
 	private Point mouseRightPressedPoint;
 
@@ -36,8 +46,8 @@ final class RubiksCube2DMouseListener implements MouseListener {
 		
 		// Taille du mouvement nécessaire pour déclencher une rotation du cube
 		// ici on part sur la largeur d'une face
-		//final int MOVE_SIZE = rc.getSize() * RubiksCube2DFormat.CUBE_SIZE; 
-		final int MOVE_SIZE = RubiksCube2DFormat.CUBE_SIZE; 
+		//final int MOVE_SIZE = rc.getSize() * getRubiksCube2DCubeSize();
+		final int MOVE_SIZE = getRubiksCube2DCubeSize();
 		
 		// On s'assure que la souris a été pressée sur une des faces horizontales
 		if (isPointOnHorizontalFaces(rc, mouseRightPressedPoint)) {
@@ -253,11 +263,11 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	private Point identifyPointCoordOnFace(RubiksCube rc, Face faceIdentified, Point point) {				
 		Point pointCoordOnFace = null;
 		if (faceIdentified != null) {
-			RubiksCube2DFormat format = new RubiksCube2DFormat(rc, null);
+			RubiksCube2DFormat format = this.applet.getGraphicFormat();
 			
 			pointCoordOnFace = new Point(
-					(int) Math.floor((point.getX() - format.getFaceOffset(faceIdentified).getX()) / (RubiksCube2DFormat.CUBE_SIZE)),
-			        (int) Math.floor((point.getY() - format.getFaceOffset(faceIdentified).getY()) / (RubiksCube2DFormat.CUBE_SIZE)));
+					(int) Math.floor((point.getX() - format.getFaceOffset(faceIdentified).getX()) / (getRubiksCube2DCubeSize())),
+			        (int) Math.floor((point.getY() - format.getFaceOffset(faceIdentified).getY()) / (getRubiksCube2DCubeSize())));
 			
 			if (LOGGER.isDebugEnabled())
 				LOGGER.debug("# Point identified on face : {}", pointCoordOnFace);
@@ -268,41 +278,41 @@ final class RubiksCube2DMouseListener implements MouseListener {
 	private Face identifyFace(RubiksCube rc, Point point) {
 		Face identifiedFace = null;
 		
-		RubiksCube2DFormat format = new RubiksCube2DFormat(rc, null);
+		RubiksCube2DFormat format = this.applet.getGraphicFormat();
 		if (point.getX() >= format.getBackFaceOffset().getX()
-	     && point.getX() < format.getBackFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	     && point.getX() < format.getBackFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	     && point.getY() >= format.getBackFaceOffset().getY()
-	     && point.getY() < format.getBackFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	     && point.getY() < format.getBackFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.BACK;
 		}
 		else if (point.getX() >= format.getBottomFaceOffset().getX()
-	          && point.getX() < format.getBottomFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	          && point.getX() < format.getBottomFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	          && point.getY() >= format.getBottomFaceOffset().getY()
-	          && point.getY() < format.getBottomFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	          && point.getY() < format.getBottomFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.BOTTOM;
 		}
 		else if (point.getX() >= format.getFrontFaceOffset().getX()
-	          && point.getX() < format.getFrontFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	          && point.getX() < format.getFrontFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	          && point.getY() >= format.getFrontFaceOffset().getY()
-	          && point.getY() < format.getFrontFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	          && point.getY() < format.getFrontFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.FRONT;
 		}
 		else if (point.getX() >= format.getLeftFaceOffset().getX()
-	          && point.getX() < format.getLeftFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	          && point.getX() < format.getLeftFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	          && point.getY() >= format.getLeftFaceOffset().getY()
-	          && point.getY() < format.getLeftFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	          && point.getY() < format.getLeftFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.LEFT;
 		}
 		else if (point.getX() >= format.getRightFaceOffset().getX()
-	          && point.getX() < format.getRightFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	          && point.getX() < format.getRightFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	          && point.getY() >= format.getRightFaceOffset().getY()
-	          && point.getY() < format.getRightFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	          && point.getY() < format.getRightFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.RIGHT;
 		}
 		else if (point.getX() >= format.getTopFaceOffset().getX()
-	          && point.getX() < format.getTopFaceOffset().getX() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE
+	          && point.getX() < format.getTopFaceOffset().getX() + rc.getSize() * getRubiksCube2DCubeSize()
 	          && point.getY() >= format.getTopFaceOffset().getY()
-	          && point.getY() < format.getTopFaceOffset().getY() + rc.getSize() * RubiksCube2DFormat.CUBE_SIZE) {
+	          && point.getY() < format.getTopFaceOffset().getY() + rc.getSize() * getRubiksCube2DCubeSize()) {
 			identifiedFace = Face.TOP;
 		}
 			

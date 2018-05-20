@@ -65,27 +65,27 @@ final class RubiksCube2DKeyListener implements KeyListener {
 				break;
 			case '2':
 				applet.initRubiksCube(2);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			case '3':
 				applet.initRubiksCube(3);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			case '4':
 				applet.initRubiksCube(4);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			case '5':
 				applet.initRubiksCube(5);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			case '6':
 				applet.initRubiksCube(6);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			case '7':
 				applet.initRubiksCube(7);
-				repaintSmoothly(applet);
+                applet.repaint();
 				break;
 			
 			default:
@@ -101,19 +101,6 @@ final class RubiksCube2DKeyListener implements KeyListener {
 	private void smoothShuffle(RubiksCube2D applet, int nbMove) {
 		RubiksCube rc = applet.getRubiksCube();
 		rc.shuffle(nbMove);
-		repaintSmoothly(applet);
-	}
-
-	private void repaintSmoothly(RubiksCube2D applet) {
-//		try {
-//			// FIXME : marche pô !!
-//			Thread.sleep(200);
-//			applet.getContentPane().setSize(applet.getWidth(), applet.getHeight());
-//			applet.invalidate();
-//			applet.validate();
-			applet.repaint();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
+		applet.repaint();
 	}
 }

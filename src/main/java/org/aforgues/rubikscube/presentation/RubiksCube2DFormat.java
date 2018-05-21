@@ -30,13 +30,15 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	public int getCubeMargin() { return this.cubeSize/10; }
 
 	private Graphics2D graphics;
+    private RubiksCube2D applet;
 	private int    cubeSize;
 	private double x_offset = 0;
 	private double y_offset = 0;
 	
-	public RubiksCube2DFormat(RubiksCube rubiksCube, Graphics2D g) {
-		super(rubiksCube);
+	public RubiksCube2DFormat(RubiksCube2D applet, Graphics2D g) {
+		super(applet.getRubiksCube());
 		this.graphics = g;
+		this.applet = applet;
 		this.cubeSize = DEFAULT_CUBE_SIZE;
 	}
 	
@@ -227,16 +229,16 @@ public class RubiksCube2DFormat extends GenericRubiksCubeFormat {
 	 * @return L'affichage en 2D de la ligne
 	 */
 	private void showSimpleLine2D(List<Cubie> cubes, int lineNumber, Face face) {
-		boolean showFaceIdentified = face.equals(this.rubiksCube.getPressedFaceIdentified())
-				                  && this.rubiksCube.isFaceMove();
+		boolean showFaceIdentified = face.equals(this.applet.getPressedFaceIdentified())
+				                  && this.applet.isFaceMove();
 		
 		for (int columnIndex = 0; columnIndex < this.rubiksCube.getSize(); columnIndex++) {
 			double x = x_offset + columnIndex * this.cubeSize;
 			double y = y_offset + (lineNumber - 1) * this.cubeSize;
 			
-			boolean showPointIdentified = (this.rubiksCube.hasPointOnPressedFaceIdentified()
-				     && this.rubiksCube.getPointOnPressedFaceIdentified().equals(new Point(columnIndex, lineNumber - 1)))
-				     && face.equals(this.rubiksCube.getPressedFaceIdentified());
+			boolean showPointIdentified = (this.applet.hasPointOnPressedFaceIdentified()
+				     && this.applet.getPointOnPressedFaceIdentified().equals(new Point(columnIndex, lineNumber - 1)))
+				     && face.equals(this.applet.getPressedFaceIdentified());
 			
 			if (showFaceIdentified) {
 				this.graphics.setPaint(java.awt.Color.BLACK);

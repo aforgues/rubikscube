@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
+import org.aforgues.rubikscube.core.Face;
 import org.aforgues.rubikscube.core.RubiksCube;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,70 @@ public class RubiksCube2D extends JApplet {
 
 	private RubiksCube2DFormat graphicFormat;
     public RubiksCube2DFormat getGraphicFormat() {return this.graphicFormat;}
+
+    // Specific fields for 2D display manipulations
+    private Face identifiedPressedFace;
+    private Point pointOnPressedFaceIdentified;
+    private Face identifiedReleasedFace;
+    private Point pointOnReleasedFaceIdentified;
+
+    private boolean isFaceMove;
+
+    /*
+     * Methods to handle face or point identification while mouse clicking
+     */
+
+    public void setPressedFaceIdentified(Face identifiedFace) {
+        this.identifiedPressedFace = identifiedFace;
+    }
+    public Face getPressedFaceIdentified()                    { return this.identifiedPressedFace; }
+    public boolean hasPressedFaceIdentified()                 { return this.getPressedFaceIdentified() != null; }
+
+    public void setPointOnPressedFaceIdentified(Point pointCoordOnFace) { this.pointOnPressedFaceIdentified = pointCoordOnFace;}
+    public Point getPointOnPressedFaceIdentified()                      { return this.pointOnPressedFaceIdentified; }
+    public boolean hasPointOnPressedFaceIdentified()                    { return getPointOnPressedFaceIdentified() != null; }
+
+    public void setReleasedFaceIdentified(Face identifyFace) {
+        this.identifiedReleasedFace = identifyFace;
+    }
+    public Face getReleasedFaceIdentified()                  { return this.identifiedReleasedFace; }
+    public boolean hasReleasedFaceIdentified()               { return getReleasedFaceIdentified() != null; }
+
+    public void setPointOnReleasedFaceIdentified(Point identifyPointCoordOnFace) { this.pointOnReleasedFaceIdentified = identifyPointCoordOnFace; }
+    public Point getPointOnReleasedFaceIdentified()                              { return this.pointOnReleasedFaceIdentified; }
+    public boolean hasPointOnReleasedFaceIdentified()                            { return getPointOnReleasedFaceIdentified() != null; }
+
+    public void setIsFaceMove(boolean b) {
+        this.isFaceMove = b;
+    }
+    public boolean isFaceMove()          { return this.isFaceMove; }
+
+    public boolean clearStuffIdentified() {
+        // On réinitialise les face et point identifiée
+        if (this.hasPressedFaceIdentified()) {
+            this.setPressedFaceIdentified(null);
+
+            if (this.hasPointOnPressedFaceIdentified())
+                this.setPointOnPressedFaceIdentified(null);
+
+            this.setIsFaceMove(false);
+
+            return true;
+        }
+
+        if (this.hasReleasedFaceIdentified()) {
+            this.setReleasedFaceIdentified(null);
+
+            if (this.hasPointOnReleasedFaceIdentified()) {
+                this.setPointOnReleasedFaceIdentified(null);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
 
     public RubiksCube2D(int size) throws HeadlessException {
         JFrame f = new JFrame("Rubik's Cube 2D");
@@ -82,8 +147,8 @@ public class RubiksCube2D extends JApplet {
 
         f.pack();
 
-        Graphics2D g2 = (Graphics2D) this.getGraphics();;
-        graphicFormat = new RubiksCube2DFormat(this.getRubiksCube(), g2);
+        Graphics2D g2 = (Graphics2D) this.getGraphics();
+        graphicFormat = new RubiksCube2DFormat(this, g2);
 
         int width  = graphicFormat.getCubeSize() * (1 + 3 * size + 1) + 2 * graphicFormat.getCubeMargin();
         int height = graphicFormat.getCubeSize() * (1 + 4 * size + 1) + 3 * graphicFormat.getCubeMargin();

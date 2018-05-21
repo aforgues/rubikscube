@@ -40,15 +40,6 @@ public class RubiksCube implements Cloneable {
 
     private RubiksCubeAI ai;
 
-    // FIXME : extract these fields outside this class
-    // Specific fields for 2D display manipulations
-    private Face identifiedPressedFace;
-	private Point pointOnPressedFaceIdentified;
-	private Face identifiedReleasedFace;
-	private Point pointOnReleasedFaceIdentified;
-
-	private boolean isFaceMove;
-	
 	public int getSize() {
 		return size;
 	}
@@ -214,7 +205,7 @@ public class RubiksCube implements Cloneable {
 	
 	public List<Cubie> getCubes(int index, Axis axis) {
         if (LOGGER.isTraceEnabled())
-			LOGGER.trace("Retrieving cubes of axis {} on face {}", axis.name(), index);
+			LOGGER.trace("Retrieving cubes of axis {} on face n°{}", axis.name(), index);
 		
 		if (index < 1 || index > getSize()) {
 			LOGGER.error("### ERROR : Cannot rotate RubiksCube face n°{} on {} axis => allowed indexes are in [1-{}] range", index, axis.name(), getSize());
@@ -372,94 +363,6 @@ public class RubiksCube implements Cloneable {
 			moves.add(new DefinedMove(DefinedMove.getMove(move), faceRandomGenerator.nextInt(getSize()) + 1));
 		}
 		return moves;
-	}
-	
-	/*
-	 * FIXME : extract these methods outside this class (specific to 2D display manipulation)
-	 * Methods to handle face or point identification while mouse clicking
-	 */
-	
-	public void setPressedFaceIdentified(Face identifiedFace) {
-		this.identifiedPressedFace = identifiedFace;	
-	}
-	
-	public Face getPressedFaceIdentified() {
-		return this.identifiedPressedFace;
-	}
-
-	public boolean hasPressedFaceIdentified() {
-		return this.getPressedFaceIdentified() != null;
-	}
-
-	public void setPointOnPressedFaceIdentified(Point pointCoordOnFace) {
-		this.pointOnPressedFaceIdentified = pointCoordOnFace;	
-	}
-	
-	public Point getPointOnPressedFaceIdentified() {
-		return this.pointOnPressedFaceIdentified;
-	}
-
-	public boolean hasPointOnPressedFaceIdentified() {
-		return getPointOnPressedFaceIdentified() != null;
-	}
-	
-	public void setReleasedFaceIdentified(Face identifyFace) {
-		this.identifiedReleasedFace = identifyFace;
-	}
-
-	public Face getReleasedFaceIdentified() {
-		return this.identifiedReleasedFace;
-	}
-	
-	public void setPointOnReleasedFaceIdentified(Point identifyPointCoordOnFace) {
-		this.pointOnReleasedFaceIdentified = identifyPointCoordOnFace;
-	}
-
-	public Point getPointOnReleasedFaceIdentified() {
-		return this.pointOnReleasedFaceIdentified;
-	}
-
-	public boolean hasReleasedFaceIdentified() {
-		return getReleasedFaceIdentified() != null;
-	}
-	
-	
-	public boolean hasPointOnReleasedFaceIdentified() {
-		return getPointOnReleasedFaceIdentified() != null;
-	}
-	
-	public void setIsFaceMove(boolean b) {
-		this.isFaceMove = b;
-	}
-	
-	public boolean isFaceMove() {
-		return this.isFaceMove;
-	}
-	
-	public boolean clearStuffIdentified() {
-		// On réinitialise les face et point identifiée
-		if (this.hasPressedFaceIdentified()) {
-			this.setPressedFaceIdentified(null);
-			
-			if (this.hasPointOnPressedFaceIdentified())
-				this.setPointOnPressedFaceIdentified(null);
-			
-			this.setIsFaceMove(false);
-			
-			return true;
-		}
-		
-		if (this.hasReleasedFaceIdentified()) {
-			this.setReleasedFaceIdentified(null);
-			
-			if (this.hasPointOnReleasedFaceIdentified()) {
-				this.setPointOnReleasedFaceIdentified(null);
-			}
-			
-			return true;
-		}
-		
-		return false;
 	}
 
 	/**

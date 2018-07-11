@@ -1,4 +1,4 @@
-package org.aforgues.rubikscube.presentation;
+package org.aforgues.rubikscube.presentation.basic2d;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

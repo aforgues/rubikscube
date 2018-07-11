@@ -1,4 +1,4 @@
-package org.aforgues.rubikscube.presentation;
+package org.aforgues.rubikscube.presentation.common;
 import org.aforgues.rubikscube.core.RubiksCube;
 
 public abstract class GenericRubiksCubeFormat {

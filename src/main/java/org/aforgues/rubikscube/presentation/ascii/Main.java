@@ -1,4 +1,4 @@
-package org.aforgues.rubikscube.presentation;
+package org.aforgues.rubikscube.presentation.ascii;
 import org.aforgues.rubikscube.core.DefinedMove;
 import org.aforgues.rubikscube.core.Move;
 import org.aforgues.rubikscube.core.RubiksCube;

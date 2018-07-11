@@ -1,4 +1,4 @@
-package org.aforgues.rubikscube.presentation;
+package org.aforgues.rubikscube.presentation.basic2d;
 
 import java.awt.*;
 import java.util.Collections;
@@ -8,6 +8,7 @@ import org.aforgues.rubikscube.core.CubeExtractorUtility;
 import org.aforgues.rubikscube.core.Cubie;
 import org.aforgues.rubikscube.core.Face;
 import org.aforgues.rubikscube.core.RubiksCube;
+import org.aforgues.rubikscube.presentation.common.GenericRubiksCubeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,6 +10,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jme3_g>org.jmonkeyengine</jme3_g>
+        <jme3_v>3.2.0-stable</jme3_v>
     </properties>
 
     <build>
@@ -36,7 +38,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.aforgues.rubikscube.presentation.RubiksCube2D</mainClass>
+                                    <mainClass>org.aforgues.rubikscube.presentation.basic2d.RubiksCube2D</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -60,7 +62,35 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.11.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-core</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-desktop</artifactId>
+            <version>${jme3_v}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-lwjgl</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-plugins</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
 
 </project>

@@ -1,7 +1,6 @@
 package org.aforgues.rubikscube.core;
 
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -126,7 +125,7 @@ public class RubiksCube implements Cloneable {
 		if (LOGGER.isTraceEnabled())
 			LOGGER.trace("Pitching (rotation on X axis) Rubik's Cube on face {}", index);
 		
-		List<Cubie> cubes = getCubes(index, Axis.X);
+		List<Cubie> cubes = getCubies(index, Axis.X);
 		
 		for (Cubie cube : cubes) {
 			cube.pitch();
@@ -154,7 +153,7 @@ public class RubiksCube implements Cloneable {
         if (LOGGER.isTraceEnabled())
 			LOGGER.trace("Yawing (rotation on Y axis) Rubik's Cube on face {}", index);
 		
-		List<Cubie> cubes = getCubes(index, Axis.Y);
+		List<Cubie> cubes = getCubies(index, Axis.Y);
 		
 		for (Cubie cube : cubes) {
 			cube.yaw();
@@ -182,7 +181,7 @@ public class RubiksCube implements Cloneable {
         if (LOGGER.isTraceEnabled())
 			LOGGER.trace("Rolling (rotation on Z axis) Rubik's Cube on face {}", index);
 		
-		List<Cubie> cubes = getCubes(index, Axis.Z);
+		List<Cubie> cubes = getCubies(index, Axis.Z);
 		
 		for (Cubie cube : cubes) {
 			cube.roll();
@@ -202,8 +201,12 @@ public class RubiksCube implements Cloneable {
 		roll(index);
 		roll(index);
 	}
-	
-	public List<Cubie> getCubes(int index, Axis axis) {
+
+	public List<Cubie> getAllCubies() {
+	    return this.config;
+    }
+
+	public List<Cubie> getCubies(int index, Axis axis) {
         if (LOGGER.isTraceEnabled())
 			LOGGER.trace("Retrieving cubes of axis {} on face n°{}", axis.name(), index);
 		
@@ -453,27 +456,27 @@ public class RubiksCube implements Cloneable {
 	}
 
 	public List<Cubie> getBackFaceCubes() {
-		return this.getCubes(1, Axis.Z);
+		return this.getCubies(1, Axis.Z);
 	}
 
 	public List<Cubie> getTopFaceCubes() {
-		return this.getCubes(this.getSize(), Axis.Y);
+		return this.getCubies(this.getSize(), Axis.Y);
 	}
 
 	public List<Cubie> getLeftFaceCubes() {
-		return this.getCubes(1, Axis.X);
+		return this.getCubies(1, Axis.X);
 	}
 
 	public List<Cubie> getFrontFaceCubes() {
-		return this.getCubes(this.getSize(), Axis.Z);
+		return this.getCubies(this.getSize(), Axis.Z);
 	}
 
 	public List<Cubie> getRightFaceCubes() {
-		return this.getCubes(this.getSize(), Axis.X);
+		return this.getCubies(this.getSize(), Axis.X);
 	}
 
 	public List<Cubie> getBottomFaceCubes() {
-		return this.getCubes(1, Axis.Y);
+		return this.getCubies(1, Axis.Y);
 	}
 
 	public Cubie getCubie(int x, int y, int z) {

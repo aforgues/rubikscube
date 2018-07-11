@@ -1,4 +1,4 @@
-package org.aforgues.rubikscube.presentation;
+package org.aforgues.rubikscube.presentation.basic2d;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

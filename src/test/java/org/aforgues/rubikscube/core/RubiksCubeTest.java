@@ -1,6 +1,6 @@
 package org.aforgues.rubikscube.core;
 
-import org.aforgues.rubikscube.presentation.RubiksCubeAsciiFormat;
+import org.aforgues.rubikscube.presentation.ascii.RubiksCubeAsciiFormat;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

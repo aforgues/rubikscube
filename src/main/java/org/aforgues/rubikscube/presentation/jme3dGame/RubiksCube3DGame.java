@@ -2,14 +2,15 @@ package org.aforgues.rubikscube.presentation.jme3dGame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.input.controls.Trigger;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -42,11 +43,14 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_ROLL_ROTATE   = "Roll rotation";
     private static final String MAPPING_PITCH_ROTATE  = "Pitch rotation";
 
+    private static final Trigger TRIGGER_PICK_ROTATE   = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
+    private static final String MAPPING_PICK_ROTATE    = "ray pick rotation";
+
     private RubiksCube rubiksCube;
 
     private AnalogListener analogListener = new AnalogListener() {
         @Override
-        public void onAnalog(String name, float value, float tpf) {
+        public void onAnalog(String name, float intensity, float tpf) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Trigger analog : {}", name);
             }
@@ -59,6 +63,28 @@ public class RubiksCube3DGame extends SimpleApplication {
             }
             else if (MAPPING_ROLL_ROTATE.equals(name)) {
                 rubiksCubeNode.rotate(0, 0, 1.0f*tpf);
+            }
+            else if (MAPPING_PICK_ROTATE.equals(name)) {
+                CollisionResults results = new CollisionResults();
+                Vector2f click2d = inputManager.getCursorPosition();
+                Vector3f click3d = cam.getWorldCoordinates(click2d, 0f);
+                Vector3f dir = cam.getWorldCoordinates(click2d, 1f).subtractLocal(click3d);
+                Ray ray = new Ray(click3d, dir);
+                rubiksCubeNode.collideWith(ray, results);
+
+                if (results.size() > 0) {
+                    Spatial target = results.getClosestCollision().getGeometry();
+
+                    while(target.getName() == null || ! target.getName().startsWith("cubie_")) {
+                        target = target.getParent();
+                    }
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Mouse selection : {}", target.getName());
+                    }
+
+                    target.rotate(0, intensity, 0);
+                }
             }
         }
     };
@@ -107,11 +133,14 @@ public class RubiksCube3DGame extends SimpleApplication {
         inputManager.addMapping(MAPPING_YAW_ROTATE, TRIGGER_YAW_ROTATE);
         inputManager.addMapping(MAPPING_ROLL_ROTATE, TRIGGER_ROLL_ROTATE);
         inputManager.addMapping(MAPPING_PITCH_ROTATE, TRIGGER_PITCH_ROTATE);
+        inputManager.addMapping(MAPPING_PICK_ROTATE, TRIGGER_PICK_ROTATE);
 
         // init Listener
-        inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE);
+        inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE, MAPPING_PICK_ROTATE);
 
-        // TODO : init mouse target picker
+        // init mouse target picker
+        inputManager.setCursorVisible(true);
+        flyCam.setDragToRotate(true);
 
     }
 
@@ -128,7 +157,7 @@ public class RubiksCube3DGame extends SimpleApplication {
             LOGGER.debug(cubie.toString());
         }
 
-        Node nCubie = new Node();
+        Node nCubie = new Node("cubie_" + cubie.toString());
 
         nCubie.attachChild(createFacelet(faceletTopOrBottomMesh, "topFace",    cubie.getCoordinates(), new Vector3f(0,    0.5f, 0),     cubie.getTopFace()));
         nCubie.attachChild(createFacelet(faceletTopOrBottomMesh, "bottomFace", cubie.getCoordinates(), new Vector3f(0,    -0.5f,0),     cubie.getBottomFace()));
@@ -211,7 +240,7 @@ public class RubiksCube3DGame extends SimpleApplication {
     }
 
     private Geometry createBasicGeometry(Box edgeMesh, String name, Vector3f location, ColorRGBA color) {
-            Geometry geom = new Geometry(name, edgeMesh);
+        Geometry geom = new Geometry(name, edgeMesh);
 
         geom.setLocalTranslation(location);
 

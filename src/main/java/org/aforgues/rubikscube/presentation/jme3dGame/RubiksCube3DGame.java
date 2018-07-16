@@ -16,12 +16,14 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import org.aforgues.rubikscube.core.Cubie;
-import org.aforgues.rubikscube.core.Facelet;
-import org.aforgues.rubikscube.core.RubiksCube;
-import org.aforgues.rubikscube.core.ThreeDimCoordinate;
+import org.aforgues.rubikscube.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RubiksCube3DGame extends SimpleApplication {
 
@@ -46,7 +48,40 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final Trigger TRIGGER_PICK_ROTATE   = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
     private static final String MAPPING_PICK_ROTATE    = "ray pick rotation";
 
+    // For manual testing (through keyboard) of faces rotation
+    private static final Trigger TRIGGER_YAW1_ROTATE   = new KeyTrigger(KeyInput.KEY_A);
+    private static final Trigger TRIGGER_ROLL1_ROTATE  = new KeyTrigger(KeyInput.KEY_Z);
+    private static final Trigger TRIGGER_PITCH1_ROTATE = new KeyTrigger(KeyInput.KEY_E);
+    private static final Trigger TRIGGER_YAW2_ROTATE   = new KeyTrigger(KeyInput.KEY_Q);
+    private static final Trigger TRIGGER_ROLL2_ROTATE  = new KeyTrigger(KeyInput.KEY_S);
+    private static final Trigger TRIGGER_PITCH2_ROTATE = new KeyTrigger(KeyInput.KEY_D);
+    private static final Trigger TRIGGER_YAW3_ROTATE   = new KeyTrigger(KeyInput.KEY_W);
+    private static final Trigger TRIGGER_ROLL3_ROTATE  = new KeyTrigger(KeyInput.KEY_X);
+    private static final Trigger TRIGGER_PITCH3_ROTATE = new KeyTrigger(KeyInput.KEY_C);
+
+    private static final String MAPPING_YAW1_ROTATE    = "Yaw 1 rotation";
+    private static final String MAPPING_ROLL1_ROTATE   = "Roll 1 rotation";
+    private static final String MAPPING_PITCH1_ROTATE  = "Pitch 1 rotation";
+    private static final String MAPPING_YAW2_ROTATE    = "Yaw 2 rotation";
+    private static final String MAPPING_ROLL2_ROTATE   = "Roll 2 rotation";
+    private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
+    private static final String MAPPING_YAW3_ROTATE    = "Yaw 3 rotation";
+    private static final String MAPPING_ROLL3_ROTATE   = "Roll 3 rotation";
+    private static final String MAPPING_PITCH3_ROTATE  = "Pitch 3 rotation";
+
     private RubiksCube rubiksCube;
+
+    // Main node with all the cubies
+    protected Node rubiksCubeNode;
+
+    // Handle rotations through collections of Cubie nodes
+    // Yaw type cubies collections
+    Map<Integer, Collection<Node>> yawCubiesCollectionMap = new HashMap<>();
+    // Roll type cubies collections
+    Map<Integer, Collection<Node>> rollCubiesCollectionMap = new HashMap<>();
+    // Pitch type cubies collections
+    Map<Integer, Collection<Node>> pitchCubiesCollectionMap = new HashMap<>();
+
 
     private AnalogListener analogListener = new AnalogListener() {
         @Override
@@ -86,6 +121,34 @@ public class RubiksCube3DGame extends SimpleApplication {
                     target.rotate(0, intensity, 0);
                 }
             }
+            // TODO: Move these 9 actions to an ActionListener (instead of AnalogListener) + initiate 90° rotation + fix the camera view bug when rotating + recompute Cubie nodes dispatch into maps after rotations
+            else if (MAPPING_YAW1_ROTATE.equals(name)) {
+                yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, tpf, 0));
+            }
+            else if (MAPPING_YAW2_ROTATE.equals(name)) {
+                yawCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, tpf, 0));
+            }
+            else if (MAPPING_YAW3_ROTATE.equals(name)) {
+                yawCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, tpf, 0));
+            }
+            else if (MAPPING_ROLL1_ROTATE.equals(name)) {
+                rollCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 0, tpf));
+            }
+            else if (MAPPING_ROLL2_ROTATE.equals(name)) {
+                rollCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 0, tpf));
+            }
+            else if (MAPPING_ROLL3_ROTATE.equals(name)) {
+                rollCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 0, tpf));
+            }
+            else if (MAPPING_PITCH1_ROTATE.equals(name)) {
+                pitchCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+            }
+            else if (MAPPING_PITCH2_ROTATE.equals(name)) {
+                pitchCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+            }
+            else if (MAPPING_PITCH3_ROTATE.equals(name)) {
+                pitchCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+            }
         }
     };
 
@@ -100,7 +163,6 @@ public class RubiksCube3DGame extends SimpleApplication {
         app.start(); // start the game
     }
 
-    protected Node rubiksCubeNode;
 
     @Override
     public void simpleInitApp() {
@@ -135,8 +197,19 @@ public class RubiksCube3DGame extends SimpleApplication {
         inputManager.addMapping(MAPPING_PITCH_ROTATE, TRIGGER_PITCH_ROTATE);
         inputManager.addMapping(MAPPING_PICK_ROTATE, TRIGGER_PICK_ROTATE);
 
+        inputManager.addMapping(MAPPING_YAW1_ROTATE, TRIGGER_YAW1_ROTATE);
+        inputManager.addMapping(MAPPING_YAW2_ROTATE, TRIGGER_YAW2_ROTATE);
+        inputManager.addMapping(MAPPING_YAW3_ROTATE, TRIGGER_YAW3_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL1_ROTATE, TRIGGER_ROLL1_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL2_ROTATE, TRIGGER_ROLL2_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL3_ROTATE, TRIGGER_ROLL3_ROTATE);
+        inputManager.addMapping(MAPPING_PITCH1_ROTATE, TRIGGER_PITCH1_ROTATE);
+        inputManager.addMapping(MAPPING_PITCH2_ROTATE, TRIGGER_PITCH2_ROTATE);
+        inputManager.addMapping(MAPPING_PITCH3_ROTATE, TRIGGER_PITCH3_ROTATE);
+
         // init Listener
         inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE, MAPPING_PICK_ROTATE);
+        inputManager.addListener(analogListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE);
 
         // init mouse target picker
         inputManager.setCursorVisible(true);
@@ -166,7 +239,43 @@ public class RubiksCube3DGame extends SimpleApplication {
         nCubie.attachChild(createFacelet(faceletLeftOrRightMesh, "leftFace",   cubie.getCoordinates(), new Vector3f(-0.5f,0,    0),     cubie.getLeftFace()));
         nCubie.attachChild(createFacelet(faceletLeftOrRightMesh, "rightFace",  cubie.getCoordinates(), new Vector3f(0.5f, 0,    0),     cubie.getRightFace()));
 
+        dispatchInRotationMaps(cubie, nCubie);
+
         return nCubie;
+    }
+
+    private void dispatchInRotationMaps(Cubie cubie, Node nCubie) {
+        for (int i = 1; i <= this.rubiksCube.getSize(); i++) {
+            // populate nodes in Pitch collections
+            if (this.rubiksCube.getCubies(i, Axis.X).contains(cubie)) {
+                Collection<Node> nodes = this.pitchCubiesCollectionMap.get(Integer.valueOf(i));
+                if (nodes == null) {
+                    nodes = new ArrayList<>();
+                    this.pitchCubiesCollectionMap.put(Integer.valueOf(i), nodes);
+                }
+                nodes.add(nCubie);
+            }
+
+            // populate nodes in Yaw collections
+            if (this.rubiksCube.getCubies(i, Axis.Y).contains(cubie)) {
+                Collection<Node> nodes = this.yawCubiesCollectionMap.get(Integer.valueOf(i));
+                if (nodes == null) {
+                    nodes = new ArrayList<>();
+                    this.yawCubiesCollectionMap.put(Integer.valueOf(i), nodes);
+                }
+                nodes.add(nCubie);
+            }
+
+            // populate nodes in Roll collections
+            if (this.rubiksCube.getCubies(i, Axis.Z).contains(cubie)) {
+                Collection<Node> nodes = this.rollCubiesCollectionMap.get(Integer.valueOf(i));
+                if (nodes == null) {
+                    nodes = new ArrayList<>();
+                    this.rollCubiesCollectionMap.put(Integer.valueOf(i), nodes);
+                }
+                nodes.add(nCubie);
+            }
+        }
     }
 
     private Spatial createFacelet(Box faceletMesh, String name, ThreeDimCoordinate coord, Vector3f location, Facelet color) {

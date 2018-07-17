@@ -55,9 +55,9 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final Trigger TRIGGER_ROLL3_ROTATE  = new KeyTrigger(KeyInput.KEY_Z);
     private static final Trigger TRIGGER_ROLL2_ROTATE  = new KeyTrigger(KeyInput.KEY_S);
     private static final Trigger TRIGGER_ROLL1_ROTATE  = new KeyTrigger(KeyInput.KEY_X);
-    private static final Trigger TRIGGER_PITCH3_ROTATE = new KeyTrigger(KeyInput.KEY_E);
+    private static final Trigger TRIGGER_PITCH3_ROTATE = new KeyTrigger(KeyInput.KEY_C);
     private static final Trigger TRIGGER_PITCH2_ROTATE = new KeyTrigger(KeyInput.KEY_D);
-    private static final Trigger TRIGGER_PITCH1_ROTATE = new KeyTrigger(KeyInput.KEY_C);
+    private static final Trigger TRIGGER_PITCH1_ROTATE = new KeyTrigger(KeyInput.KEY_E);
 
     private static final String MAPPING_YAW1_ROTATE    = "Yaw 1 rotation";
     private static final String MAPPING_YAW2_ROTATE    = "Yaw 2 rotation";

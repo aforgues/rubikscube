@@ -1,14 +1,12 @@
 package org.aforgues.rubikscube.presentation.jme3dGame;
 
+import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.input.controls.Trigger;
+import com.jme3.input.controls.*;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
@@ -24,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.jme3.math.FastMath.DEG_TO_RAD;
 
 public class RubiksCube3DGame extends SimpleApplication {
 
@@ -49,24 +49,24 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_PICK_ROTATE    = "ray pick rotation";
 
     // For manual testing (through keyboard) of faces rotation
-    private static final Trigger TRIGGER_YAW1_ROTATE   = new KeyTrigger(KeyInput.KEY_A);
-    private static final Trigger TRIGGER_ROLL1_ROTATE  = new KeyTrigger(KeyInput.KEY_Z);
-    private static final Trigger TRIGGER_PITCH1_ROTATE = new KeyTrigger(KeyInput.KEY_E);
+    private static final Trigger TRIGGER_YAW3_ROTATE   = new KeyTrigger(KeyInput.KEY_A);
     private static final Trigger TRIGGER_YAW2_ROTATE   = new KeyTrigger(KeyInput.KEY_Q);
+    private static final Trigger TRIGGER_YAW1_ROTATE   = new KeyTrigger(KeyInput.KEY_W);
+    private static final Trigger TRIGGER_ROLL3_ROTATE  = new KeyTrigger(KeyInput.KEY_Z);
     private static final Trigger TRIGGER_ROLL2_ROTATE  = new KeyTrigger(KeyInput.KEY_S);
+    private static final Trigger TRIGGER_ROLL1_ROTATE  = new KeyTrigger(KeyInput.KEY_X);
+    private static final Trigger TRIGGER_PITCH3_ROTATE = new KeyTrigger(KeyInput.KEY_E);
     private static final Trigger TRIGGER_PITCH2_ROTATE = new KeyTrigger(KeyInput.KEY_D);
-    private static final Trigger TRIGGER_YAW3_ROTATE   = new KeyTrigger(KeyInput.KEY_W);
-    private static final Trigger TRIGGER_ROLL3_ROTATE  = new KeyTrigger(KeyInput.KEY_X);
-    private static final Trigger TRIGGER_PITCH3_ROTATE = new KeyTrigger(KeyInput.KEY_C);
+    private static final Trigger TRIGGER_PITCH1_ROTATE = new KeyTrigger(KeyInput.KEY_C);
 
     private static final String MAPPING_YAW1_ROTATE    = "Yaw 1 rotation";
-    private static final String MAPPING_ROLL1_ROTATE   = "Roll 1 rotation";
-    private static final String MAPPING_PITCH1_ROTATE  = "Pitch 1 rotation";
     private static final String MAPPING_YAW2_ROTATE    = "Yaw 2 rotation";
-    private static final String MAPPING_ROLL2_ROTATE   = "Roll 2 rotation";
-    private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
     private static final String MAPPING_YAW3_ROTATE    = "Yaw 3 rotation";
+    private static final String MAPPING_ROLL1_ROTATE   = "Roll 1 rotation";
+    private static final String MAPPING_ROLL2_ROTATE   = "Roll 2 rotation";
     private static final String MAPPING_ROLL3_ROTATE   = "Roll 3 rotation";
+    private static final String MAPPING_PITCH1_ROTATE  = "Pitch 1 rotation";
+    private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
     private static final String MAPPING_PITCH3_ROTATE  = "Pitch 3 rotation";
 
     private RubiksCube rubiksCube;
@@ -121,33 +121,48 @@ public class RubiksCube3DGame extends SimpleApplication {
                     target.rotate(0, intensity, 0);
                 }
             }
-            // TODO: Move these 9 actions to an ActionListener (instead of AnalogListener) + initiate 90° rotation + fix the camera view bug when rotating + recompute Cubie nodes dispatch into maps after rotations
-            else if (MAPPING_YAW1_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, tpf, 0));
+        }
+    };
+
+    private ActionListener actionListener = new ActionListener() {
+        @Override
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Trigger action : {} (isPressed : {})", name, isPressed);
+            }
+
+            if (!isPressed) {
+                return;
+            }
+
+            // TODO: replace 90° rotation with animated rotation + recompute Cubie nodes dispatch into maps after rotations
+            if (MAPPING_YAW1_ROTATE.equals(name)) {
+                yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
+                //yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.getLocalRotation().slerp(new Quaternion().fromAngles(0, 90*DEG_TO_RAD, 0), 1))/*n.rotate(0, 90*DEG_TO_RAD, 0))*/;
             }
             else if (MAPPING_YAW2_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, tpf, 0));
+                yawCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
             }
             else if (MAPPING_YAW3_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, tpf, 0));
+                yawCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
             }
             else if (MAPPING_ROLL1_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 0, tpf));
+                rollCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
             }
             else if (MAPPING_ROLL2_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 0, tpf));
+                rollCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
             }
             else if (MAPPING_ROLL3_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 0, tpf));
+                rollCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
             }
             else if (MAPPING_PITCH1_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+                pitchCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
             }
             else if (MAPPING_PITCH2_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+                pitchCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
             }
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(tpf, 0, 0));
+                pitchCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
             }
         }
     };
@@ -208,8 +223,9 @@ public class RubiksCube3DGame extends SimpleApplication {
         inputManager.addMapping(MAPPING_PITCH3_ROTATE, TRIGGER_PITCH3_ROTATE);
 
         // init Listener
+        stateManager.getState(FlyCamAppState.class).setEnabled(false); // disable default key input (WASD ...)
         inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE, MAPPING_PICK_ROTATE);
-        inputManager.addListener(analogListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE);
+        inputManager.addListener(actionListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE);
 
         // init mouse target picker
         inputManager.setCursorVisible(true);

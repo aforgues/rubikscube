@@ -66,10 +66,6 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
     private static final String MAPPING_PITCH3_ROTATE  = "Pitch 3 rotation";
 
-    private static final Quaternion YAW_90   = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Y);
-    private static final Quaternion ROLL_90  = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Z);
-    private static final Quaternion PITCH_90 = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_X);
-
     private RubiksCube rubiksCube;
 
     // Main node with all the cubies
@@ -146,38 +142,37 @@ public class RubiksCube3DGame extends SimpleApplication {
                 return;
             }
 
-            // TODO: replace 90° rotation with animated rotation + recompute Cubie nodes dispatch into maps after rotations
             if (MAPPING_YAW1_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 1, YAW_90);
+                handleRotation(yawCubiesCollectionMap, 1, Move.YAW);
             }
             else if (MAPPING_YAW2_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 2, YAW_90);
+                handleRotation(yawCubiesCollectionMap, 2, Move.YAW);
             }
             else if (MAPPING_YAW3_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 3, YAW_90);
+                handleRotation(yawCubiesCollectionMap, 3, Move.YAW);
             }
             else if (MAPPING_ROLL1_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 1, ROLL_90);
+                handleRotation(rollCubiesCollectionMap, 1, Move.ROLL);
             }
             else if (MAPPING_ROLL2_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 2, ROLL_90);
+                handleRotation(rollCubiesCollectionMap, 2, Move.ROLL);
             }
             else if (MAPPING_ROLL3_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 3, ROLL_90);
+                handleRotation(rollCubiesCollectionMap, 3, Move.ROLL);
             }
             else if (MAPPING_PITCH1_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 1, PITCH_90);
+                handleRotation(pitchCubiesCollectionMap, 1, Move.PITCH);
             }
             else if (MAPPING_PITCH2_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 2, PITCH_90);
+                handleRotation(pitchCubiesCollectionMap, 2, Move.PITCH);
             }
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 3, PITCH_90);
+                handleRotation(pitchCubiesCollectionMap, 3, Move.PITCH);
             }
         }
 
-        private void handleRotation(Map<Integer, Collection<Node>> map, int index, Quaternion rotation) {
-            rotationHandler = new RotationHandler(map, index, rotation);
+        private void handleRotation(Map<Integer, Collection<Node>> map, int index, Move move) {
+            rotationHandler = new RotationHandler(map, index, move);
         }
     };
 
@@ -248,7 +243,15 @@ public class RubiksCube3DGame extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         // Handle rotation animation
         if (rotationHandler != null && rotationHandler.hasRotationOnGoing()) {
-            rotationHandler.processRotation(tpf);
+
+            boolean isRotationEnded = rotationHandler.processRotation(tpf);
+
+            if (isRotationEnded) {
+                this.rubiksCube.move(rotationHandler.getDefinedMove());
+
+                // Redispatch Cubie node in rotation maps
+                // TODO : redispatch Cubie node in Yaw / pitch / roll nodes collections maps
+            }
         }
     }
 

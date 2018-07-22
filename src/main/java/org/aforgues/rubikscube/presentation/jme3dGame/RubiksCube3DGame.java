@@ -18,10 +18,7 @@ import org.aforgues.rubikscube.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.jme3.math.FastMath.DEG_TO_RAD;
 
@@ -69,6 +66,10 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
     private static final String MAPPING_PITCH3_ROTATE  = "Pitch 3 rotation";
 
+    private static final Quaternion YAW_90   = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Y);
+    private static final Quaternion ROLL_90  = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Z);
+    private static final Quaternion PITCH_90 = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_X);
+
     private RubiksCube rubiksCube;
 
     // Main node with all the cubies
@@ -76,12 +77,14 @@ public class RubiksCube3DGame extends SimpleApplication {
 
     // Handle rotations through collections of Cubie nodes
     // Yaw type cubies collections
-    Map<Integer, Collection<Node>> yawCubiesCollectionMap = new HashMap<>();
+    private Map<Integer, Collection<Node>> yawCubiesCollectionMap = new HashMap<>();
     // Roll type cubies collections
-    Map<Integer, Collection<Node>> rollCubiesCollectionMap = new HashMap<>();
+    private Map<Integer, Collection<Node>> rollCubiesCollectionMap = new HashMap<>();
     // Pitch type cubies collections
-    Map<Integer, Collection<Node>> pitchCubiesCollectionMap = new HashMap<>();
+    private Map<Integer, Collection<Node>> pitchCubiesCollectionMap = new HashMap<>();
 
+    // Handle rotation animation
+    private RotationHandler rotationHandler;
 
     private AnalogListener analogListener = new AnalogListener() {
         @Override
@@ -135,35 +138,46 @@ public class RubiksCube3DGame extends SimpleApplication {
                 return;
             }
 
+            // TODO : to allow multiple actions, we need to manage a queue of input handling
+            if (rotationHandler != null && rotationHandler.hasRotationOnGoing()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Rotation already on going => ignoring new action {}", name);
+                }
+                return;
+            }
+
             // TODO: replace 90° rotation with animated rotation + recompute Cubie nodes dispatch into maps after rotations
             if (MAPPING_YAW1_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
-                //yawCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.getLocalRotation().slerp(new Quaternion().fromAngles(0, 90*DEG_TO_RAD, 0), 1))/*n.rotate(0, 90*DEG_TO_RAD, 0))*/;
+                handleRotation(yawCubiesCollectionMap, 1, YAW_90);
             }
             else if (MAPPING_YAW2_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
+                handleRotation(yawCubiesCollectionMap, 2, YAW_90);
             }
             else if (MAPPING_YAW3_ROTATE.equals(name)) {
-                yawCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 90*DEG_TO_RAD, 0));
+                handleRotation(yawCubiesCollectionMap, 3, YAW_90);
             }
             else if (MAPPING_ROLL1_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
+                handleRotation(rollCubiesCollectionMap, 1, ROLL_90);
             }
             else if (MAPPING_ROLL2_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
+                handleRotation(rollCubiesCollectionMap, 2, ROLL_90);
             }
             else if (MAPPING_ROLL3_ROTATE.equals(name)) {
-                rollCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(0, 0, 90*DEG_TO_RAD));
+                handleRotation(rollCubiesCollectionMap, 3, ROLL_90);
             }
             else if (MAPPING_PITCH1_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(1)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
+                handleRotation(pitchCubiesCollectionMap, 1, PITCH_90);
             }
             else if (MAPPING_PITCH2_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(2)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
+                handleRotation(pitchCubiesCollectionMap, 2, PITCH_90);
             }
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
-                pitchCubiesCollectionMap.get(Integer.valueOf(3)).stream().forEach(n -> n.rotate(90*DEG_TO_RAD, 0, 0));
+                handleRotation(pitchCubiesCollectionMap, 3, PITCH_90);
             }
+        }
+
+        private void handleRotation(Map<Integer, Collection<Node>> map, int index, Quaternion rotation) {
+            rotationHandler = new RotationHandler(map, index, rotation);
         }
     };
 
@@ -171,7 +185,6 @@ public class RubiksCube3DGame extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setTitle("aforgues's RubiksCube 3D Game");
         settings.setSettingsDialogImage("assets/Interface/rubiks-cube-logo.jpg");
-        //settings.setUseInput(false); // Disable default WASD navigation input
 
         RubiksCube3DGame app = new RubiksCube3DGame();
         app.setSettings(settings);
@@ -193,8 +206,6 @@ public class RubiksCube3DGame extends SimpleApplication {
             rubiksCubeNode.attachChild(nCubie);
         }
 
-        //pivot.getLocalRotation().slerp(pivot.getLocalRotation().fromAngleAxis(20 * FastMath.DEG_TO_RAD, Vector3f.UNIT_Y), 1f);
-
         // Set initial camera position and rotation so that we can see three faces of the RubiksCube
         cam.setLocation(new Vector3f(5.4f, 4f, 7.63f));
         cam.setRotation(new Quaternion(-0.025575094f, 0.93635076f, -0.20711282f, -0.2823074f));
@@ -206,7 +217,6 @@ public class RubiksCube3DGame extends SimpleApplication {
         }
 
         // init trigger and mappings
-        //inputManager.clearMappings();
         inputManager.addMapping(MAPPING_YAW_ROTATE, TRIGGER_YAW_ROTATE);
         inputManager.addMapping(MAPPING_ROLL_ROTATE, TRIGGER_ROLL_ROTATE);
         inputManager.addMapping(MAPPING_PITCH_ROTATE, TRIGGER_PITCH_ROTATE);
@@ -236,8 +246,10 @@ public class RubiksCube3DGame extends SimpleApplication {
     /* Use the main event loop to trigger repeating actions. */
     @Override
     public void simpleUpdate(float tpf) {
-        // make the rubikscube rotate:
-        //rubiksCubeNode.rotate(0.3f*tpf, 0.6f*tpf, 0.9f*tpf);
+        // Handle rotation animation
+        if (rotationHandler != null && rotationHandler.hasRotationOnGoing()) {
+            rotationHandler.processRotation(tpf);
+        }
     }
 
     // Create Cubie geometry by creating 6 facelet using following method

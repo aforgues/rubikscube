@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.jme3.math.FastMath.DEG_TO_RAD;
-
 public class RubiksCube3DGame extends SimpleApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RubiksCube3DGame.class);
@@ -42,8 +40,8 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_ROLL_ROTATE   = "Roll rotation";
     private static final String MAPPING_PITCH_ROTATE  = "Pitch rotation";
 
-    private static final Trigger TRIGGER_PICK_ROTATE   = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
-    private static final String MAPPING_PICK_ROTATE    = "ray pick rotation";
+    private static final Trigger TRIGGER_PICK_CUBIE   = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
+    private static final String MAPPING_PICK_CUBIE    = "ray pick cubie";
 
     // For manual testing (through keyboard) of faces rotation
     private static final Trigger TRIGGER_YAW3_ROTATE   = new KeyTrigger(KeyInput.KEY_A);
@@ -80,7 +78,9 @@ public class RubiksCube3DGame extends SimpleApplication {
     private Map<Integer, Collection<Node>> pitchCubiesCollectionMap = new HashMap<>();
 
     // Handle rotation animation
-    private RotationHandler rotationHandler;
+    private RotationHandler ongoingRotation;
+
+    private Spatial selectedSpatialWithLeftMouseClick;
 
     private AnalogListener analogListener = new AnalogListener() {
         @Override
@@ -98,28 +98,6 @@ public class RubiksCube3DGame extends SimpleApplication {
             else if (MAPPING_ROLL_ROTATE.equals(name)) {
                 rubiksCubeNode.rotate(0, 0, 1.0f*tpf);
             }
-            else if (MAPPING_PICK_ROTATE.equals(name)) {
-                CollisionResults results = new CollisionResults();
-                Vector2f click2d = inputManager.getCursorPosition();
-                Vector3f click3d = cam.getWorldCoordinates(click2d, 0f);
-                Vector3f dir = cam.getWorldCoordinates(click2d, 1f).subtractLocal(click3d);
-                Ray ray = new Ray(click3d, dir);
-                rubiksCubeNode.collideWith(ray, results);
-
-                if (results.size() > 0) {
-                    Spatial target = results.getClosestCollision().getGeometry();
-
-                    while(target.getName() == null || ! target.getName().startsWith("cubie_")) {
-                        target = target.getParent();
-                    }
-
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Mouse selection : {}", target.getName());
-                    }
-
-                    target.rotate(0, intensity, 0);
-                }
-            }
         }
     };
 
@@ -130,12 +108,19 @@ public class RubiksCube3DGame extends SimpleApplication {
                 LOGGER.trace("Trigger action : {} (isPressed : {})", name, isPressed);
             }
 
+
+
             if (!isPressed) {
+                if (selectedSpatialWithLeftMouseClick != null) {
+                    selectedSpatialWithLeftMouseClick.setLocalScale(1.0f);
+                    selectedSpatialWithLeftMouseClick = null;
+                }
+
                 return;
             }
 
             // TODO : to allow multiple actions, we need to manage a queue of input handling
-            if (rotationHandler != null && rotationHandler.hasRotationOnGoing()) {
+            if (ongoingRotation != null && ongoingRotation.hasRotationOnGoing()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Rotation already on going => ignoring new action {}", name);
                 }
@@ -169,10 +154,36 @@ public class RubiksCube3DGame extends SimpleApplication {
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
                 handleRotation(pitchCubiesCollectionMap, 3, Move.PITCH);
             }
+            else if (MAPPING_PICK_CUBIE.equals(name)) {
+                CollisionResults results = new CollisionResults();
+                Vector2f click2d = inputManager.getCursorPosition();
+                Vector3f click3d = cam.getWorldCoordinates(click2d, 0f);
+                Vector3f dir = cam.getWorldCoordinates(click2d, 1f).subtractLocal(click3d);
+                Ray ray = new Ray(click3d, dir);
+                rubiksCubeNode.collideWith(ray, results);
+
+                if (results.size() > 0) {
+                    Spatial target = results.getClosestCollision().getGeometry();
+
+                    while(target.getName() == null || ! target.getName().startsWith("cubie_")) {
+                        target = target.getParent();
+                    }
+
+                    selectedSpatialWithLeftMouseClick = target;
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Mouse selection : {}", selectedSpatialWithLeftMouseClick.getName());
+                        float offset = getDisplayOffsetToCenterRubiksCube();
+                        LOGGER.debug("3D position : {}", selectedSpatialWithLeftMouseClick.getWorldBound().getCenter().add(offset, offset, offset));
+                    }
+
+                    selectedSpatialWithLeftMouseClick.setLocalScale(1.1f);
+                }
+            }
         }
 
         private void handleRotation(Map<Integer, Collection<Node>> map, int index, Move move) {
-            rotationHandler = new RotationHandler(map, index, move);
+            ongoingRotation = new RotationHandler(map, index, move);
         }
     };
 
@@ -215,7 +226,7 @@ public class RubiksCube3DGame extends SimpleApplication {
         inputManager.addMapping(MAPPING_YAW_ROTATE, TRIGGER_YAW_ROTATE);
         inputManager.addMapping(MAPPING_ROLL_ROTATE, TRIGGER_ROLL_ROTATE);
         inputManager.addMapping(MAPPING_PITCH_ROTATE, TRIGGER_PITCH_ROTATE);
-        inputManager.addMapping(MAPPING_PICK_ROTATE, TRIGGER_PICK_ROTATE);
+        inputManager.addMapping(MAPPING_PICK_CUBIE, TRIGGER_PICK_CUBIE);
 
         inputManager.addMapping(MAPPING_YAW1_ROTATE, TRIGGER_YAW1_ROTATE);
         inputManager.addMapping(MAPPING_YAW2_ROTATE, TRIGGER_YAW2_ROTATE);
@@ -229,8 +240,8 @@ public class RubiksCube3DGame extends SimpleApplication {
 
         // init Listener
         stateManager.getState(FlyCamAppState.class).setEnabled(false); // disable default key input (WASD ...)
-        inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE, MAPPING_PICK_ROTATE);
-        inputManager.addListener(actionListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE);
+        inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE);
+        inputManager.addListener(actionListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE, MAPPING_PICK_CUBIE);
 
         // init mouse target picker
         inputManager.setCursorVisible(true);
@@ -242,12 +253,12 @@ public class RubiksCube3DGame extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         // Handle rotation animation
-        if (rotationHandler != null && rotationHandler.hasRotationOnGoing()) {
+        if (ongoingRotation != null && ongoingRotation.hasRotationOnGoing()) {
 
-            boolean isRotationEnded = rotationHandler.processRotation(tpf);
+            boolean isRotationEnded = ongoingRotation.processRotation(tpf);
 
             if (isRotationEnded) {
-                this.rubiksCube.move(rotationHandler.getDefinedMove());
+                this.rubiksCube.move(ongoingRotation.getDefinedMove());
 
                 // Redispatch Cubie node in rotation maps
                 // TODO : redispatch Cubie node in Yaw / pitch / roll nodes collections maps
@@ -314,7 +325,7 @@ public class RubiksCube3DGame extends SimpleApplication {
 
         // Main facelet content
 
-        float offset = this.rubiksCube.getSize()/2f + 0.5f;
+        float offset = getDisplayOffsetToCenterRubiksCube();
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Display of face {} with color {} at coord {} with offset = {}", name, color, coord, offset);
@@ -347,6 +358,10 @@ public class RubiksCube3DGame extends SimpleApplication {
         }
 
         return faceletNode;
+    }
+
+    private float getDisplayOffsetToCenterRubiksCube() {
+        return this.rubiksCube.getSize()/2f + 0.5f;
     }
 
     private ColorRGBA convertColor(Facelet facelet) {

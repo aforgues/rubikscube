@@ -15,10 +15,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import org.aforgues.rubikscube.core.*;
+import org.aforgues.rubikscube.presentation.ascii.RubiksCubeAsciiFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class RubiksCube3DGame extends SimpleApplication {
 
@@ -69,16 +68,8 @@ public class RubiksCube3DGame extends SimpleApplication {
     // Main node with all the cubies
     protected Node rubiksCubeNode;
 
-    // Handle rotations through collections of Cubie nodes
-    // Yaw type cubies collections
-    private Map<Integer, Collection<Node>> yawCubiesCollectionMap = new HashMap<>();
-    // Roll type cubies collections
-    private Map<Integer, Collection<Node>> rollCubiesCollectionMap = new HashMap<>();
-    // Pitch type cubies collections
-    private Map<Integer, Collection<Node>> pitchCubiesCollectionMap = new HashMap<>();
-
     // Handle rotation animation
-    private RotationHandler ongoingRotation;
+    private RotationHandler currentRotation;
 
     private Spatial selectedSpatialWithLeftMouseClick;
 
@@ -89,6 +80,7 @@ public class RubiksCube3DGame extends SimpleApplication {
                 LOGGER.trace("Trigger analog : {}", name);
             }
 
+            // TODO : replace RubiksCube rotations with camera rotations (to keep the cubie nodes location stable)
             if (MAPPING_PITCH_ROTATE.equals(name)) {
                 rubiksCubeNode.rotate(1.0f*tpf, 0, 0);
             }
@@ -104,11 +96,9 @@ public class RubiksCube3DGame extends SimpleApplication {
     private ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Trigger action : {} (isPressed : {})", name, isPressed);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Trigger action : {} (isPressed : {})", name, isPressed);
             }
-
-
 
             if (!isPressed) {
                 if (selectedSpatialWithLeftMouseClick != null) {
@@ -116,11 +106,15 @@ public class RubiksCube3DGame extends SimpleApplication {
                     selectedSpatialWithLeftMouseClick = null;
                 }
 
+                if (currentRotation != null) {
+                    currentRotation.start();
+                }
+
                 return;
             }
 
             // TODO : to allow multiple actions, we need to manage a queue of input handling
-            if (ongoingRotation != null && ongoingRotation.hasRotationOnGoing()) {
+            if (currentRotation != null) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Rotation already on going => ignoring new action {}", name);
                 }
@@ -128,31 +122,31 @@ public class RubiksCube3DGame extends SimpleApplication {
             }
 
             if (MAPPING_YAW1_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 1, Move.YAW);
+                handleRotation(1, Move.YAW);
             }
             else if (MAPPING_YAW2_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 2, Move.YAW);
+                handleRotation(2, Move.YAW);
             }
             else if (MAPPING_YAW3_ROTATE.equals(name)) {
-                handleRotation(yawCubiesCollectionMap, 3, Move.YAW);
+                handleRotation(3, Move.YAW);
             }
             else if (MAPPING_ROLL1_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 1, Move.ROLL);
+                handleRotation(1, Move.ROLL);
             }
             else if (MAPPING_ROLL2_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 2, Move.ROLL);
+                handleRotation(2, Move.ROLL);
             }
             else if (MAPPING_ROLL3_ROTATE.equals(name)) {
-                handleRotation(rollCubiesCollectionMap, 3, Move.ROLL);
+                handleRotation(3, Move.ROLL);
             }
             else if (MAPPING_PITCH1_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 1, Move.PITCH);
+                handleRotation(1, Move.PITCH);
             }
             else if (MAPPING_PITCH2_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 2, Move.PITCH);
+                handleRotation(2, Move.PITCH);
             }
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
-                handleRotation(pitchCubiesCollectionMap, 3, Move.PITCH);
+                handleRotation(3, Move.PITCH);
             }
             else if (MAPPING_PICK_CUBIE.equals(name)) {
                 CollisionResults results = new CollisionResults();
@@ -175,6 +169,7 @@ public class RubiksCube3DGame extends SimpleApplication {
                         LOGGER.debug("Mouse selection : {}", selectedSpatialWithLeftMouseClick.getName());
                         float offset = getDisplayOffsetToCenterRubiksCube();
                         LOGGER.debug("3D position : {}", selectedSpatialWithLeftMouseClick.getWorldBound().getCenter().add(offset, offset, offset));
+                        RubiksCube3DUtility.logQuat(selectedSpatialWithLeftMouseClick.getLocalRotation(), "left click mouse selected cubie");
                     }
 
                     selectedSpatialWithLeftMouseClick.setLocalScale(1.1f);
@@ -182,8 +177,10 @@ public class RubiksCube3DGame extends SimpleApplication {
             }
         }
 
-        private void handleRotation(Map<Integer, Collection<Node>> map, int index, Move move) {
-            ongoingRotation = new RotationHandler(map, index, move);
+        private void handleRotation(int index, Move move) {
+            LOGGER.trace("Before HandleRotation : rubiksCube =>");
+            new RubiksCubeAsciiFormat(rubiksCube).show();
+            currentRotation = new RotationHandler(rubiksCubeNode, rubiksCube, index, move);
         }
     };
 
@@ -253,15 +250,17 @@ public class RubiksCube3DGame extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         // Handle rotation animation
-        if (ongoingRotation != null && ongoingRotation.hasRotationOnGoing()) {
+        if (currentRotation != null && currentRotation.isOnGoing()) {
 
-            boolean isRotationEnded = ongoingRotation.processRotation(tpf);
+            boolean isRotationEnded = currentRotation.processRotation(tpf);
 
             if (isRotationEnded) {
-                this.rubiksCube.move(ongoingRotation.getDefinedMove());
+                this.rubiksCube.move(currentRotation.getDefinedMove());
+                currentRotation = null;
 
-                // Redispatch Cubie node in rotation maps
-                // TODO : redispatch Cubie node in Yaw / pitch / roll nodes collections maps
+                if (LOGGER.isDebugEnabled()) {
+                    new RubiksCubeAsciiFormat(this.rubiksCube).show();
+                }
             }
         }
     }
@@ -281,43 +280,7 @@ public class RubiksCube3DGame extends SimpleApplication {
         nCubie.attachChild(createFacelet(faceletLeftOrRightMesh, "leftFace",   cubie.getCoordinates(), new Vector3f(-0.5f,0,    0),     cubie.getLeftFace()));
         nCubie.attachChild(createFacelet(faceletLeftOrRightMesh, "rightFace",  cubie.getCoordinates(), new Vector3f(0.5f, 0,    0),     cubie.getRightFace()));
 
-        dispatchInRotationMaps(cubie, nCubie);
-
         return nCubie;
-    }
-
-    private void dispatchInRotationMaps(Cubie cubie, Node nCubie) {
-        for (int i = 1; i <= this.rubiksCube.getSize(); i++) {
-            // populate nodes in Pitch collections
-            if (this.rubiksCube.getCubies(i, Axis.X).contains(cubie)) {
-                Collection<Node> nodes = this.pitchCubiesCollectionMap.get(Integer.valueOf(i));
-                if (nodes == null) {
-                    nodes = new ArrayList<>();
-                    this.pitchCubiesCollectionMap.put(Integer.valueOf(i), nodes);
-                }
-                nodes.add(nCubie);
-            }
-
-            // populate nodes in Yaw collections
-            if (this.rubiksCube.getCubies(i, Axis.Y).contains(cubie)) {
-                Collection<Node> nodes = this.yawCubiesCollectionMap.get(Integer.valueOf(i));
-                if (nodes == null) {
-                    nodes = new ArrayList<>();
-                    this.yawCubiesCollectionMap.put(Integer.valueOf(i), nodes);
-                }
-                nodes.add(nCubie);
-            }
-
-            // populate nodes in Roll collections
-            if (this.rubiksCube.getCubies(i, Axis.Z).contains(cubie)) {
-                Collection<Node> nodes = this.rollCubiesCollectionMap.get(Integer.valueOf(i));
-                if (nodes == null) {
-                    nodes = new ArrayList<>();
-                    this.rollCubiesCollectionMap.put(Integer.valueOf(i), nodes);
-                }
-                nodes.add(nCubie);
-            }
-        }
     }
 
     private Spatial createFacelet(Box faceletMesh, String name, ThreeDimCoordinate coord, Vector3f location, Facelet color) {
@@ -361,7 +324,7 @@ public class RubiksCube3DGame extends SimpleApplication {
     }
 
     private float getDisplayOffsetToCenterRubiksCube() {
-        return this.rubiksCube.getSize()/2f + 0.5f;
+        return RubiksCube3DUtility.getDisplayOffsetToCenterRubiksCube(this.rubiksCube.getSize());
     }
 
     private ColorRGBA convertColor(Facelet facelet) {

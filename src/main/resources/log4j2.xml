@@ -6,7 +6,9 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="trace">
+        <Logger name="org.aforgues.rubikscube.core" level="info" />
+
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

@@ -63,6 +63,16 @@ public class RubiksCube3DGame extends SimpleApplication {
     private static final String MAPPING_PITCH2_ROTATE  = "Pitch 2 rotation";
     private static final String MAPPING_PITCH3_ROTATE  = "Pitch 3 rotation";
 
+    // For RubiksCube AI solving
+    private static final Trigger TRIGGER_SHUFFLE           = new KeyTrigger(KeyInput.KEY_M);
+    private static final Trigger TRIGGER_SOLVE             = new KeyTrigger(KeyInput.KEY_T);
+    private static final Trigger TRIGGER_NEXT_SOLVING_PATH = new KeyTrigger(KeyInput.KEY_N);
+
+    private static final String MAPPING_SHUFFLE            = "Shuffle RubiksCube";
+    private static final String MAPPING_SOLVE              = "Solve RubiksCube";
+    private static final String MAPPING_NEXT_SOLVING_PATH  = "Next Solving Path";
+
+
     private RubiksCube rubiksCube;
 
     // Main node with all the cubies
@@ -115,12 +125,11 @@ public class RubiksCube3DGame extends SimpleApplication {
 
             // TODO : to allow multiple actions, we need to manage a queue of input handling
             if (currentRotation != null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Rotation already on going => ignoring new action {}", name);
-                }
+                LOGGER.warn("Rotation already on going => ignoring new action {}", name);
                 return;
             }
 
+            // Keyboard inputs
             if (MAPPING_YAW1_ROTATE.equals(name)) {
                 handleRotation(1, Move.YAW);
             }
@@ -148,6 +157,16 @@ public class RubiksCube3DGame extends SimpleApplication {
             else if (MAPPING_PITCH3_ROTATE.equals(name)) {
                 handleRotation(3, Move.PITCH);
             }
+            else if (MAPPING_SHUFFLE.equals(name)) {
+                shuffleRubiksCube();
+            }
+            else if (MAPPING_SOLVE.equals(name)) {
+                solveRubiksCube();
+            }
+            else if (MAPPING_NEXT_SOLVING_PATH.equals(name)) {
+                moveToNextSolvingPath();
+            }
+            // Mouse inputs
             else if (MAPPING_PICK_CUBIE.equals(name)) {
                 CollisionResults results = new CollisionResults();
                 Vector2f click2d = inputManager.getCursorPosition();
@@ -177,6 +196,20 @@ public class RubiksCube3DGame extends SimpleApplication {
             }
         }
 
+        private void shuffleRubiksCube() {
+            rubiksCube.shuffle(20);
+            initRubiksCubeNodes();
+        }
+
+        private void moveToNextSolvingPath() {
+            DefinedMove nextMove = rubiksCube.simulateNextPosition();
+            handleRotation(nextMove.getFaceIndex(), nextMove.getMove());
+        }
+
+        private void solveRubiksCube() {
+            rubiksCube.solve(false);
+        }
+
         private void handleRotation(int index, Move move) {
             LOGGER.trace("Before HandleRotation : rubiksCube =>");
             new RubiksCubeAsciiFormat(rubiksCube).show();
@@ -200,14 +233,7 @@ public class RubiksCube3DGame extends SimpleApplication {
         assetManager.registerLocator("src/main/resources/assets", FileLocator.class);
 
         rubiksCube = new RubiksCube(3);
-
-        rubiksCubeNode = new Node("pivot");
-        rootNode.attachChild(rubiksCubeNode);
-
-        for (Cubie cubie : rubiksCube.getAllCubies()) {
-            Node nCubie = createCubieV2(cubie);
-            rubiksCubeNode.attachChild(nCubie);
-        }
+        initRubiksCubeNodes();
 
         // Set initial camera position and rotation so that we can see three faces of the RubiksCube
         cam.setLocation(new Vector3f(5.4f, 4f, 7.63f));
@@ -220,30 +246,47 @@ public class RubiksCube3DGame extends SimpleApplication {
         }
 
         // init trigger and mappings
-        inputManager.addMapping(MAPPING_YAW_ROTATE, TRIGGER_YAW_ROTATE);
-        inputManager.addMapping(MAPPING_ROLL_ROTATE, TRIGGER_ROLL_ROTATE);
+        inputManager.addMapping(MAPPING_YAW_ROTATE,   TRIGGER_YAW_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL_ROTATE,  TRIGGER_ROLL_ROTATE);
         inputManager.addMapping(MAPPING_PITCH_ROTATE, TRIGGER_PITCH_ROTATE);
-        inputManager.addMapping(MAPPING_PICK_CUBIE, TRIGGER_PICK_CUBIE);
+        inputManager.addMapping(MAPPING_PICK_CUBIE,   TRIGGER_PICK_CUBIE);
 
-        inputManager.addMapping(MAPPING_YAW1_ROTATE, TRIGGER_YAW1_ROTATE);
-        inputManager.addMapping(MAPPING_YAW2_ROTATE, TRIGGER_YAW2_ROTATE);
-        inputManager.addMapping(MAPPING_YAW3_ROTATE, TRIGGER_YAW3_ROTATE);
-        inputManager.addMapping(MAPPING_ROLL1_ROTATE, TRIGGER_ROLL1_ROTATE);
-        inputManager.addMapping(MAPPING_ROLL2_ROTATE, TRIGGER_ROLL2_ROTATE);
-        inputManager.addMapping(MAPPING_ROLL3_ROTATE, TRIGGER_ROLL3_ROTATE);
+        inputManager.addMapping(MAPPING_YAW1_ROTATE,   TRIGGER_YAW1_ROTATE);
+        inputManager.addMapping(MAPPING_YAW2_ROTATE,   TRIGGER_YAW2_ROTATE);
+        inputManager.addMapping(MAPPING_YAW3_ROTATE,   TRIGGER_YAW3_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL1_ROTATE,  TRIGGER_ROLL1_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL2_ROTATE,  TRIGGER_ROLL2_ROTATE);
+        inputManager.addMapping(MAPPING_ROLL3_ROTATE,  TRIGGER_ROLL3_ROTATE);
         inputManager.addMapping(MAPPING_PITCH1_ROTATE, TRIGGER_PITCH1_ROTATE);
         inputManager.addMapping(MAPPING_PITCH2_ROTATE, TRIGGER_PITCH2_ROTATE);
         inputManager.addMapping(MAPPING_PITCH3_ROTATE, TRIGGER_PITCH3_ROTATE);
 
+        inputManager.addMapping(MAPPING_SHUFFLE,           TRIGGER_SHUFFLE);
+        inputManager.addMapping(MAPPING_SOLVE,             TRIGGER_SOLVE);
+        inputManager.addMapping(MAPPING_NEXT_SOLVING_PATH, TRIGGER_NEXT_SOLVING_PATH);
+
         // init Listener
         stateManager.getState(FlyCamAppState.class).setEnabled(false); // disable default key input (WASD ...)
         inputManager.addListener(analogListener, MAPPING_PITCH_ROTATE, MAPPING_ROLL_ROTATE, MAPPING_YAW_ROTATE);
-        inputManager.addListener(actionListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE, MAPPING_PICK_CUBIE);
+        inputManager.addListener(actionListener, MAPPING_YAW1_ROTATE, MAPPING_YAW2_ROTATE, MAPPING_YAW3_ROTATE, MAPPING_ROLL1_ROTATE, MAPPING_ROLL2_ROTATE, MAPPING_ROLL3_ROTATE, MAPPING_PITCH1_ROTATE, MAPPING_PITCH2_ROTATE, MAPPING_PITCH3_ROTATE);
+        inputManager.addListener(actionListener, MAPPING_PICK_CUBIE);
+        inputManager.addListener(actionListener, MAPPING_SHUFFLE, MAPPING_SOLVE, MAPPING_NEXT_SOLVING_PATH);
 
         // init mouse target picker
         inputManager.setCursorVisible(true);
         flyCam.setDragToRotate(true);
 
+    }
+
+    private void initRubiksCubeNodes() {
+        rootNode.detachChildNamed("pivot");
+        rubiksCubeNode = new Node("pivot");
+        rootNode.attachChild(rubiksCubeNode);
+
+        for (Cubie cubie : rubiksCube.getAllCubies()) {
+            Node nCubie = createCubieV2(cubie);
+            rubiksCubeNode.attachChild(nCubie);
+        }
     }
 
     /* Use the main event loop to trigger repeating actions. */

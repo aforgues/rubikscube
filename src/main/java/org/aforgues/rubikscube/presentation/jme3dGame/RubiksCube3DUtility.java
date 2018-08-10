@@ -17,6 +17,14 @@ public class RubiksCube3DUtility {
     private static final Quaternion ROLL_90  = new Quaternion().fromAngleAxis(-90*DEG_TO_RAD, Vector3f.UNIT_Z);
     private static final Quaternion PITCH_90 = new Quaternion().fromAngleAxis(-90*DEG_TO_RAD, Vector3f.UNIT_X);
 
+    private static final Quaternion YAW_180   = new Quaternion().fromAngleAxis(180*DEG_TO_RAD, Vector3f.UNIT_Y);
+    private static final Quaternion ROLL_180  = new Quaternion().fromAngleAxis(180*DEG_TO_RAD, Vector3f.UNIT_Z);
+    private static final Quaternion PITCH_180 = new Quaternion().fromAngleAxis(180*DEG_TO_RAD, Vector3f.UNIT_X);
+
+    private static final Quaternion YAW_270   = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Y);
+    private static final Quaternion ROLL_270  = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_Z);
+    private static final Quaternion PITCH_270 = new Quaternion().fromAngleAxis(90*DEG_TO_RAD, Vector3f.UNIT_X);
+
 
     public static Quaternion convertMoveToQuaternion(Move move) {
         if (move == null)
@@ -25,10 +33,22 @@ public class RubiksCube3DUtility {
         switch (move) {
             case YAW:
                 return YAW_90;
+            case DOUBLE_YAW:
+                return YAW_180;
+            case UNYAW:
+                return YAW_270;
             case ROLL:
                 return ROLL_90;
+            case DOUBLE_ROLL:
+                return ROLL_180;
+            case UNROLL:
+                return ROLL_270;
             case PITCH:
                 return PITCH_90;
+            case DOUBLE_PITCH:
+                return PITCH_180;
+            case UNPITCH:
+                return PITCH_270;
             default:
                 LOGGER.warn("Unmanaged move : {}", move);
         }

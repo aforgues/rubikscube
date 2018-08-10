@@ -71,12 +71,18 @@ public class RotationHandler {
         List<Cubie> cubies = EMPTY_LIST;
         switch (rotation) {
             case PITCH:
+            case UNPITCH:
+            case DOUBLE_PITCH:
                 cubies = rubiksCube.getCubies(index, Axis.X);
                 break;
             case YAW:
+            case UNYAW:
+            case DOUBLE_YAW:
                 cubies = rubiksCube.getCubies(index, Axis.Y);
                 break;
             case ROLL:
+            case UNROLL:
+            case DOUBLE_ROLL:
                 cubies = rubiksCube.getCubies(index, Axis.Z);
                 break;
             default:

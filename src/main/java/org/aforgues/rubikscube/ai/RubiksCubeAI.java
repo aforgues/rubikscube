@@ -57,6 +57,28 @@ public class RubiksCubeAI {
 		this.solvingPathSize = solvingPath.size();
 	}
 
+	// Returns next move to solve the RubiksCube for display purpose => it remains in the queue
+	public DefinedMove getFutureMove() {
+
+        if (this.solvingPath != null && ! this.solvingPath.isEmpty()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("AI : Solving path - step {} on {}", (this.solvingPathSize - this.solvingPath.size() + 1), this.solvingPathSize);
+            }
+            DefinedMove nextMove = this.solvingPath.peek();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("AI : next move (for display purpose) => {}", nextMove);
+            }
+            return nextMove;
+        }
+        else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("AI : RubiksCube is already solved");
+            }
+        }
+        return null;
+    }
+
+    // Returns next move to solve the RubiksCube => it is removed from the queue
 	public DefinedMove getNextMove() {
 		try {
 

@@ -264,6 +264,10 @@ public class RubiksCube implements Cloneable {
 		return (nextMove != null);
 	}
 
+	public DefinedMove simulateNextPosition() {
+        return getNextMove();
+    }
+
 	public void move(DefinedMove move) {
 		internalMove(move);
 	}

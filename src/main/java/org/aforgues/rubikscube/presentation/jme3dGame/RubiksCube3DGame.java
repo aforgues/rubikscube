@@ -90,7 +90,7 @@ public class RubiksCube3DGame extends SimpleApplication {
                 LOGGER.trace("Trigger analog : {}", name);
             }
 
-            // TODO : replace RubiksCube rotations with camera rotations (to keep the cubie nodes location stable)
+            // FIXME : replace RubiksCube rotations with camera rotations (to keep the cubie nodes location stable)
             if (MAPPING_PITCH_ROTATE.equals(name)) {
                 rubiksCubeNode.rotate(1.0f*tpf, 0, 0);
             }
@@ -203,7 +203,9 @@ public class RubiksCube3DGame extends SimpleApplication {
 
         private void moveToNextSolvingPath() {
             DefinedMove nextMove = rubiksCube.simulateNextPosition();
-            handleRotation(nextMove.getFaceIndex(), nextMove.getMove());
+            if (nextMove != null) {
+                handleRotation(nextMove.getFaceIndex(), nextMove.getMove());
+            }
         }
 
         private void solveRubiksCube() {
@@ -370,6 +372,7 @@ public class RubiksCube3DGame extends SimpleApplication {
         return RubiksCube3DUtility.getDisplayOffsetToCenterRubiksCube(this.rubiksCube.getSize());
     }
 
+    // FIXME: refactor to Facelet enum
     private ColorRGBA convertColor(Facelet facelet) {
         switch (facelet) {
             case BLUE:
